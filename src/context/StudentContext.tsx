@@ -62,6 +62,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
         console.log('Connexion réussie:', studentData);
         setStudent(studentData);
         localStorage.setItem('accessCode', codeToUse);
+        localStorage.setItem('studentName', studentData.name); // Stocker le nom pour une utilisation ultérieure
         toast.success(`Bienvenue, ${studentData.name} !`);
         navigate('/dashboard');
         return true;
@@ -83,6 +84,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
     setStudent(null);
     setAccessCode('');
     localStorage.removeItem('accessCode');
+    localStorage.removeItem('studentName');
     navigate('/');
     toast.success('Déconnexion réussie');
   };

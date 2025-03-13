@@ -11,8 +11,13 @@ class MeasurementService {
     }
     
     try {
-      // Utiliser la formule Airtable avec le format exact pour le champ Élève
-      const formula = `{Élève}='${studentId}'`;
+      // Récupérer le nom de l'élève à partir du contexte
+      // L'ID est passé, mais on utilise le nom de l'élève pour filtrer dans Airtable
+      const studentName = await this.getStudentName(studentId);
+      console.log("Nom de l'élève:", studentName);
+      
+      // Utiliser la formule Airtable avec le nom de l'élève
+      const formula = `{Élève}='${studentName}'`;
       console.log("Formule utilisée:", formula);
       
       const measurements = await AirtableApiService.fetchFromAirtable<any>('Mesures', { 
@@ -59,15 +64,18 @@ class MeasurementService {
         console.log("Toutes les mesures:", allMeasurements);
         
         if (allMeasurements && allMeasurements.length > 0) {
-          // Filtrer les mesures de l'étudiant
+          // Récupérer le nom de l'élève
+          const studentName = await this.getStudentName(studentId);
+          
+          // Filtrer les mesures de l'élève par nom
           const filteredMeasurements = allMeasurements
             .filter(m => {
               if (!m["Élève"]) return false;
-              // Vérifier si le champ Élève contient l'ID de l'étudiant (peut être un tableau)
+              // Vérifier si le champ Élève contient le nom de l'étudiant
               if (Array.isArray(m["Élève"])) {
-                return m["Élève"].includes(studentId);
+                return m["Élève"].includes(studentName);
               }
-              return m["Élève"] === studentId;
+              return m["Élève"] === studentName;
             })
             .map(measurement => ({
               id: measurement.id,
@@ -101,6 +109,49 @@ class MeasurementService {
       // Si toutes les tentatives échouent, utiliser les données de test
       console.log("Utilisation des données de test");
       return this.getStudentMeasurementsMock(studentId);
+    }
+  }
+
+  // Méthode pour récupérer le nom de l'élève à partir de son ID
+  private async getStudentName(studentId: string): Promise<string> {
+    try {
+      // Récupérer l'élève depuis Airtable
+      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: `{ID}='${studentId}'`
+      });
+      
+      if (students && students.length > 0) {
+        return students[0]["Nom"];
+      }
+      
+      // Si on ne trouve pas l'élève avec l'ID, essayer avec le code directement
+      const studentsByCode = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: `{code}='${studentId}'`
+      });
+      
+      if (studentsByCode && studentsByCode.length > 0) {
+        return studentsByCode[0]["Nom"];
+      }
+      
+      // Fallback: essayer avec tous les champs
+      const allStudents = await AirtableApiService.fetchAllRecords('Élèves');
+      
+      const student = allStudents.find(s => 
+        s.id === studentId || 
+        s.code === studentId || 
+        s.ID === studentId || 
+        s["IDU Eleve"] === studentId
+      );
+      
+      if (student) {
+        return student["Nom"];
+      }
+      
+      console.warn(`Impossible de trouver le nom de l'élève avec l'ID: ${studentId}`);
+      return studentId; // Retourner l'ID comme fallback
+    } catch (error) {
+      console.error('Erreur lors de la récupération du nom de l\'élève:', error);
+      return studentId; // Retourner l'ID comme fallback
     }
   }
 
