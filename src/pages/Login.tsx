@@ -26,6 +26,7 @@ const Login = () => {
       return;
     }
     
+    // En mode démonstration, vous pouvez utiliser 'access123'
     await login();
   };
 
@@ -82,7 +83,7 @@ const Login = () => {
                 autoFocus
               />
               <p className="text-xs text-muted-foreground">
-                Utilisez le code fourni par votre coach
+                Utilisez le code fourni par votre coach (pour la démo: access123)
               </p>
             </div>
 
