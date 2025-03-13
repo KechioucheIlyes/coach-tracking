@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useStudent } from '../context/StudentContext';
+import { useIsMobile } from '../hooks/use-mobile';
 import Layout from '../components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import {
 const Dashboard = () => {
   const { student, logout, isAirtableConfigured } = useStudent();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Check if user is logged in
   useEffect(() => {
@@ -74,7 +76,7 @@ const Dashboard = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Bienvenue, {student.name}</h1>
             <p className="text-muted-foreground">
@@ -89,7 +91,7 @@ const Dashboard = () => {
 
         {!isAirtableConfigured && (
           <Card className="mb-6 border-yellow-200 bg-yellow-50">
-            <CardContent className="p-4 flex justify-between items-center">
+            <CardContent className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <p className="font-medium text-yellow-800">Connectez votre base Airtable</p>
                 <p className="text-sm text-yellow-700">
@@ -97,7 +99,7 @@ const Dashboard = () => {
                 </p>
               </div>
               <Button 
-                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                className="bg-yellow-600 hover:bg-yellow-700 text-white w-full md:w-auto"
                 onClick={() => navigate('/airtable-config')}
               >
                 <Settings className="h-4 w-4 mr-2" />
@@ -135,19 +137,6 @@ const Dashboard = () => {
             </motion.div>
           ))}
         </div>
-        
-        {isAirtableConfigured && (
-          <div className="mt-8 text-center">
-            <Button 
-              variant="outline"
-              className="text-gray-500"
-              onClick={() => navigate('/airtable-config')}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Modifier la configuration Airtable
-            </Button>
-          </div>
-        )}
       </motion.div>
     </Layout>
   );
