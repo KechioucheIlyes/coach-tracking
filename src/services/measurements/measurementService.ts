@@ -11,9 +11,8 @@ class MeasurementService {
     }
     
     try {
-      // Utiliser une formule Airtable correctement formatée 
-      // Le problème était la double encodage des caractères spéciaux
-      const formula = `{Élève} = '${studentId}'`;
+      // Utiliser la formule Airtable avec le format exact pour le champ Élève
+      const formula = `{Élève}='${studentId}'`;
       console.log("Formule utilisée:", formula);
       
       const measurements = await AirtableApiService.fetchFromAirtable<any>('Mesures', { 
