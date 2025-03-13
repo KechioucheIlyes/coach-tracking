@@ -55,37 +55,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('Tentative de connexion avec code:', codeToUse);
       
-      // Cas spéciaux pour codes de démonstration connus
-      if (codeToUse === "rech0KgjCrK24UrBH" || codeToUse === "access123") {
-        let userData;
-        
-        if (codeToUse === "rech0KgjCrK24UrBH") {
-          console.log('Connexion directe pour Féline Faure');
-          userData = {
-            id: "rech0KgjCrK24UrBH",
-            name: "Féline Faure",
-            accessCode: "rech0KgjCrK24UrBH",
-            email: "feline.faure@example.com"
-          };
-        } else {
-          // access123 - utilisateur de démo
-          console.log('Connexion pour utilisateur de démo');
-          userData = {
-            id: "demo123",
-            name: "Utilisateur Démo",
-            accessCode: "access123",
-            email: "demo@example.com"
-          };
-        }
-        
-        setStudent(userData);
-        localStorage.setItem('accessCode', codeToUse);
-        toast.success(`Bienvenue, ${userData.name} !`);
-        navigate('/dashboard');
-        return true;
-      }
-      
-      // Vérification normale avec Airtable
+      // Vérification avec Airtable
       const studentData = await AirtableService.verifyAccess(codeToUse);
       
       if (studentData) {
@@ -102,37 +72,6 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      
-      // Cas spécial pour Féline Faure et access123 en cas d'erreur
-      if (codeToUse === "rech0KgjCrK24UrBH" || codeToUse === "access123") {
-        let userData;
-        
-        if (codeToUse === "rech0KgjCrK24UrBH") {
-          console.log('Connexion de secours pour Féline Faure après erreur');
-          userData = {
-            id: "rech0KgjCrK24UrBH",
-            name: "Féline Faure",
-            accessCode: "rech0KgjCrK24UrBH",
-            email: "feline.faure@example.com"
-          };
-        } else {
-          // access123 - utilisateur de démo
-          console.log('Connexion de secours pour utilisateur de démo');
-          userData = {
-            id: "demo123",
-            name: "Utilisateur Démo",
-            accessCode: "access123",
-            email: "demo@example.com"
-          };
-        }
-        
-        setStudent(userData);
-        localStorage.setItem('accessCode', codeToUse);
-        toast.success(`Bienvenue, ${userData.name} !`);
-        navigate('/dashboard');
-        return true;
-      }
-      
       toast.error("Erreur lors de la connexion. Veuillez réessayer.");
       return false;
     } finally {

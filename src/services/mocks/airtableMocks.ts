@@ -1,12 +1,12 @@
 
 import { Student, Goal, Measurement, Calculation, Workout, MealPlan } from '../types/airtable.types';
 
-// Mock student data
+// Mock student data - now empty as we've removed the demo codes
 export const mockStudent: Student = {
-  id: '1',
-  name: 'Thomas Dubois',
-  accessCode: 'access123',
-  email: 'thomas@example.com'
+  id: '',
+  name: '',
+  accessCode: '',
+  email: ''
 };
 
 // Mock goals data

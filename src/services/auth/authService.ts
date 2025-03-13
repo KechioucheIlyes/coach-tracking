@@ -2,20 +2,8 @@
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
 import { Student } from "../types/airtable.types";
-import { mockStudent } from "../mocks/airtableMocks";
 
 class AuthService {
-  // Hard-coded known access codes (for demo and testing)
-  private knownAccessCodes = {
-    "rech0KgjCrK24UrBH": {
-      id: "rech0KgjCrK24UrBH",
-      name: "Féline Faure",
-      accessCode: "rech0KgjCrK24UrBH",
-      email: "feline.faure@example.com"
-    },
-    "access123": mockStudent
-  };
-
   // Identifiant de la table Élèves dans Airtable
   private tableId = "tbll5MlIcTSqCOLEJ";
   
@@ -24,12 +12,6 @@ class AuthService {
 
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {
-    // Check for known access codes first (always allow these)
-    if (this.knownAccessCodes[accessCode]) {
-      console.log(`Accès direct avec code connu: ${accessCode}`);
-      return this.knownAccessCodes[accessCode];
-    }
-    
     // En mode démo ou développement, utiliser les données fictives
     if (!AirtableApiService.isConfigured) {
       console.log('Mode démo: utilisation de données fictives');
@@ -49,15 +31,7 @@ class AuthService {
       
       if (!connectivityTest.success) {
         console.error('Échec du test de connectivité Airtable:', connectivityTest.error);
-        
-        // En cas d'échec, vérifier les données de démonstration
-        if (accessCode === "access123" || accessCode === "rech0KgjCrK24UrBH") {
-          console.log('Utilisation des données de démonstration après échec de connectivité Airtable');
-          return this.knownAccessCodes[accessCode] || null;
-        }
-        
-        // Afficher un message d'erreur pour aider au débogage
-        console.warn('Connexion à Airtable impossible, utilisez les codes de démo: access123 ou rech0KgjCrK24UrBH');
+        console.warn('Connexion à Airtable impossible');
         return null;
       }
       
@@ -129,23 +103,10 @@ class AuthService {
         console.warn('Aucun élève récupéré depuis Airtable, vérification des accès directs');
       }
       
-      // Dernière vérification pour les codes connus
-      if (this.knownAccessCodes[accessCode]) {
-        console.log('Utilisation des données de démo pour le code:', accessCode);
-        return this.knownAccessCodes[accessCode];
-      }
-      
       console.log('Aucun élève trouvé avec ce code après vérification');
       return null;
     } catch (error) {
       console.error('Error verifying access:', error);
-      
-      // En cas d'erreur, vérifier les codes connus directement
-      if (this.knownAccessCodes[accessCode]) {
-        console.log('Utilisation des données de démo après erreur');
-        return this.knownAccessCodes[accessCode];
-      }
-      
       return null;
     }
   }
@@ -153,9 +114,7 @@ class AuthService {
   // Version mock pour le développement
   private async verifyAccessMock(accessCode: string): Promise<Student | null> {
     await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Vérifier les codes connus
-    return this.knownAccessCodes[accessCode] || null;
+    return null; // Ne plus utiliser les codes de démo
   }
 }
 

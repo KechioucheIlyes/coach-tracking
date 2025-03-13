@@ -61,7 +61,7 @@ const Login = () => {
     try {
       const success = await login();
       if (!success) {
-        setError("Code d'accès invalide, veuillez vérifier et réessayer. Pour tester, utilisez 'access123' ou 'rech0KgjCrK24UrBH'");
+        setError("Code d'accès invalide, veuillez vérifier et réessayer.");
       }
     } catch (error) {
       console.error("Erreur de connexion:", error);
@@ -138,9 +138,6 @@ const Login = () => {
                 className="w-full"
                 autoFocus
               />
-              <p className="text-xs text-muted-foreground">
-                Codes de démo: access123 ou rech0KgjCrK24UrBH (Féline Faure)
-              </p>
             </div>
 
             <Button
