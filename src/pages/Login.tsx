@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Info } from 'lucide-react';
+import AirtableApiService from '../services/api/airtableApi';
 
 const Login = () => {
   const { student, accessCode, setAccessCode, login, isLoading } = useStudent();
   const [error, setError] = useState('');
+  const [airtableStatus, setAirtableStatus] = useState<{ connected: boolean; message: string } | null>(null);
   const navigate = useNavigate();
   
   // If student is already logged in, redirect to dashboard
@@ -20,6 +22,31 @@ const Login = () => {
       navigate('/dashboard');
     }
   }, [student, navigate]);
+  
+  // Vérifier la connectivité Airtable
+  useEffect(() => {
+    const checkAirtableConnectivity = async () => {
+      try {
+        const result = await AirtableApiService.testConnectivity();
+        if (result.success) {
+          setAirtableStatus({ connected: true, message: "Connexion Airtable OK" });
+        } else {
+          setAirtableStatus({ 
+            connected: false, 
+            message: `Problème de connexion Airtable: ${result.error || 'erreur inconnue'}` 
+          });
+          console.log('Problème de connexion Airtable:', result.error);
+        }
+      } catch (error) {
+        setAirtableStatus({ 
+          connected: false, 
+          message: `Erreur lors du test de connectivité: ${error instanceof Error ? error.message : String(error)}` 
+        });
+      }
+    };
+    
+    checkAirtableConnectivity();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +104,15 @@ const Login = () => {
               Accédez à votre suivi personnalisé
             </p>
           </div>
+
+          {airtableStatus && (
+            <Alert className={`mb-4 ${airtableStatus.connected ? 'bg-green-50' : 'bg-yellow-50'}`}>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                {airtableStatus.message}
+              </AlertDescription>
+            </Alert>
+          )}
 
           {error && (
             <Alert variant="destructive" className="mb-4">

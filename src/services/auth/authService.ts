@@ -18,6 +18,9 @@ class AuthService {
 
   // Identifiant de la table Élèves dans Airtable
   private tableId = "tbll5MlIcTSqCOLEJ";
+  
+  // Base ID pour les diagnostics
+  private baseId = "app4LDBPHMVKbzSHj";
 
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {
@@ -35,6 +38,24 @@ class AuthService {
     
     try {
       console.log('Tentative de vérification avec le code:', accessCode);
+      console.log('Informations de configuration Airtable:');
+      console.log(`- Base ID: ${this.baseId}`);
+      console.log(`- Table ID: ${this.tableId}`);
+      console.log(`- API Key configurée: ${AirtableApiService.isApiKeyConfigured ? 'Oui' : 'Non'}`);
+      
+      // Tester la connectivité de base avec Airtable avant de tenter l'accès à la table
+      const connectivityTest = await AirtableApiService.testConnectivity();
+      if (!connectivityTest.success) {
+        console.error('Échec du test de connectivité Airtable:', connectivityTest.error);
+        
+        // En cas d'échec, vérifier les données de démonstration
+        if (accessCode === "access123" || accessCode === "rech0KgjCrK24UrBH") {
+          console.log('Utilisation des données de démonstration après échec de connectivité Airtable');
+          return this.knownAccessCodes[accessCode] || null;
+        }
+        
+        return null;
+      }
       
       // Utiliser directement l'ID de la table plutôt que son nom
       const eleves = await AirtableApiService.fetchTableById(this.tableId);

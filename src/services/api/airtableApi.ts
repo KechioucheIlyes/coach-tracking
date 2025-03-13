@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 class AirtableApiService {
@@ -18,10 +17,15 @@ class AirtableApiService {
     this.apiKey = apiKey;
     localStorage.setItem('airtable_base_id', baseId);
     localStorage.setItem('airtable_api_key', apiKey);
+    console.log('Configuration Airtable mise à jour:', { baseId, apiKey: apiKey.substring(0, 10) + '...' });
   }
 
   public get isConfigured(): boolean {
     return Boolean(this.baseId && this.apiKey);
+  }
+  
+  public get isApiKeyConfigured(): boolean {
+    return Boolean(this.apiKey && this.apiKey.length > 20);
   }
 
   private loadConfig() {
@@ -34,8 +38,52 @@ class AirtableApiService {
       }
     }
   }
+  
+  // Test la connectivité de base avec Airtable
+  public async testConnectivity(): Promise<{ success: boolean; error?: string }> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      return { success: false, error: 'Airtable API non configurée' };
+    }
+    
+    try {
+      // Tenter une requête vers l'endpoint de métadonnées
+      const url = `https://api.airtable.com/v0/meta/bases/${this.baseId}`;
+      console.log('URL test de connectivité:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Réponse du test de connectivité:', response.status, response.statusText);
+      
+      if (response.ok) {
+        return { success: true };
+      }
+      
+      // Récupérer le corps de l'erreur
+      const errorBody = await response.text();
+      console.error('Erreur du test de connectivité:', response.status, errorBody);
+      
+      return { 
+        success: false, 
+        error: `Erreur HTTP ${response.status}: ${errorBody}` 
+      };
+    } catch (error) {
+      console.error('Exception lors du test de connectivité:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : String(error) 
+      };
+    }
+  }
 
-  // Nouvelle méthode pour récupérer les données d'une table en utilisant son ID
+  // Méthode pour récupérer les données d'une table en utilisant son ID
   public async fetchTableById(tableId: string, retryCount: number = 0): Promise<any[]> {
     this.loadConfig();
     
@@ -51,6 +99,7 @@ class AirtableApiService {
       const url = `${this.apiUrl}/${this.baseId}/${tableId}`;
       
       console.log('URL de requête avec ID de table:', url);
+      console.log('Utilisation de l\'API key:', this.apiKey.substring(0, 10) + '...');
       
       const response = await fetch(url, {
         method: 'GET',
@@ -81,6 +130,32 @@ class AirtableApiService {
         console.log(`Nouvelle tentative ${retryCount + 1}/${this.maxRetries} dans 1s...`);
         await new Promise(resolve => setTimeout(resolve, 1000));
         return this.fetchTableById(tableId, retryCount + 1);
+      }
+      
+      // Tentative alternative avec le nom de la table si l'ID échoue
+      if (retryCount === this.maxRetries - 1) {
+        console.log('Tentative avec le nom "Élèves" au lieu de l\'ID de table');
+        const altUrl = `${this.apiUrl}/${this.baseId}/Élèves`;
+        
+        try {
+          const altResponse = await fetch(altUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (altResponse.ok) {
+            const altData = await altResponse.json();
+            console.log('Données récupérées avec le nom de table:', altData);
+            if (altData && altData.records) {
+              return altData.records;
+            }
+          }
+        } catch (altErr) {
+          console.error('Erreur avec le nom de table:', altErr);
+        }
       }
       
       // Simuler un succès avec un tableau vide après toutes les tentatives
