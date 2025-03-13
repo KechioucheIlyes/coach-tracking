@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -24,7 +23,6 @@ const Measurements = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingGoals, setIsLoadingGoals] = useState(true);
   
-  // Check if user is logged in
   useEffect(() => {
     if (!student) {
       navigate('/');
@@ -35,7 +33,6 @@ const Measurements = () => {
       setIsLoading(true);
       try {
         const measurementsData = await AirtableService.getStudentMeasurements(student.id);
-        // Sort by date (newest first)
         setMeasurements(measurementsData.sort((a, b) => 
           compareDesc(new Date(a.date), new Date(b.date))
         ));
@@ -66,13 +63,9 @@ const Measurements = () => {
 
   if (!student) return null;
   
-  // Get latest measurement
   const latestMeasurement = measurements[0];
-  
-  // Get previous measurement for comparison
   const previousMeasurement = measurements[1];
   
-  // Calculate differences for trend indicators
   const calculateDifference = (current: number | undefined, previous: number | undefined) => {
     if (current === undefined || previous === undefined) return { value: '-', isPositive: false, isNeutral: true };
     
@@ -84,12 +77,13 @@ const Measurements = () => {
     };
   };
   
-  // Calculate goal progress
+  const weightGoal = goals.find(goal => goal.id === 'weight-goal');
+  const otherGoals = goals.filter(goal => goal.id !== 'weight-goal');
+  
   const completedGoals = goals.filter(goal => goal.status === 'achieved').length;
   const totalGoals = goals.length;
   const progress = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
   
-  // Prepare data for weight chart (in chronological order for the chart)
   const weightChartData = [...measurements]
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map(m => ({
@@ -98,7 +92,6 @@ const Measurements = () => {
       weight: m.weight,
     }));
     
-  // Prepare data for body composition chart (in chronological order for the chart)
   const bodyCompositionChartData = [...measurements]
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map(m => ({
@@ -110,7 +103,6 @@ const Measurements = () => {
     }))
     .filter(data => data.bodyFat > 0 || data.muscle > 0);
     
-  // Prepare data for measurements chart (in chronological order for the chart)
   const measurementsChartData = [...measurements]
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map(m => ({
@@ -122,7 +114,6 @@ const Measurements = () => {
     }))
     .filter(data => data.waist > 0 || data.hip > 0 || data.chest > 0);
   
-  // Helper function to format dates on the UI
   const formatMeasurementDate = (dateString: string) => {
     try {
       return format(new Date(dateString), 'dd MMMM yyyy', { locale: fr });
@@ -155,7 +146,6 @@ const Measurements = () => {
           </Card>
         ) : (
           <>
-            {/* Progression des objectifs */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -184,6 +174,28 @@ const Measurements = () => {
                         <Progress value={progress} className="h-2" />
                       </div>
                       
+                      {weightGoal && (
+                        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <Scale className="h-4 w-4 mr-2 text-coach-500" />
+                            <span className="font-medium">{weightGoal.description}</span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            {weightGoal.status === 'achieved' ? (
+                              <span className="flex items-center text-green-600">
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Objectif atteint
+                              </span>
+                            ) : (
+                              <span className="flex items-center text-blue-600">
+                                <TrendingUp className="h-4 w-4 mr-1" />
+                                En progression
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <div className="flex items-center">
                           <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
@@ -198,13 +210,37 @@ const Measurements = () => {
                           <span>Objectifs à venir: {goals.filter(g => g.status === 'pending').length}</span>
                         </div>
                       </div>
+                      
+                      {otherGoals.length > 0 && (
+                        <div className="mt-4 pt-4 border-t">
+                          <h3 className="font-medium mb-2">Autres objectifs</h3>
+                          <ul className="space-y-2">
+                            {otherGoals.map(goal => (
+                              <li key={goal.id} className="flex items-start">
+                                {goal.status === 'achieved' ? (
+                                  <CheckCircle className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                                ) : goal.status === 'in-progress' ? (
+                                  <Clock className="h-4 w-4 mr-2 text-blue-500 mt-0.5" />
+                                ) : (
+                                  <AlertCircle className="h-4 w-4 mr-2 text-orange-500 mt-0.5" />
+                                )}
+                                <div>
+                                  <p className="text-sm">{goal.description}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {goal.targetDate ? `Date cible: ${format(new Date(goal.targetDate), 'dd/MM/yyyy', { locale: fr })}` : ''}
+                                  </p>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </>
                   )}
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* Latest Measurements Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -402,7 +438,6 @@ const Measurements = () => {
               </motion.div>
             </div>
 
-            {/* Weight Evolution Chart */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -477,7 +512,6 @@ const Measurements = () => {
               </Card>
             </motion.div>
 
-            {/* Body Composition Chart */}
             {bodyCompositionChartData.length > 1 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -591,7 +625,6 @@ const Measurements = () => {
               </motion.div>
             )}
 
-            {/* Measurement History */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
