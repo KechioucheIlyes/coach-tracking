@@ -1,10 +1,11 @@
+
 import { toast } from "sonner";
 
 class AirtableApiService {
   private baseId: string;
   private apiKey: string;
   private apiUrl: string = 'https://api.airtable.com/v0';
-  private maxRetries: number = 3; // Augmentation du nombre de tentatives
+  private maxRetries: number = 3;
 
   constructor() {
     // Configuration par défaut avec le token fourni
@@ -39,7 +40,7 @@ class AirtableApiService {
     }
   }
   
-  // Test la connectivité de base avec Airtable
+  // Test la connectivité de base avec Airtable - modifié pour utiliser un endpoint plus simple
   public async testConnectivity(): Promise<{ success: boolean; error?: string }> {
     this.loadConfig();
     
@@ -48,8 +49,9 @@ class AirtableApiService {
     }
     
     try {
-      // Tenter une requête vers l'endpoint de métadonnées
-      const url = `https://api.airtable.com/v0/meta/bases/${this.baseId}`;
+      // Au lieu d'utiliser l'endpoint meta, on essaie de récupérer directement la table
+      // C'est une approche plus directe qui fonctionne mieux avec les permissions par défaut
+      const url = `${this.apiUrl}/${this.baseId}/tbll5MlIcTSqCOLEJ`;
       console.log('URL test de connectivité:', url);
       
       const response = await fetch(url, {
@@ -69,6 +71,28 @@ class AirtableApiService {
       // Récupérer le corps de l'erreur
       const errorBody = await response.text();
       console.error('Erreur du test de connectivité:', response.status, errorBody);
+      
+      // Si on a une erreur 404, on essaie avec le nom de la table "Élèves"
+      if (response.status === 404) {
+        try {
+          const altUrl = `${this.apiUrl}/${this.baseId}/Élèves`;
+          console.log('Tentative avec le nom de table Élèves:', altUrl);
+          
+          const altResponse = await fetch(altUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (altResponse.ok) {
+            return { success: true };
+          }
+        } catch (altErr) {
+          console.error('Erreur avec le nom de table Élèves:', altErr);
+        }
+      }
       
       return { 
         success: false, 
@@ -121,6 +145,54 @@ class AirtableApiService {
         return [];
       }
       
+      // Si on a une erreur 404 avec l'ID, on essaie avec le nom "Élèves"
+      if (response.status === 404 || response.status === 403) {
+        try {
+          const altUrl = `${this.apiUrl}/${this.baseId}/Élèves`;
+          console.log('Tentative avec le nom de table Élèves:', altUrl);
+          
+          const altResponse = await fetch(altUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          console.log(`Réponse avec le nom Élèves:`, altResponse.status, altResponse.statusText);
+          
+          if (altResponse.ok) {
+            const altData = await altResponse.json();
+            console.log('Données récupérées avec le nom de table Élèves:', altData);
+            if (altData && altData.records) {
+              return altData.records;
+            }
+          }
+          
+          // Si "Élèves" ne fonctionne pas, essayons sans accent
+          const altUrl2 = `${this.apiUrl}/${this.baseId}/Eleves`;
+          console.log('Tentative avec le nom de table Eleves:', altUrl2);
+          
+          const altResponse2 = await fetch(altUrl2, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (altResponse2.ok) {
+            const altData2 = await altResponse2.json();
+            console.log('Données récupérées avec le nom de table Eleves:', altData2);
+            if (altData2 && altData2.records) {
+              return altData2.records;
+            }
+          }
+        } catch (altErr) {
+          console.error('Erreur avec les noms alternatifs:', altErr);
+        }
+      }
+      
       // Gestion des erreurs
       const errorBody = await response.text();
       console.error(`Erreur pour la table ${tableId}:`, response.status, errorBody);
@@ -130,32 +202,6 @@ class AirtableApiService {
         console.log(`Nouvelle tentative ${retryCount + 1}/${this.maxRetries} dans 1s...`);
         await new Promise(resolve => setTimeout(resolve, 1000));
         return this.fetchTableById(tableId, retryCount + 1);
-      }
-      
-      // Tentative alternative avec le nom de la table si l'ID échoue
-      if (retryCount === this.maxRetries - 1) {
-        console.log('Tentative avec le nom "Élèves" au lieu de l\'ID de table');
-        const altUrl = `${this.apiUrl}/${this.baseId}/Élèves`;
-        
-        try {
-          const altResponse = await fetch(altUrl, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${this.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          if (altResponse.ok) {
-            const altData = await altResponse.json();
-            console.log('Données récupérées avec le nom de table:', altData);
-            if (altData && altData.records) {
-              return altData.records;
-            }
-          }
-        } catch (altErr) {
-          console.error('Erreur avec le nom de table:', altErr);
-        }
       }
       
       // Simuler un succès avec un tableau vide après toutes les tentatives

@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
 import { Student } from "../types/airtable.types";
@@ -44,6 +45,8 @@ class AuthService {
       
       // Tester la connectivité de base avec Airtable avant de tenter l'accès à la table
       const connectivityTest = await AirtableApiService.testConnectivity();
+      console.log('Résultat du test de connectivité:', connectivityTest);
+      
       if (!connectivityTest.success) {
         console.error('Échec du test de connectivité Airtable:', connectivityTest.error);
         
@@ -53,22 +56,38 @@ class AuthService {
           return this.knownAccessCodes[accessCode] || null;
         }
         
+        // Afficher un message d'erreur pour aider au débogage
+        console.warn('Connexion à Airtable impossible, utilisez les codes de démo: access123 ou rech0KgjCrK24UrBH');
         return null;
       }
       
-      // Utiliser directement l'ID de la table plutôt que son nom
-      const eleves = await AirtableApiService.fetchTableById(this.tableId);
+      // Essayons de récupérer les données avec des méthodes alternatives
+      let eleves = await AirtableApiService.fetchTableById(this.tableId);
+      
+      // Si aucun élève n'est récupéré avec l'ID, essayons avec le nom
+      if (!eleves || eleves.length === 0) {
+        console.log('Tentative avec le nom de table "Élèves"');
+        try {
+          eleves = await AirtableApiService.fetchAllRecords('Élèves');
+        } catch (err) {
+          console.error('Erreur avec le nom Élèves:', err);
+        }
+      }
+      
       console.log(`${eleves?.length || 0} élèves récupérés depuis Airtable`);
       
       if (eleves && eleves.length > 0) {
         // Rechercher un élève avec le code d'accès correspondant
         const matchingEleve = eleves.find((eleve: any) => {
+          console.log('Vérification élève:', eleve.id, 'fields:', eleve.fields ? Object.keys(eleve.fields) : 'aucun champ');
+          
           // Vérifier le champ code qui contient RECORD_ID()
           return (
             eleve.id === accessCode || 
             (eleve.fields && eleve.fields.code === accessCode) ||
             (eleve.fields && eleve.fields["code"] === accessCode) ||
-            (eleve.fields && eleve.fields["fld2B3uc2SCCu3bhT"] === accessCode)
+            (eleve.fields && eleve.fields["fld2B3uc2SCCu3bhT"] === accessCode) ||
+            (eleve.fields && eleve.id === accessCode) // Ajout d'une vérification supplémentaire
           );
         });
         
@@ -87,21 +106,16 @@ class AuthService {
           };
         } else {
           console.log('Aucun élève trouvé avec ce code dans la table Élèves');
+          console.log('Codes vérifiés:', eleves.map((e: any) => ({ id: e.id, fields: e.fields ? Object.keys(e.fields) : [] })));
         }
       } else {
         console.warn('Aucun élève récupéré depuis Airtable, vérification des accès directs');
       }
       
       // Dernière vérification pour les codes connus
-      // (au cas où ils n'auraient pas été détectés plus tôt)
-      if (accessCode === "access123") {
+      if (this.knownAccessCodes[accessCode]) {
         console.log('Utilisation des données de démo pour le code:', accessCode);
-        return mockStudent;
-      }
-      
-      if (accessCode === "rech0KgjCrK24UrBH") {
-        console.log('Accès direct pour Féline Faure');
-        return this.knownAccessCodes["rech0KgjCrK24UrBH"];
+        return this.knownAccessCodes[accessCode];
       }
       
       console.log('Aucun élève trouvé avec ce code après vérification');
@@ -110,17 +124,11 @@ class AuthService {
       console.error('Error verifying access:', error);
       
       // En cas d'erreur, vérifier les codes connus directement
-      if (accessCode === "access123") {
+      if (this.knownAccessCodes[accessCode]) {
         console.log('Utilisation des données de démo après erreur');
-        return mockStudent;
+        return this.knownAccessCodes[accessCode];
       }
       
-      if (accessCode === "rech0KgjCrK24UrBH") {
-        console.log('Authentification de secours pour Féline Faure');
-        return this.knownAccessCodes["rech0KgjCrK24UrBH"];
-      }
-      
-      // Ne pas afficher de toast ici, laissons le composant UI gérer l'erreur
       return null;
     }
   }
