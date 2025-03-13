@@ -34,6 +34,7 @@ export interface Goal {
   targetWeight?: number;
   currentWeight?: number;
   weightRemaining?: number;
+  progressPercentage?: number;
 }
 
 export interface Measurement {
