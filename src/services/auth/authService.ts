@@ -15,15 +15,16 @@ class AuthService {
     
     try {
       // Filtre pour trouver l'étudiant avec le code d'accès spécifié
-      const formula = encodeURIComponent(`{AccessCode} = '${accessCode}'`);
-      const students = await AirtableApiService.fetchFromAirtable<any>('Students', { filterByFormula: formula });
+      // Utilisation de la colonne "code" au lieu de "AccessCode"
+      const formula = encodeURIComponent(`{code} = '${accessCode}'`);
+      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', { filterByFormula: formula });
       
       if (students && students.length > 0) {
         const student = students[0];
         return {
           id: student.id,
           name: student.Name,
-          accessCode: student.AccessCode,
+          accessCode: student.code,
           email: student.Email,
         };
       }
