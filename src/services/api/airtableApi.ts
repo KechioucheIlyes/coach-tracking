@@ -44,7 +44,8 @@ class AirtableApiService {
       throw new Error('Airtable API n\'est pas configurée. Veuillez appeler configure() d\'abord.');
     }
 
-    let url = `${this.apiUrl}/${this.baseId}/${tableName}`;
+    let url = `${this.apiUrl}/${this.baseId}/${encodeURIComponent(tableName)}`;
+    console.log('URL Airtable:', url);
 
     // Ajout des paramètres de requête
     if (Object.keys(params).length > 0) {
@@ -55,6 +56,9 @@ class AirtableApiService {
       url += `?${queryParams.toString()}`;
     }
 
+    console.log('URL complète de requête:', url);
+    console.log('Headers:', { 'Authorization': `Bearer ${this.apiKey.substring(0, 10)}...` });
+
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -64,17 +68,28 @@ class AirtableApiService {
         },
       });
 
+      console.log('Statut de la réponse:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error(`Erreur Airtable: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Erreur API Airtable:', errorText);
+        throw new Error(`Erreur Airtable: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Données brutes reçues:', data);
       
       // Transformation de la réponse Airtable en notre format
-      return data.records.map((record: any) => ({
-        id: record.id,
-        ...record.fields,
-      }));
+      if (data && data.records) {
+        const records = data.records.map((record: any) => ({
+          id: record.id,
+          ...record.fields,
+        }));
+        console.log('Données transformées:', records);
+        return records;
+      }
+      
+      return [];
     } catch (error) {
       console.error('Erreur lors de la récupération des données Airtable:', error);
       toast.error("Erreur lors de la récupération des données");

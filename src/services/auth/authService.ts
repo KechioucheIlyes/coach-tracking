@@ -14,20 +14,29 @@ class AuthService {
     }
     
     try {
+      // Debug: Afficher le code d'accès pour vérification
+      console.log('Tentative de vérification avec le code:', accessCode);
+      
       // Filtre pour trouver l'étudiant avec le code d'accès spécifié
-      // Utilisation de la colonne "code" au lieu de "AccessCode"
       const formula = encodeURIComponent(`{code} = '${accessCode}'`);
+      console.log('Formule de filtrage:', formula);
+      
       const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', { filterByFormula: formula });
+      console.log('Résultat de la requête:', students);
       
       if (students && students.length > 0) {
         const student = students[0];
+        console.log('Étudiant trouvé:', student);
+        
+        // Récupération des champs avec gestion des noms de champs exacts de votre table Airtable
         return {
           id: student.id,
-          name: student.Name,
-          accessCode: student.code,
-          email: student.Email,
+          name: student.Name || student.name || '',
+          accessCode: student.code || '',
+          email: student.Email || student.email || '',
         };
       }
+      console.log('Aucun étudiant trouvé avec ce code');
       return null;
     } catch (error) {
       console.error('Error verifying access:', error);
