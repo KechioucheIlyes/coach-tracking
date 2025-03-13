@@ -31,9 +31,15 @@ const Login = () => {
       return;
     }
     
-    const success = await login();
-    if (!success) {
-      setError("Code d'accès invalide, veuillez vérifier et réessayer");
+    try {
+      const success = await login();
+      if (!success) {
+        setError("Code d'accès invalide, veuillez vérifier et réessayer. Pour tester, utilisez 'access123' ou 'rech0KgjCrK24UrBH'");
+      }
+    } catch (error) {
+      console.error("Erreur de connexion:", error);
+      setError("Une erreur est survenue lors de la tentative de connexion. Veuillez réessayer.");
+      toast.error("Erreur de connexion");
     }
   };
 

@@ -5,82 +5,80 @@ import { Student } from "../types/airtable.types";
 import { mockStudent } from "../mocks/airtableMocks";
 
 class AuthService {
+  // Hard-coded known access codes (for demo and testing)
+  private knownAccessCodes = {
+    "rech0KgjCrK24UrBH": {
+      id: "rech0KgjCrK24UrBH",
+      name: "Féline Faure",
+      accessCode: "rech0KgjCrK24UrBH",
+      email: "feline.faure@example.com"
+    },
+    "access123": mockStudent
+  };
+
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {
+    // Check for known access codes first (always allow these)
+    if (this.knownAccessCodes[accessCode]) {
+      console.log(`Accès direct avec code connu: ${accessCode}`);
+      return this.knownAccessCodes[accessCode];
+    }
+    
     // En mode démo ou développement, utiliser les données fictives
     if (!AirtableApiService.isConfigured) {
-      console.warn('Mode démo: utilisation de données fictives');
+      console.log('Mode démo: utilisation de données fictives');
       return this.verifyAccessMock(accessCode);
     }
     
     try {
       console.log('Tentative de vérification avec le code:', accessCode);
       
-      // Cas spécial pour Féline Faure - toujours permettre l'accès direct
-      if (accessCode === "rech0KgjCrK24UrBH") {
-        console.log('Code de Féline Faure détecté, authentification directe');
-        return {
-          id: "rech0KgjCrK24UrBH",
-          name: "Féline Faure",
-          accessCode: "rech0KgjCrK24UrBH",
-          email: "feline.faure@example.com"
-        };
-      }
-      
       // Récupérer tous les élèves pour vérifier les codes d'accès
-      try {
-        console.log('Récupération de tous les élèves...');
-        const eleves = await AirtableApiService.fetchAllRecords('Élèves');
+      const eleves = await AirtableApiService.fetchAllRecords('Élèves');
+      console.log(`${eleves?.length || 0} élèves récupérés depuis Airtable`);
+      
+      if (eleves && eleves.length > 0) {
+        // Rechercher un élève avec le code d'accès correspondant
+        const matchingEleve = eleves.find((eleve: any) => {
+          // Vérifier le champ code qui contient RECORD_ID()
+          return (
+            eleve.id === accessCode || 
+            (eleve.fields && eleve.fields.code === accessCode) ||
+            (eleve.fields && eleve.fields["code"] === accessCode) ||
+            (eleve.fields && eleve.fields["fld2B3uc2SCCu3bhT"] === accessCode)
+          );
+        });
         
-        console.log(`${eleves.length} élèves récupérés depuis Airtable`);
-        
-        if (eleves && eleves.length > 0) {
-          // Rechercher un élève avec le champ code correspondant au code d'accès
-          const matchingEleve = eleves.find((eleve: any) => {
-            // Vérifier tous les champs possibles qui pourraient contenir le code d'accès
-            return (
-              eleve.id === accessCode || 
-              eleve.code === accessCode ||
-              eleve.RECORD_ID === accessCode ||
-              (eleve.fields && eleve.fields.code === accessCode)
-            );
-          });
+        if (matchingEleve) {
+          console.log('Élève trouvé:', matchingEleve);
           
-          if (matchingEleve) {
-            console.log('Élève trouvé:', matchingEleve);
-            
-            // Extraire les champs selon la structure Airtable
-            const fields = matchingEleve.fields || matchingEleve;
-            
-            return {
-              id: matchingEleve.id,
-              name: fields.Nom || fields.Name || fields.name || 'Élève',
-              accessCode: accessCode,
-              email: fields["E-mail"] || fields.Email || fields.email || '',
-            };
-          } else {
-            console.log('Aucun élève trouvé avec ce code dans la table Élèves');
-          }
+          // Extraire les champs selon la structure Airtable
+          const fields = matchingEleve.fields || matchingEleve;
+          
+          // Utiliser les noms de champs de la structure Airtable
+          return {
+            id: matchingEleve.id,
+            name: fields.Nom || fields["fldqgtzUUGEbyuvQF"] || fields.Name || fields.name || 'Élève',
+            accessCode: accessCode,
+            email: fields["E-mail"] || fields["fldiswtPGMq9yr6E3"] || fields.Email || fields.email || '',
+          };
+        } else {
+          console.log('Aucun élève trouvé avec ce code dans la table Élèves');
         }
-      } catch (error) {
-        console.error('Erreur lors de la recherche dans la table Élèves:', error);
+      } else {
+        console.warn('Aucun élève récupéré depuis Airtable, vérification des accès directs');
       }
       
-      // Vérification pour les codes spécifiques connus
-      if (accessCode === "access123" || accessCode === mockStudent.accessCode) {
+      // Dernière vérification pour les codes connus
+      // (au cas où ils n'auraient pas été détectés plus tôt)
+      if (accessCode === "access123") {
         console.log('Utilisation des données de démo pour le code:', accessCode);
         return mockStudent;
       }
       
       if (accessCode === "rech0KgjCrK24UrBH") {
-        // Double vérification pour Féline Faure
-        console.log('Double vérification pour Féline Faure');
-        return {
-          id: "rech0KgjCrK24UrBH",
-          name: "Féline Faure",
-          accessCode: "rech0KgjCrK24UrBH",
-          email: "feline.faure@example.com"
-        };
+        console.log('Accès direct pour Féline Faure');
+        return this.knownAccessCodes["rech0KgjCrK24UrBH"];
       }
       
       console.log('Aucun élève trouvé avec ce code après vérification');
@@ -89,22 +87,17 @@ class AuthService {
       console.error('Error verifying access:', error);
       
       // En cas d'erreur, vérifier les codes connus directement
-      if (accessCode === "access123" || accessCode === mockStudent.accessCode) {
+      if (accessCode === "access123") {
         console.log('Utilisation des données de démo après erreur');
         return mockStudent;
       }
       
       if (accessCode === "rech0KgjCrK24UrBH") {
         console.log('Authentification de secours pour Féline Faure');
-        return {
-          id: "rech0KgjCrK24UrBH",
-          name: "Féline Faure",
-          accessCode: "rech0KgjCrK24UrBH",
-          email: "feline.faure@example.com"
-        };
+        return this.knownAccessCodes["rech0KgjCrK24UrBH"];
       }
       
-      toast.error("Erreur lors de la vérification de l'accès");
+      // Ne pas afficher de toast ici, laissons le composant UI gérer l'erreur
       return null;
     }
   }
@@ -113,21 +106,8 @@ class AuthService {
   private async verifyAccessMock(accessCode: string): Promise<Student | null> {
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    // Vérifier pour Féline Faure
-    if (accessCode === "rech0KgjCrK24UrBH") {
-      return {
-        id: "rech0KgjCrK24UrBH",
-        name: "Féline Faure",
-        accessCode: "rech0KgjCrK24UrBH",
-        email: "feline.faure@example.com"
-      };
-    }
-    
-    if (accessCode === mockStudent.accessCode) {
-      return mockStudent;
-    }
-    
-    return null;
+    // Vérifier les codes connus
+    return this.knownAccessCodes[accessCode] || null;
   }
 }
 

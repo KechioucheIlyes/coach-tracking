@@ -46,10 +46,16 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     const codeToUse = code || accessCode;
     
+    if (!codeToUse || codeToUse.trim() === '') {
+      setIsLoading(false);
+      toast.error("Veuillez saisir un code d'accès");
+      return false;
+    }
+    
     try {
       console.log('Tentative de connexion avec code:', codeToUse);
       
-      // Cas spécial pour Féline Faure et access123 (utilisateur de démo)
+      // Cas spéciaux pour codes de démonstration connus
       if (codeToUse === "rech0KgjCrK24UrBH" || codeToUse === "access123") {
         let userData;
         
