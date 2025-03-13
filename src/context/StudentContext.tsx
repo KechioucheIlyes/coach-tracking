@@ -15,7 +15,7 @@ interface StudentContextType {
   isLoading: boolean;
   accessCode: string;
   setAccessCode: (code: string) => void;
-  login: () => Promise<boolean>;
+  login: (code?: string) => Promise<boolean>;
   logout: () => void;
   isAirtableConfigured: boolean;
 }
@@ -26,18 +26,13 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
   const [student, setStudent] = useState<Student | null>(null);
   const [accessCode, setAccessCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isAirtableConfigured, setIsAirtableConfigured] = useState<boolean>(false);
+  const [isAirtableConfigured, setIsAirtableConfigured] = useState<boolean>(true); // Pré-configuré maintenant
   const navigate = useNavigate();
 
   // Vérifier la configuration d'Airtable et la session sauvegardée
   useEffect(() => {
-    const checkAirtableConfig = () => {
-      const baseId = localStorage.getItem('airtable_base_id');
-      const apiKey = localStorage.getItem('airtable_api_key');
-      setIsAirtableConfigured(Boolean(baseId && apiKey));
-    };
-    
-    checkAirtableConfig();
+    // La configuration est maintenant définie par défaut dans le service
+    setIsAirtableConfigured(true);
     
     const savedAccessCode = localStorage.getItem('accessCode');
     if (savedAccessCode) {

@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 interface Student {
@@ -84,9 +85,9 @@ class AirtableService {
   private apiUrl: string = 'https://api.airtable.com/v0';
 
   constructor() {
-    // À remplacer par vos propres identifiants Airtable
-    this.baseId = 'YOUR_BASE_ID';
-    this.apiKey = 'YOUR_API_KEY';
+    // Configuration par défaut avec le token fourni
+    this.baseId = 'app4LDBPHMVKbzSHj';
+    this.apiKey = 'patonRA3u98xVvNJJ.44366f3f6572bd769aec8dffe17938b09061205356fe11f092f35a21c171973b';
   }
 
   // Méthode pour configurer l'API Airtable
