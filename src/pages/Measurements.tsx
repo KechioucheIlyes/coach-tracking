@@ -127,12 +127,12 @@ const Measurements = () => {
   };
 
   const calculateWeightProgress = () => {
-    if (!weightGoal || !weightGoal.initialWeight || !weightGoal.targetWeight || !weightGoal.currentWeight) {
-      return 0;
-    }
+    if (!latestMeasurement) return 0;
     
-    const totalLossNeeded = weightGoal.initialWeight - weightGoal.targetWeight;
-    const currentLoss = weightGoal.initialWeight - weightGoal.currentWeight;
+    if (!latestMeasurement.initialWeight || !latestMeasurement.targetWeight) return 0;
+    
+    const totalLossNeeded = latestMeasurement.initialWeight - latestMeasurement.targetWeight;
+    const currentLoss = latestMeasurement.initialWeight - latestMeasurement.weight;
     
     if (totalLossNeeded <= 0) return 0;
     return Math.min(Math.max((currentLoss / totalLossNeeded) * 100, 0), 100);
@@ -185,20 +185,20 @@ const Measurements = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {weightGoal && weightGoal.initialWeight && weightGoal.targetWeight && weightGoal.currentWeight ? (
+                  {latestMeasurement && latestMeasurement.initialWeight && latestMeasurement.targetWeight ? (
                     <div className="space-y-4">
                       <div className="flex justify-between mb-2 text-sm">
                         <div className="font-medium">
                           <span>Poids initial: </span>
-                          <span className="text-muted-foreground">{weightGoal.initialWeight} kg (0%)</span>
+                          <span className="text-muted-foreground">{latestMeasurement.initialWeight} kg (0%)</span>
                         </div>
                         <div className="font-medium">
                           <span>Poids actuel: </span>
-                          <span className="text-coach-600">{weightGoal.currentWeight} kg ({weightProgressPercent.toFixed(0)}%)</span>
+                          <span className="text-coach-600">{latestMeasurement.weight} kg ({weightProgressPercent.toFixed(0)}%)</span>
                         </div>
                         <div className="font-medium">
                           <span>Poids cible: </span> 
-                          <span className="text-muted-foreground">{weightGoal.targetWeight} kg (100%)</span>
+                          <span className="text-muted-foreground">{latestMeasurement.targetWeight} kg (100%)</span>
                         </div>
                       </div>
                       
@@ -211,16 +211,21 @@ const Measurements = () => {
                       </div>
                       
                       <div className="text-center text-sm text-muted-foreground">
-                        {weightGoal.weightRemaining !== undefined && (
-                          weightGoal.weightRemaining <= 0 
+                        {latestMeasurement.weightRemaining !== undefined ? (
+                          latestMeasurement.weightRemaining <= 0 
                             ? <span className="text-green-600 font-medium">Objectif atteint ! Félicitations !</span>
-                            : <span>Il vous reste {Math.abs(weightGoal.weightRemaining).toFixed(1)} kg pour atteindre votre objectif</span>
+                            : <span>Il vous reste {Math.abs(latestMeasurement.weightRemaining).toFixed(1)} kg pour atteindre votre objectif</span>
+                        ) : (
+                          <span>
+                            Il vous reste {Math.max(0, (latestMeasurement.weight - latestMeasurement.targetWeight)).toFixed(1)} kg 
+                            pour atteindre votre objectif
+                          </span>
                         )}
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
-                      Aucun objectif de poids défini
+                      Aucune donnée de progression de poids disponible dans la dernière mesure
                     </div>
                   )}
                 </CardContent>
