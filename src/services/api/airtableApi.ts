@@ -35,6 +35,75 @@ class AirtableApiService {
     }
   }
 
+  // Nouvelle méthode pour récupérer tous les enregistrements d'une table
+  public async fetchAllRecords(tableName: string, retryCount: number = 0): Promise<any[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      throw new Error('Airtable API n\'est pas configurée. Veuillez appeler configure() d\'abord.');
+    }
+
+    console.log(`Tentative de récupération de tous les enregistrements de la table ${tableName}`);
+    
+    // Tentatives de noms de table alternatifs en cas d'échec
+    const tableNames = [tableName];
+    
+    // Si le nom de la table contient des accents, ajouter une version sans accents
+    if (tableName.normalize("NFD").replace(/[\u0300-\u036f]/g, "") !== tableName) {
+      tableNames.push(tableName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+    }
+    
+    // Ajouter des variantes pour "Élèves" car c'est la table principale
+    if (tableName === "Élèves") {
+      tableNames.push("Eleves", "Students", "Users");
+    }
+    
+    // Tentative avec chaque nom de table possible
+    for (const name of tableNames) {
+      try {
+        console.log(`Tentative avec le nom de table: ${name}`);
+        const encodedTableName = encodeURIComponent(name);
+        const url = `${this.apiUrl}/${this.baseId}/${encodedTableName}`;
+        
+        console.log('URL de requête:', url);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        console.log(`Réponse pour ${name}:`, response.status, response.statusText);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`Données récupérées pour ${name}:`, data);
+          
+          if (data && data.records) {
+            return data.records;
+          }
+          return [];
+        }
+        
+        console.warn(`Échec pour la table ${name}: ${response.status} ${response.statusText}`);
+      } catch (error) {
+        console.error(`Erreur pour la table ${name}:`, error);
+      }
+    }
+    
+    // Si toutes les tentatives ont échoué et que nous n'avons pas dépassé le nombre maximal de tentatives
+    if (retryCount < this.maxRetries) {
+      console.log(`Nouvelle tentative ${retryCount + 1}/${this.maxRetries} dans 1s...`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return this.fetchAllRecords(tableName, retryCount + 1);
+    }
+    
+    console.error(`Toutes les tentatives ont échoué pour la table ${tableName}`);
+    return [];
+  }
+
   public async fetchFromAirtable<T>(
     tableName: string,
     params: Record<string, string> = {},

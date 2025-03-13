@@ -16,9 +16,9 @@ class AuthService {
     try {
       console.log('Tentative de vérification avec le code:', accessCode);
       
-      // Vérifier spécifiquement pour le code de Féline Faure
+      // Cas spécial pour Féline Faure - toujours permettre l'accès direct
       if (accessCode === "rech0KgjCrK24UrBH") {
-        console.log('Code de Féline Faure détecté, authentification réussie');
+        console.log('Code de Féline Faure détecté, authentification directe');
         return {
           id: "rech0KgjCrK24UrBH",
           name: "Féline Faure",
@@ -27,37 +27,43 @@ class AuthService {
         };
       }
       
-      // Utiliser la table Élèves comme indiqué dans la structure Airtable fournie
+      // Récupérer tous les élèves pour vérifier les codes d'accès
       try {
-        console.log('Tentative de récupération des élèves depuis la table "Élèves"');
-        const eleves = await AirtableApiService.fetchFromAirtable<any>('Élèves');
+        console.log('Récupération de tous les élèves...');
+        const eleves = await AirtableApiService.fetchAllRecords('Élèves');
+        
+        console.log(`${eleves.length} élèves récupérés depuis Airtable`);
         
         if (eleves && eleves.length > 0) {
-          console.log(`Table Élèves trouvée avec ${eleves.length} enregistrements`);
-          
-          // Rechercher un élève avec l'ID correspondant au code d'accès
-          // ou avec le champ code correspondant au code d'accès
+          // Rechercher un élève avec le champ code correspondant au code d'accès
           const matchingEleve = eleves.find((eleve: any) => {
-            return eleve.id === accessCode || 
-                   eleve.code === accessCode || 
-                   eleve.RECORD_ID === accessCode;
+            // Vérifier tous les champs possibles qui pourraient contenir le code d'accès
+            return (
+              eleve.id === accessCode || 
+              eleve.code === accessCode ||
+              eleve.RECORD_ID === accessCode ||
+              (eleve.fields && eleve.fields.code === accessCode)
+            );
           });
           
           if (matchingEleve) {
             console.log('Élève trouvé:', matchingEleve);
             
+            // Extraire les champs selon la structure Airtable
+            const fields = matchingEleve.fields || matchingEleve;
+            
             return {
               id: matchingEleve.id,
-              name: matchingEleve.Nom || matchingEleve.Name || matchingEleve.name || 'Élève',
+              name: fields.Nom || fields.Name || fields.name || 'Élève',
               accessCode: accessCode,
-              email: matchingEleve["E-mail"] || matchingEleve.Email || matchingEleve.email || '',
+              email: fields["E-mail"] || fields.Email || fields.email || '',
             };
           } else {
             console.log('Aucun élève trouvé avec ce code dans la table Élèves');
           }
         }
       } catch (error) {
-        console.warn('Erreur lors de la recherche dans la table Élèves:', error);
+        console.error('Erreur lors de la recherche dans la table Élèves:', error);
       }
       
       // Vérification pour les codes spécifiques connus
@@ -67,7 +73,7 @@ class AuthService {
       }
       
       if (accessCode === "rech0KgjCrK24UrBH") {
-        // Double vérification pour Féline Faure au cas où la première vérification aurait échoué
+        // Double vérification pour Féline Faure
         console.log('Double vérification pour Féline Faure');
         return {
           id: "rech0KgjCrK24UrBH",

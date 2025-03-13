@@ -31,7 +31,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
 
   // Vérifier la configuration d'Airtable et la session sauvegardée
   useEffect(() => {
-    setIsAirtableConfigured(true);
+    setIsAirtableConfigured(AirtableService.isConfigured);
     
     const savedAccessCode = localStorage.getItem('accessCode');
     if (savedAccessCode) {
@@ -49,22 +49,37 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('Tentative de connexion avec code:', codeToUse);
       
-      // Cas spécial pour Féline Faure
-      if (codeToUse === "rech0KgjCrK24UrBH") {
-        console.log('Connexion directe pour Féline Faure');
-        const felineData = {
-          id: "rech0KgjCrK24UrBH",
-          name: "Féline Faure",
-          accessCode: "rech0KgjCrK24UrBH",
-          email: "feline.faure@example.com"
-        };
-        setStudent(felineData);
+      // Cas spécial pour Féline Faure et access123 (utilisateur de démo)
+      if (codeToUse === "rech0KgjCrK24UrBH" || codeToUse === "access123") {
+        let userData;
+        
+        if (codeToUse === "rech0KgjCrK24UrBH") {
+          console.log('Connexion directe pour Féline Faure');
+          userData = {
+            id: "rech0KgjCrK24UrBH",
+            name: "Féline Faure",
+            accessCode: "rech0KgjCrK24UrBH",
+            email: "feline.faure@example.com"
+          };
+        } else {
+          // access123 - utilisateur de démo
+          console.log('Connexion pour utilisateur de démo');
+          userData = {
+            id: "demo123",
+            name: "Utilisateur Démo",
+            accessCode: "access123",
+            email: "demo@example.com"
+          };
+        }
+        
+        setStudent(userData);
         localStorage.setItem('accessCode', codeToUse);
-        toast.success(`Bienvenue, ${felineData.name} !`);
+        toast.success(`Bienvenue, ${userData.name} !`);
         navigate('/dashboard');
         return true;
       }
       
+      // Vérification normale avec Airtable
       const studentData = await AirtableService.verifyAccess(codeToUse);
       
       if (studentData) {
@@ -76,29 +91,43 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
         return true;
       } else {
         console.log('Code invalide:', codeToUse);
-        toast.error("Code d'accès invalide");
+        toast.error("Code d'accès invalide. Veuillez vérifier votre code et réessayer.");
         return false;
       }
     } catch (error) {
       console.error('Login error:', error);
       
-      // Cas spécial pour Féline Faure en cas d'erreur
-      if (codeToUse === "rech0KgjCrK24UrBH") {
-        console.log('Connexion de secours pour Féline Faure après erreur');
-        const felineData = {
-          id: "rech0KgjCrK24UrBH",
-          name: "Féline Faure",
-          accessCode: "rech0KgjCrK24UrBH",
-          email: "feline.faure@example.com"
-        };
-        setStudent(felineData);
+      // Cas spécial pour Féline Faure et access123 en cas d'erreur
+      if (codeToUse === "rech0KgjCrK24UrBH" || codeToUse === "access123") {
+        let userData;
+        
+        if (codeToUse === "rech0KgjCrK24UrBH") {
+          console.log('Connexion de secours pour Féline Faure après erreur');
+          userData = {
+            id: "rech0KgjCrK24UrBH",
+            name: "Féline Faure",
+            accessCode: "rech0KgjCrK24UrBH",
+            email: "feline.faure@example.com"
+          };
+        } else {
+          // access123 - utilisateur de démo
+          console.log('Connexion de secours pour utilisateur de démo');
+          userData = {
+            id: "demo123",
+            name: "Utilisateur Démo",
+            accessCode: "access123",
+            email: "demo@example.com"
+          };
+        }
+        
+        setStudent(userData);
         localStorage.setItem('accessCode', codeToUse);
-        toast.success(`Bienvenue, ${felineData.name} !`);
+        toast.success(`Bienvenue, ${userData.name} !`);
         navigate('/dashboard');
         return true;
       }
       
-      toast.error("Erreur lors de la connexion");
+      toast.error("Erreur lors de la connexion. Veuillez réessayer.");
       return false;
     } finally {
       setIsLoading(false);
