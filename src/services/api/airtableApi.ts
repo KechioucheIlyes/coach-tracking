@@ -35,6 +35,70 @@ class AirtableApiService {
     }
   }
 
+  // Nouvelle méthode pour récupérer les données d'une table en utilisant son ID
+  public async fetchTableById(tableId: string, retryCount: number = 0): Promise<any[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      console.log('Airtable API non configurée, retournant un tableau vide');
+      return [];
+    }
+
+    console.log(`Tentative de récupération des données de la table avec ID: ${tableId}`);
+    
+    try {
+      // Utilisation directe de l'ID de la table dans l'URL
+      const url = `${this.apiUrl}/${this.baseId}/${tableId}`;
+      
+      console.log('URL de requête avec ID de table:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log(`Réponse pour la table ${tableId}:`, response.status, response.statusText);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Données récupérées pour la table ${tableId}:`, data);
+        
+        if (data && data.records) {
+          return data.records;
+        }
+        return [];
+      }
+      
+      // Gestion des erreurs
+      const errorBody = await response.text();
+      console.error(`Erreur pour la table ${tableId}:`, response.status, errorBody);
+      
+      // Si nous n'avons pas dépassé le nombre maximal de tentatives
+      if (retryCount < this.maxRetries) {
+        console.log(`Nouvelle tentative ${retryCount + 1}/${this.maxRetries} dans 1s...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return this.fetchTableById(tableId, retryCount + 1);
+      }
+      
+      // Simuler un succès avec un tableau vide après toutes les tentatives
+      return [];
+    } catch (error) {
+      console.error(`Erreur pour la table ${tableId}:`, error);
+      
+      // Si nous n'avons pas dépassé le nombre maximal de tentatives
+      if (retryCount < this.maxRetries) {
+        console.log(`Nouvelle tentative après erreur ${retryCount + 1}/${this.maxRetries} dans 1s...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return this.fetchTableById(tableId, retryCount + 1);
+      }
+      
+      return [];
+    }
+  }
+
   // Méthode pour récupérer tous les enregistrements d'une table
   public async fetchAllRecords(tableName: string, retryCount: number = 0): Promise<any[]> {
     this.loadConfig();

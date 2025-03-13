@@ -16,6 +16,9 @@ class AuthService {
     "access123": mockStudent
   };
 
+  // Identifiant de la table Élèves dans Airtable
+  private tableId = "tbll5MlIcTSqCOLEJ";
+
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {
     // Check for known access codes first (always allow these)
@@ -33,8 +36,8 @@ class AuthService {
     try {
       console.log('Tentative de vérification avec le code:', accessCode);
       
-      // Récupérer tous les élèves pour vérifier les codes d'accès
-      const eleves = await AirtableApiService.fetchAllRecords('Élèves');
+      // Utiliser directement l'ID de la table plutôt que son nom
+      const eleves = await AirtableApiService.fetchTableById(this.tableId);
       console.log(`${eleves?.length || 0} élèves récupérés depuis Airtable`);
       
       if (eleves && eleves.length > 0) {
