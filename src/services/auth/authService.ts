@@ -27,56 +27,37 @@ class AuthService {
         };
       }
       
-      // Définir plusieurs noms de table possibles à essayer
-      const tableNames = ['Eleves', 'Students', 'Étudiants', 'Élèves', 'Student', 'Users', 'Clients'];
-      
-      let student = null;
-      
-      // Tester chaque nom de table jusqu'à trouver le bon
-      for (const tableName of tableNames) {
-        try {
-          console.log(`Essai avec la table: ${tableName}`);
-          const students = await AirtableApiService.fetchFromAirtable<any>(tableName);
+      // Utiliser la table Élèves comme indiqué dans la structure Airtable fournie
+      try {
+        console.log('Tentative de récupération des élèves depuis la table "Élèves"');
+        const eleves = await AirtableApiService.fetchFromAirtable<any>('Élèves');
+        
+        if (eleves && eleves.length > 0) {
+          console.log(`Table Élèves trouvée avec ${eleves.length} enregistrements`);
           
-          if (students && students.length > 0) {
-            console.log(`Table ${tableName} trouvée avec ${students.length} enregistrements`);
+          // Rechercher un élève avec l'ID correspondant au code d'accès
+          // ou avec le champ code correspondant au code d'accès
+          const matchingEleve = eleves.find((eleve: any) => {
+            return eleve.id === accessCode || 
+                   eleve.code === accessCode || 
+                   eleve.RECORD_ID === accessCode;
+          });
+          
+          if (matchingEleve) {
+            console.log('Élève trouvé:', matchingEleve);
             
-            // Vérifier plusieurs champs possibles pour le code d'accès
-            const possibleCodeFields = ['code', 'Code', 'accessCode', 'AccessCode', 'access_code', 'access_Code', 'id', 'Id', 'ID'];
-            
-            // Chercher l'étudiant avec le bon code d'accès, en testant tous les champs possibles
-            const matchingStudent = students.find((s: any) => {
-              return possibleCodeFields.some(field => s[field] === accessCode);
-            });
-            
-            if (matchingStudent) {
-              console.log('Étudiant trouvé:', matchingStudent);
-              
-              // Déterminer les champs à utiliser pour les données
-              const nameField = matchingStudent.Name || matchingStudent.name || matchingStudent.nom || '';
-              const emailField = matchingStudent.Email || matchingStudent.email || matchingStudent.courriel || '';
-              
-              // Déterminer quel champ de code a été utilisé
-              const usedCodeField = possibleCodeFields.find(field => matchingStudent[field] === accessCode) || 'code';
-              
-              student = {
-                id: matchingStudent.id,
-                name: nameField,
-                accessCode: matchingStudent[usedCodeField] || '',
-                email: emailField,
-              };
-              
-              break; // Sortir de la boucle, nous avons trouvé l'étudiant
-            }
+            return {
+              id: matchingEleve.id,
+              name: matchingEleve.Nom || matchingEleve.Name || matchingEleve.name || 'Élève',
+              accessCode: accessCode,
+              email: matchingEleve["E-mail"] || matchingEleve.Email || matchingEleve.email || '',
+            };
+          } else {
+            console.log('Aucun élève trouvé avec ce code dans la table Élèves');
           }
-        } catch (error) {
-          console.warn(`Échec avec la table ${tableName}:`, error);
-          // Continuer avec la table suivante
         }
-      }
-      
-      if (student) {
-        return student;
+      } catch (error) {
+        console.warn('Erreur lors de la recherche dans la table Élèves:', error);
       }
       
       // Vérification pour les codes spécifiques connus
@@ -96,7 +77,7 @@ class AuthService {
         };
       }
       
-      console.log('Aucun étudiant trouvé avec ce code après avoir essayé toutes les tables');
+      console.log('Aucun élève trouvé avec ce code après vérification');
       return null;
     } catch (error) {
       console.error('Error verifying access:', error);

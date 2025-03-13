@@ -46,8 +46,11 @@ class AirtableApiService {
       throw new Error('Airtable API n\'est pas configurée. Veuillez appeler configure() d\'abord.');
     }
 
+    // Encoder correctement le nom de la table (important pour les noms avec accents comme "Élèves")
+    const encodedTableName = encodeURIComponent(tableName);
+    
     // Construire l'URL de base
-    let url = `${this.apiUrl}/${this.baseId}/${encodeURIComponent(tableName)}`;
+    let url = `${this.apiUrl}/${this.baseId}/${encodedTableName}`;
     console.log('URL Airtable:', url);
 
     // Ajout des paramètres de requête si fournis
@@ -86,10 +89,17 @@ class AirtableApiService {
         
         // Si nous avons une erreur 403 (Forbidden) ou 404 (Not Found)
         if (response.status === 403 || response.status === 404) {
-          // Retenter avec un autre nom de table si nous n'avons pas dépassé le nombre maximal de tentatives
           if (retryCount < this.maxRetries) {
-            // Attendre un peu avant de réessayer
+            // Attendre un peu avant de réessayer avec un autre nom de table
             await new Promise(resolve => setTimeout(resolve, 500));
+            console.log(`Tentative ${retryCount + 1}/${this.maxRetries} échouée pour la table ${tableName}`);
+            
+            // Pour la première tentative, essayons avec le nom de table sans accents
+            if (retryCount === 0 && tableName === 'Élèves') {
+              console.log('Tentative avec le nom de table sans accents: Eleves');
+              return this.fetchFromAirtable<T>('Eleves', params, retryCount + 1);
+            }
+            
             return [];
           }
           
