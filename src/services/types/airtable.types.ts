@@ -4,6 +4,23 @@ export interface Student {
   name: string;
   accessCode: string;
   email?: string;
+  // Additional fields from Airtable
+  age?: number;
+  gender?: string;
+  initialWeight?: number;
+  targetWeight?: number;
+  height?: number;
+  profession?: string;
+  medicalHistory?: string;
+  activityLevel?: string;
+  motivation?: string;
+  diet?: string;
+  eatingHabits?: string;
+  mealFrequency?: string;
+  objectives?: string;
+  birthDate?: string;
+  status?: string;
+  studentCode?: string;
 }
 
 export interface Goal {

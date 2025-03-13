@@ -97,12 +97,29 @@ class AuthService {
           // Extraire les champs selon la structure Airtable
           const fields = matchingEleve.fields || matchingEleve;
           
-          // Utiliser les noms de champs de la structure Airtable
+          // Construire un objet Student complet avec les détails supplémentaires
           return {
             id: matchingEleve.id,
             name: fields.Nom || fields["fldqgtzUUGEbyuvQF"] || fields.Name || fields.name || 'Élève',
             accessCode: accessCode,
             email: fields["E-mail"] || fields["fldiswtPGMq9yr6E3"] || fields.Email || fields.email || '',
+            // Ajout des champs supplémentaires
+            age: fields["Âge"] || fields["fld8Vw1HWTKEw4jn8"] || null,
+            gender: fields["Sexe"] || fields["fld7XAznXJH1WtyMN"] || null,
+            initialWeight: fields["Poids Initial"] || fields["fld82XocJlHxb7iIx"] || null,
+            targetWeight: fields["Poids Cible"] || fields["fldTqxmxv8wPQnhTR"] || null,
+            height: fields["Taille (cm)"] || fields["fldIqFArOG8ZQlSfU"] || null,
+            profession: fields["Profession"] || fields["fldzKnvfv3YDkFzvg"] || null,
+            medicalHistory: fields["Antécédents Médicaux & Sportifs"] || fields["fldJKFzBeLsOkelOn"] || null,
+            activityLevel: fields["Niveau d'Activité"] || fields["fldzCNDy4Nl8T19lP"] || null,
+            motivation: fields["Motivation"] || fields["fldKov8E7oDliEiCi"] || null,
+            diet: fields["Régime Alimentaire"] || fields["fldo508yN3Ny9YIwm"] || null,
+            eatingHabits: fields["Habitudes Alimentaires Spécifiques"] || fields["fld8KahK2SURAbaer"] || null,
+            mealFrequency: fields["Fréquence de Repas"] || fields["fldo8qtXMMY5RW5TC"] || null,
+            objectives: fields["Objectifs"] || fields["fld2rLbZsXv1ryqBZ"] || null,
+            birthDate: fields["Date de naissance"] || fields["fldNFRFGZkFfZo712"] || null,
+            status: fields["Statut"] || fields["fldIOn1hHf5zB762X"] || null,
+            studentCode: fields["IDU Eleve"] || fields["fldcbSf4aqCxWXLCD"] || null,
           };
         } else {
           console.log('Aucun élève trouvé avec ce code dans la table Élèves');
