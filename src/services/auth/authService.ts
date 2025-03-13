@@ -4,11 +4,28 @@ import AirtableApiService from "../api/airtableApi";
 import { Student } from "../types/airtable.types";
 import { mockStudent } from "../mocks/airtableMocks";
 
+// Ajout de l'étudiant Féline Faure pour le mode démo
+const additionalMockStudents: Record<string, Student> = {
+  "rech0KgjCrK24UrBH": {
+    id: '2',
+    name: 'Féline Faure',
+    accessCode: 'rech0KgjCrK24UrBH',
+    email: 'feline@example.com'
+  }
+};
+
 class AuthService {
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {
+    // Vérifier d'abord si c'est un étudiant du mode démo
+    if (accessCode === mockStudent.accessCode || additionalMockStudents[accessCode]) {
+      console.log('Utilisation des données de démo pour le code:', accessCode);
+      // Retourner soit l'étudiant mockStudent soit l'étudiant additionnel
+      return accessCode === mockStudent.accessCode ? mockStudent : additionalMockStudents[accessCode];
+    }
+    
+    // Sinon, essayer avec Airtable si configuré
     if (!AirtableApiService.isConfigured) {
-      // Utilisation des données fictives en mode démo/développement
       console.warn('Mode démo: utilisation de données fictives');
       return this.verifyAccessMock(accessCode);
     }
@@ -45,11 +62,9 @@ class AuthService {
       }
       
       console.log('Aucun étudiant trouvé avec ce code');
-      // Si nous arrivons ici, nous n'avons pas trouvé d'étudiant ou la requête a échoué
-      // Utilisons les données de démo temporairement
-      if (accessCode === mockStudent.accessCode) {
-        console.log('Utilisation des données de démo pour le code:', accessCode);
-        return mockStudent;
+      // Si l'étudiant est dans nos données de démo, on le retourne
+      if (additionalMockStudents[accessCode]) {
+        return additionalMockStudents[accessCode];
       }
       
       return null;
@@ -58,9 +73,9 @@ class AuthService {
       toast.error("Erreur lors de la vérification de l'accès");
       
       // En cas d'erreur, essayons avec les données de démo pour permettre l'accès
-      if (accessCode === mockStudent.accessCode) {
+      if (accessCode === mockStudent.accessCode || additionalMockStudents[accessCode]) {
         console.log('Fallback vers les données de démo après erreur');
-        return mockStudent;
+        return accessCode === mockStudent.accessCode ? mockStudent : additionalMockStudents[accessCode];
       }
       
       return null;
@@ -73,7 +88,10 @@ class AuthService {
     
     if (accessCode === mockStudent.accessCode) {
       return mockStudent;
+    } else if (additionalMockStudents[accessCode]) {
+      return additionalMockStudents[accessCode];
     }
+    
     return null;
   }
 }
