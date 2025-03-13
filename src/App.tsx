@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from "@/components/ui/sonner"
 import { AnimatePresence } from 'framer-motion'
 import { StudentProvider } from './context/StudentContext'
-import Index from './pages/Index'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
@@ -22,8 +21,7 @@ function App() {
       <StudentProvider>
         <AnimatePresence mode="wait">
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/measurements" element={<Measurements />} />
