@@ -5,7 +5,10 @@ import { useStudent } from '../context/StudentContext';
 import AirtableService, { Measurement, Goal } from '../services/AirtableService';
 import Layout from '../components/Layout';
 import DashboardHeader from '../components/DashboardHeader';
-import { Ruler, Target, CheckCircle, Clock, AlertCircle, TrendingUp, TrendingDown, ArrowRight, Scale, ChevronUp, ChevronDown } from 'lucide-react';
+import { 
+  Ruler, Target, CheckCircle, Clock, AlertCircle, TrendingUp, TrendingDown, 
+  ArrowRight, Scale, ChevronUp, ChevronDown, ActivitySquare, ChevronRight
+} from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { format, parseISO, compareDesc } from 'date-fns';
@@ -14,6 +17,7 @@ import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Slider } from '@/components/ui/slider';
 
 const Measurements = () => {
   const { student } = useStudent();
@@ -136,6 +140,13 @@ const Measurements = () => {
   
   const weightProgressPercent = calculateWeightProgress();
 
+  const calculateWeightProgressVariant = (percent: number) => {
+    if (percent >= 90) return "success";
+    if (percent >= 60) return "coach";
+    if (percent >= 30) return "warning";
+    return "default";
+  };
+
   return (
     <Layout>
       <motion.div
@@ -182,37 +193,65 @@ const Measurements = () => {
                     <>
                       <div className="mb-6">
                         <div className="flex justify-between mb-2">
-                          <span className="text-sm text-muted-foreground">Progression</span>
+                          <span className="text-sm text-muted-foreground">Progression globale</span>
                           <span className="text-sm font-medium">{progress.toFixed(0)}%</span>
                         </div>
-                        <Progress value={progress} className="h-2" />
+                        <Progress value={progress} className="h-2" variant="coach" />
                       </div>
                       
                       {weightGoal && (
-                        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center mb-3">
                             <Scale className="h-5 w-5 mr-2 text-coach-500" />
                             <span className="font-medium text-lg">Objectif de poids</span>
                           </div>
                           
-                          {weightGoal.initialWeight && (
-                            <div className="bg-white p-3 rounded shadow-sm">
-                              <div className="text-sm text-gray-500">Poids initial</div>
-                              <div className="font-semibold text-xl">{weightGoal.initialWeight} kg</div>
-                            </div>
-                          )}
+                          <div className="grid gap-4 mb-4 md:grid-cols-3">
+                            {weightGoal.initialWeight && (
+                              <div className="bg-white p-3 rounded shadow-sm">
+                                <div className="text-sm text-gray-500">Poids initial</div>
+                                <div className="font-semibold text-xl">{weightGoal.initialWeight} kg</div>
+                              </div>
+                            )}
+                            
+                            {weightGoal.currentWeight && (
+                              <div className="bg-white p-3 rounded shadow-sm border-l-4 border-coach-500">
+                                <div className="text-sm text-gray-500">Poids actuel</div>
+                                <div className="font-semibold text-xl">{weightGoal.currentWeight} kg</div>
+                              </div>
+                            )}
+                            
+                            {weightGoal.targetWeight && (
+                              <div className="bg-white p-3 rounded shadow-sm">
+                                <div className="text-sm text-gray-500">Poids cible</div>
+                                <div className="font-semibold text-xl">{weightGoal.targetWeight} kg</div>
+                              </div>
+                            )}
+                          </div>
                           
-                          {weightGoal.currentWeight && (
-                            <div className="bg-white p-3 rounded shadow-sm">
-                              <div className="text-sm text-gray-500">Poids actuel</div>
-                              <div className="font-semibold text-xl">{weightGoal.currentWeight} kg</div>
-                            </div>
-                          )}
-                          
-                          {weightGoal.targetWeight && (
-                            <div className="bg-white p-3 rounded shadow-sm">
-                              <div className="text-sm text-gray-500">Poids cible</div>
-                              <div className="font-semibold text-xl">{weightGoal.targetWeight} kg</div>
+                          {weightGoal.initialWeight && weightGoal.targetWeight && (
+                            <div className="my-6 px-4">
+                              <div className="flex justify-between mb-2 text-sm">
+                                <span>{weightGoal.initialWeight} kg</span>
+                                <span className="font-medium">{weightGoal.currentWeight} kg</span>
+                                <span>{weightGoal.targetWeight} kg</span>
+                              </div>
+                              
+                              <div className="relative pt-1">
+                                <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
+                                  <div
+                                    style={{ width: `${weightProgressPercent}%` }}
+                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-coach-500"
+                                  ></div>
+                                </div>
+                                
+                                <div className="absolute -top-1 transition-all duration-300" style={{ 
+                                  left: `${weightProgressPercent}%`, 
+                                  transform: 'translateX(-50%)' 
+                                }}>
+                                  <div className="w-4 h-4 bg-white rounded-full border-2 border-coach-500 shadow-md"></div>
+                                </div>
+                              </div>
                             </div>
                           )}
                           
@@ -221,17 +260,23 @@ const Measurements = () => {
                               <span className="text-sm text-muted-foreground">Progression vers l'objectif</span>
                               <span className="text-sm font-medium">{weightProgressPercent.toFixed(0)}%</span>
                             </div>
-                            <Progress value={weightProgressPercent} className="h-2" />
+                            <Progress 
+                              value={weightProgressPercent} 
+                              className="h-3" 
+                              variant={calculateWeightProgressVariant(weightProgressPercent)} 
+                            />
                           </div>
                           
                           {weightGoal.weightRemaining !== undefined && (
-                            <div className="text-sm mt-2 text-center">
+                            <div className="text-sm mt-3 text-center py-2 bg-gray-100 rounded-md">
                               {weightGoal.weightRemaining <= 0 ? (
-                                <span className="text-green-600 font-medium">
+                                <span className="text-green-600 font-medium flex items-center justify-center">
+                                  <CheckCircle className="h-4 w-4 mr-1" />
                                   Objectif atteint ! Félicitations !
                                 </span>
                               ) : (
-                                <span className="text-blue-600">
+                                <span className="text-blue-600 flex items-center justify-center">
+                                  <ActivitySquare className="h-4 w-4 mr-1" />
                                   Encore {Math.abs(weightGoal.weightRemaining).toFixed(1)} kg pour atteindre votre objectif
                                 </span>
                               )}
