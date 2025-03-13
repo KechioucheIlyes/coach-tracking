@@ -3,21 +3,24 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useStudent } from '../context/StudentContext';
-import AirtableService, { Measurement } from '../services/AirtableService';
+import AirtableService, { Measurement, Goal } from '../services/AirtableService';
 import Layout from '../components/Layout';
 import DashboardHeader from '../components/DashboardHeader';
-import { Ruler, TrendingUp, TrendingDown, ArrowRight, Scale, ChevronUp, ChevronDown } from 'lucide-react';
+import { Ruler, Target, CheckCircle, Clock, AlertCircle, TrendingUp, TrendingDown, ArrowRight, Scale, ChevronUp, ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { Progress } from '@/components/ui/progress';
 
 const Measurements = () => {
   const { student } = useStudent();
   const navigate = useNavigate();
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingGoals, setIsLoadingGoals] = useState(true);
   
   // Check if user is logged in
   useEffect(() => {
@@ -42,7 +45,21 @@ const Measurements = () => {
       }
     };
     
+    const fetchGoals = async () => {
+      setIsLoadingGoals(true);
+      try {
+        const goalsData = await AirtableService.getStudentGoals(student.id);
+        setGoals(goalsData);
+      } catch (error) {
+        console.error('Error fetching goals:', error);
+        toast.error("Erreur lors de la récupération des objectifs");
+      } finally {
+        setIsLoadingGoals(false);
+      }
+    };
+    
     fetchMeasurements();
+    fetchGoals();
   }, [student, navigate]);
 
   if (!student) return null;
@@ -62,6 +79,11 @@ const Measurements = () => {
       isNeutral: diff === 0
     };
   };
+  
+  // Calculate goal progress
+  const completedGoals = goals.filter(goal => goal.status === 'achieved').length;
+  const totalGoals = goals.length;
+  const progress = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
   
   // Prepare data for charts
   const chartData = [...measurements].reverse().map(m => ({
@@ -95,12 +117,61 @@ const Measurements = () => {
           </Card>
         ) : (
           <>
+            {/* Progression des objectifs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="mb-8"
+            >
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    <Target className="mr-2 h-5 w-5 text-coach-500" />
+                    Progression des objectifs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingGoals ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-coach-600"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mb-6">
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm text-muted-foreground">Progression</span>
+                          <span className="text-sm font-medium">{progress.toFixed(0)}%</span>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                      </div>
+                      
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <div className="flex items-center">
+                          <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                          <span>Objectifs atteints: {completedGoals}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                          <span>Objectifs en cours: {goals.filter(g => g.status === 'in-progress').length}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="w-3 h-3 bg-orange-500 rounded-full mr-2"></span>
+                          <span>Objectifs à venir: {goals.filter(g => g.status === 'pending').length}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
             {/* Latest Measurements Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.5 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
               >
                 <Card className="overflow-hidden h-full">
                   <CardHeader className="pb-2">
@@ -147,7 +218,7 @@ const Measurements = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
               >
                 <Card className="overflow-hidden h-full">
                   <CardHeader className="pb-2">
@@ -175,7 +246,7 @@ const Measurements = () => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
                 >
                   <Card className="overflow-hidden h-full">
                     <CardHeader className="pb-2">
@@ -224,7 +295,7 @@ const Measurements = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
               className="mb-8"
             >
               <Card className="overflow-hidden">
@@ -279,7 +350,7 @@ const Measurements = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
             >
               <div className="mb-6">
                 <h2 className="text-xl font-semibold">Historique des mesures</h2>

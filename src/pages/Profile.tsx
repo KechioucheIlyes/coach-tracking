@@ -1,39 +1,27 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useStudent } from '../context/StudentContext';
-import AirtableService, { Goal } from '../services/AirtableService';
 import Layout from '../components/Layout';
 import DashboardHeader from '../components/DashboardHeader';
 import { 
   FileText, 
-  Target, 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
   User, 
   Weight, 
-  Ruler, 
   Briefcase, 
-  HeartPulse, 
   Activity, 
-  Flame, 
   Utensils, 
   CalendarDays 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { toast } from 'sonner';
 
 const Profile = () => {
   const { student } = useStudent();
   const navigate = useNavigate();
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   
   // Check if user is logged in
   useEffect(() => {
@@ -41,59 +29,9 @@ const Profile = () => {
       navigate('/');
       return;
     }
-    
-    const fetchGoals = async () => {
-      setIsLoading(true);
-      try {
-        const goalsData = await AirtableService.getStudentGoals(student.id);
-        setGoals(goalsData);
-      } catch (error) {
-        console.error('Error fetching goals:', error);
-        toast.error("Erreur lors de la récupération des objectifs");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchGoals();
   }, [student, navigate]);
 
   if (!student) return null;
-  
-  // Helper to determine goal status appearance
-  const getGoalStatusInfo = (status: string) => {
-    switch (status) {
-      case 'achieved':
-        return { 
-          label: 'Atteint',
-          color: 'bg-green-100 text-green-800',
-          icon: <CheckCircle className="h-4 w-4 mr-1" />
-        };
-      case 'in-progress':
-        return { 
-          label: 'En cours',
-          color: 'bg-blue-100 text-blue-800',
-          icon: <Clock className="h-4 w-4 mr-1" />
-        };
-      case 'pending':
-        return { 
-          label: 'À venir',
-          color: 'bg-orange-100 text-orange-800',
-          icon: <AlertCircle className="h-4 w-4 mr-1" />
-        };
-      default:
-        return { 
-          label: 'Inconnu',
-          color: 'bg-gray-100 text-gray-800',
-          icon: <AlertCircle className="h-4 w-4 mr-1" />
-        };
-    }
-  };
-
-  // Calculate goal progress
-  const completedGoals = goals.filter(goal => goal.status === 'achieved').length;
-  const totalGoals = goals.length;
-  const progress = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
 
   // Format date helper
   const formatDate = (dateString?: string) => {
@@ -157,13 +95,6 @@ const Profile = () => {
                     <h3 className="text-sm font-medium text-gray-500">Nom</h3>
                     <p className="mt-1">{student.name}</p>
                   </div>
-                  
-                  {student.studentCode && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Code élève</h3>
-                      <p className="mt-1">{student.studentCode}</p>
-                    </div>
-                  )}
                   
                   {student.email && (
                     <div>
@@ -248,19 +179,12 @@ const Profile = () => {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="flex items-center">
-                    <Activity className="mr-2 h-5 w-5 text-coach-500" />
-                    Profil Alimentaire & Activité
+                    <Utensils className="mr-2 h-5 w-5 text-coach-500" />
+                    Profil Alimentaire
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {student.activityLevel && (
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">Niveau d'activité</h3>
-                        <p className="mt-1">{student.activityLevel}</p>
-                      </div>
-                    )}
-                    
                     {student.diet && (
                       <div>
                         <h3 className="text-sm font-medium text-gray-500">Régime alimentaire</h3>
@@ -282,6 +206,23 @@ const Profile = () => {
                       <p className="mt-1 text-sm">{student.eatingHabits}</p>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    <Activity className="mr-2 h-5 w-5 text-coach-500" />
+                    Activité
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {student.activityLevel && (
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">Niveau d'activité</h3>
+                      <p className="mt-1">{student.activityLevel}</p>
+                    </div>
+                  )}
                   
                   {student.medicalHistory && (
                     <div>
@@ -298,92 +239,9 @@ const Profile = () => {
                   )}
                 </CardContent>
               </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="flex items-center">
-                    <Target className="mr-2 h-5 w-5 text-coach-500" />
-                    Progression des objectifs
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-6">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-muted-foreground">Progression</span>
-                      <span className="text-sm font-medium">{progress.toFixed(0)}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                  </div>
-                  
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <div className="flex items-center">
-                      <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                      <span>Objectifs atteints: {completedGoals}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-                      <span>Objectifs en cours: {goals.filter(g => g.status === 'in-progress').length}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-3 h-3 bg-orange-500 rounded-full mr-2"></span>
-                      <span>Objectifs à venir: {goals.filter(g => g.status === 'pending').length}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </motion.div>
         </div>
-
-        <section>
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold">Mes objectifs</h2>
-            <p className="text-muted-foreground">Liste de vos objectifs personnels</p>
-          </div>
-
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coach-600"></div>
-            </div>
-          ) : goals.length === 0 ? (
-            <Card className="p-6 text-center">
-              <p className="text-muted-foreground">Aucun objectif défini pour le moment.</p>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {goals.map((goal, index) => {
-                const statusInfo = getGoalStatusInfo(goal.status);
-                
-                return (
-                  <motion.div
-                    key={goal.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index, duration: 0.5 }}
-                  >
-                    <Card className="overflow-hidden animated-card-hover">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="font-semibold text-lg mb-2">{goal.description}</h3>
-                            <div className="flex items-center text-sm text-muted-foreground">
-                              <Clock className="h-4 w-4 mr-1" />
-                              <span>Date cible: {format(new Date(goal.targetDate), 'dd MMMM yyyy', { locale: fr })}</span>
-                            </div>
-                          </div>
-                          <Badge className={statusInfo.color + " flex items-center"}>
-                            {statusInfo.icon}
-                            {statusInfo.label}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </section>
       </motion.div>
     </Layout>
   );
