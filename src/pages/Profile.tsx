@@ -95,13 +95,13 @@ const Profile = () => {
                   
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">Nom</h3>
-                    <p className="mt-1">{student.name}</p>
+                    <p className="mt-1 truncate break-words">{student.name}</p>
                   </div>
                   
                   {student.email && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                      <p className="mt-1">{student.email}</p>
+                      <p className="mt-1 truncate break-all">{student.email}</p>
                     </div>
                   )}
                   
@@ -129,7 +129,7 @@ const Profile = () => {
                   {student.profession && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">Profession</h3>
-                      <p className="mt-1">{student.profession}</p>
+                      <p className="mt-1 truncate break-words">{student.profession}</p>
                     </div>
                   )}
                 </div>
@@ -190,14 +190,14 @@ const Profile = () => {
                     {student.diet && (
                       <div>
                         <h3 className="text-sm font-medium text-gray-500">Régime alimentaire</h3>
-                        <p className="mt-1">{student.diet}</p>
+                        <p className="mt-1 truncate break-words">{student.diet}</p>
                       </div>
                     )}
                     
                     {student.mealFrequency && (
                       <div>
                         <h3 className="text-sm font-medium text-gray-500">Fréquence de repas</h3>
-                        <p className="mt-1">{student.mealFrequency}</p>
+                        <p className="mt-1 truncate break-words">{student.mealFrequency}</p>
                       </div>
                     )}
                   </div>
@@ -205,7 +205,7 @@ const Profile = () => {
                   {student.eatingHabits && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">Habitudes alimentaires</h3>
-                      <p className="mt-1 text-sm">{student.eatingHabits}</p>
+                      <p className="mt-1 text-sm break-words overflow-hidden">{student.eatingHabits}</p>
                     </div>
                   )}
                 </CardContent>
@@ -222,21 +222,21 @@ const Profile = () => {
                   {student.activityLevel && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">Niveau d'activité</h3>
-                      <p className="mt-1">{student.activityLevel}</p>
+                      <p className="mt-1 truncate break-words">{student.activityLevel}</p>
                     </div>
                   )}
                   
                   {student.medicalHistory && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">Antécédents médicaux & sportifs</h3>
-                      <p className="mt-1 text-sm">{student.medicalHistory}</p>
+                      <p className="mt-1 text-sm break-words overflow-hidden">{student.medicalHistory}</p>
                     </div>
                   )}
                   
                   {student.motivation && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">Motivation</h3>
-                      <p className="mt-1 text-sm">{student.motivation}</p>
+                      <p className="mt-1 text-sm break-words overflow-hidden">{student.motivation}</p>
                     </div>
                   )}
                 </CardContent>
