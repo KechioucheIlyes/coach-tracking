@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 interface Student {
@@ -78,54 +77,236 @@ interface MealPlan {
   meals: Meal[];
 }
 
-// This is a mock service that simulates Airtable functionality
-// In a production app, you would use the Airtable API here
+// Configuration Airtable
 class AirtableService {
-  private studentData: Map<string, Student> = new Map();
-  private goalsData: Map<string, Goal[]> = new Map();
-  private measurementsData: Map<string, Measurement[]> = new Map();
-  private calculationsData: Map<string, Calculation[]> = new Map();
-  private workoutsData: Map<string, Workout[]> = new Map();
-  private mealPlansData: Map<string, MealPlan[]> = new Map();
+  private baseId: string;
+  private apiKey: string;
+  private apiUrl: string = 'https://api.airtable.com/v0';
 
   constructor() {
-    this.initializeMockData();
+    // À remplacer par vos propres identifiants Airtable
+    this.baseId = 'YOUR_BASE_ID';
+    this.apiKey = 'YOUR_API_KEY';
   }
 
-  private initializeMockData() {
-    // Create a mock student
-    const student: Student = {
+  // Méthode pour configurer l'API Airtable
+  public configure(baseId: string, apiKey: string) {
+    this.baseId = baseId;
+    this.apiKey = apiKey;
+    localStorage.setItem('airtable_base_id', baseId);
+    localStorage.setItem('airtable_api_key', apiKey);
+  }
+
+  // Vérification de la configuration
+  private get isConfigured(): boolean {
+    return Boolean(this.baseId && this.apiKey);
+  }
+
+  // Chargement des configurations depuis localStorage
+  private loadConfig() {
+    if (!this.isConfigured) {
+      const baseId = localStorage.getItem('airtable_base_id');
+      const apiKey = localStorage.getItem('airtable_api_key');
+      if (baseId && apiKey) {
+        this.baseId = baseId;
+        this.apiKey = apiKey;
+      }
+    }
+  }
+
+  // Méthode générique pour les requêtes Airtable
+  private async fetchFromAirtable<T>(
+    tableName: string,
+    params: Record<string, string> = {}
+  ): Promise<T[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      throw new Error('Airtable API n\'est pas configurée. Veuillez appeler configure() d\'abord.');
+    }
+
+    let url = `${this.apiUrl}/${this.baseId}/${tableName}`;
+
+    // Ajout des paramètres de requête
+    if (Object.keys(params).length > 0) {
+      const queryParams = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        queryParams.append(key, value);
+      }
+      url += `?${queryParams.toString()}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur Airtable: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // Transformation de la réponse Airtable en notre format
+      return data.records.map((record: any) => ({
+        id: record.id,
+        ...record.fields,
+      }));
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données Airtable:', error);
+      toast.error("Erreur lors de la récupération des données");
+      throw error;
+    }
+  }
+
+  // Méthode pour utiliser les données fictives en cas de non-configuration
+  private async useMockData<T>(mockData: T[]): Promise<T[]> {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    return mockData;
+  }
+
+  // Authentication
+  async verifyAccess(accessCode: string): Promise<Student | null> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      // Utilisation des données fictives en mode démo/développement
+      console.warn('Mode démo: utilisation de données fictives');
+      return this.verifyAccessMock(accessCode);
+    }
+    
+    try {
+      // Filtre pour trouver l'étudiant avec le code d'accès spécifié
+      const formula = encodeURIComponent(`{AccessCode} = '${accessCode}'`);
+      const students = await this.fetchFromAirtable<any>('Students', { filterByFormula: formula });
+      
+      if (students && students.length > 0) {
+        const student = students[0];
+        return {
+          id: student.id,
+          name: student.Name,
+          accessCode: student.AccessCode,
+          email: student.Email,
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error verifying access:', error);
+      toast.error("Erreur lors de la vérification de l'accès");
+      return null;
+    }
+  }
+
+  // Version mock pour le développement
+  private async verifyAccessMock(accessCode: string): Promise<Student | null> {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Données de test
+    const mockStudent: Student = {
       id: '1',
       name: 'Thomas Dubois',
       accessCode: 'access123',
       email: 'thomas@example.com'
     };
-    this.studentData.set(student.accessCode, student);
+    
+    if (accessCode === mockStudent.accessCode) {
+      return mockStudent;
+    }
+    return null;
+  }
 
-    // Create mock goals
-    const goals: Goal[] = [
+  // Goals
+  async getStudentGoals(studentId: string): Promise<Goal[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      return this.getStudentGoalsMock(studentId);
+    }
+    
+    try {
+      const formula = encodeURIComponent(`{StudentId} = '${studentId}'`);
+      const goals = await this.fetchFromAirtable<any>('Goals', { filterByFormula: formula });
+      
+      return goals.map(goal => ({
+        id: goal.id,
+        studentId: goal.StudentId,
+        description: goal.Description,
+        targetDate: goal.TargetDate,
+        status: goal.Status.toLowerCase() as 'pending' | 'in-progress' | 'achieved',
+      }));
+    } catch (error) {
+      console.error('Error getting goals:', error);
+      toast.error("Erreur lors de la récupération des objectifs");
+      return [];
+    }
+  }
+  
+  // Version mock pour le développement
+  private async getStudentGoalsMock(studentId: string): Promise<Goal[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Données de test
+    const mockGoals: Goal[] = [
       {
         id: '1',
-        studentId: student.id,
+        studentId: '1',
         description: 'Perdre 5kg',
         targetDate: '2023-12-31',
         status: 'in-progress'
       },
       {
         id: '2',
-        studentId: student.id,
+        studentId: '1',
         description: 'Courir un semi-marathon',
         targetDate: '2024-03-15',
         status: 'pending'
       }
     ];
-    this.goalsData.set(student.id, goals);
+    
+    return mockGoals.filter(goal => goal.studentId === studentId);
+  }
 
-    // Create mock measurements
-    const measurements: Measurement[] = [
+  // Measurements
+  async getStudentMeasurements(studentId: string): Promise<Measurement[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      return this.getStudentMeasurementsMock(studentId);
+    }
+    
+    try {
+      const formula = encodeURIComponent(`{StudentId} = '${studentId}'`);
+      const measurements = await this.fetchFromAirtable<any>('Measurements', { filterByFormula: formula });
+      
+      return measurements.map(measurement => ({
+        id: measurement.id,
+        studentId: measurement.StudentId,
+        date: measurement.Date,
+        weight: Number(measurement.Weight),
+        height: Number(measurement.Height),
+        bodyFat: measurement.BodyFat ? Number(measurement.BodyFat) : undefined,
+        musclePercentage: measurement.MusclePercentage ? Number(measurement.MusclePercentage) : undefined,
+      }));
+    } catch (error) {
+      console.error('Error getting measurements:', error);
+      toast.error("Erreur lors de la récupération des mesures");
+      return [];
+    }
+  }
+
+  // Version mock pour le développement
+  private async getStudentMeasurementsMock(studentId: string): Promise<Measurement[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Données de test
+    const mockMeasurements: Measurement[] = [
       {
         id: '1',
-        studentId: student.id,
+        studentId: '1',
         date: '2023-10-01',
         weight: 83,
         height: 182,
@@ -134,7 +315,7 @@ class AirtableService {
       },
       {
         id: '2',
-        studentId: student.id,
+        studentId: '1',
         date: '2023-11-01',
         weight: 81.5,
         height: 182,
@@ -143,7 +324,7 @@ class AirtableService {
       },
       {
         id: '3',
-        studentId: student.id,
+        studentId: '1',
         date: '2023-12-01',
         weight: 80,
         height: 182,
@@ -151,13 +332,48 @@ class AirtableService {
         musclePercentage: 42
       }
     ];
-    this.measurementsData.set(student.id, measurements);
+    
+    return mockMeasurements.filter(measurement => measurement.studentId === studentId);
+  }
 
-    // Create mock calculations
-    const calculations: Calculation[] = [
+  // Calculations
+  async getStudentCalculations(studentId: string): Promise<Calculation[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      return this.getStudentCalculationsMock(studentId);
+    }
+    
+    try {
+      const formula = encodeURIComponent(`{StudentId} = '${studentId}'`);
+      const calculations = await this.fetchFromAirtable<any>('Calculations', { filterByFormula: formula });
+      
+      return calculations.map(calculation => ({
+        id: calculation.id,
+        studentId: calculation.StudentId,
+        date: calculation.Date,
+        bmr: calculation.BMR,
+        bcj: calculation.BCJ,
+        protein: calculation.Protein,
+        carbs: calculation.Carbs,
+        fat: calculation.Fat,
+      }));
+    } catch (error) {
+      console.error('Error getting calculations:', error);
+      toast.error("Erreur lors de la récupération des calculs");
+      return [];
+    }
+  }
+
+  // Version mock pour le développement
+  private async getStudentCalculationsMock(studentId: string): Promise<Calculation[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Données de test
+    const mockCalculations: Calculation[] = [
       {
         id: '1',
-        studentId: student.id,
+        studentId: '1',
         date: '2023-12-01',
         bmr: 1800,
         bcj: 2400,
@@ -166,13 +382,53 @@ class AirtableService {
         fat: 80
       }
     ];
-    this.calculationsData.set(student.id, calculations);
+    
+    return mockCalculations.filter(calculation => calculation.studentId === studentId);
+  }
 
-    // Create mock workouts
-    const workouts: Workout[] = [
+  // Workouts
+  async getStudentWorkouts(studentId: string): Promise<Workout[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      return this.getStudentWorkoutsMock(studentId);
+    }
+    
+    try {
+      const formula = encodeURIComponent(`{StudentId} = '${studentId}'`);
+      const workouts = await this.fetchFromAirtable<any>('Workouts', { filterByFormula: formula });
+      
+      return workouts.map(workout => ({
+        id: workout.id,
+        studentId: workout.StudentId,
+        date: workout.Date,
+        title: workout.Title,
+        description: workout.Description,
+        exercises: workout.Exercises.map(exercise => ({
+          id: exercise.id,
+          name: exercise.Name,
+          sets: exercise.Sets,
+          reps: exercise.Reps,
+          rest: exercise.Rest,
+          notes: exercise.Notes,
+        })),
+      }));
+    } catch (error) {
+      console.error('Error getting workouts:', error);
+      toast.error("Erreur lors de la récupération des entraînements");
+      return [];
+    }
+  }
+
+  // Version mock pour le développement
+  private async getStudentWorkoutsMock(studentId: string): Promise<Workout[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Données de test
+    const mockWorkouts: Workout[] = [
       {
         id: '1',
-        studentId: student.id,
+        studentId: '1',
         date: '2023-12-05',
         title: 'Entraînement Jambes',
         description: 'Focus sur les quadriceps et ischio-jambiers',
@@ -203,7 +459,7 @@ class AirtableService {
       },
       {
         id: '2',
-        studentId: student.id,
+        studentId: '1',
         date: '2023-12-07',
         title: 'Entraînement Haut du Corps',
         description: 'Pectoraux, épaules et triceps',
@@ -232,13 +488,56 @@ class AirtableService {
         ]
       }
     ];
-    this.workoutsData.set(student.id, workouts);
+    
+    return mockWorkouts.filter(workout => workout.studentId === studentId);
+  }
 
-    // Create mock meal plans
-    const mealPlans: MealPlan[] = [
+  // Meal Plans
+  async getStudentMealPlans(studentId: string): Promise<MealPlan[]> {
+    this.loadConfig();
+    
+    if (!this.isConfigured) {
+      return this.getStudentMealPlansMock(studentId);
+    }
+    
+    try {
+      const formula = encodeURIComponent(`{StudentId} = '${studentId}'`);
+      const mealPlans = await this.fetchFromAirtable<any>('MealPlans', { filterByFormula: formula });
+      
+      return mealPlans.map(mealPlan => ({
+        id: mealPlan.id,
+        studentId: mealPlan.StudentId,
+        date: mealPlan.Date,
+        meals: mealPlan.Meals.map(meal => ({
+          id: meal.id,
+          type: meal.Type,
+          items: meal.Items.map(item => ({
+            id: item.id,
+            name: item.Name,
+            quantity: item.Quantity,
+            calories: item.Calories,
+            protein: item.Protein,
+            carbs: item.Carbs,
+            fat: item.Fat,
+          })),
+        })),
+      }));
+    } catch (error) {
+      console.error('Error getting meal plans:', error);
+      toast.error("Erreur lors de la récupération des plans alimentaires");
+      return [];
+    }
+  }
+
+  // Version mock pour le développement
+  private async getStudentMealPlansMock(studentId: string): Promise<MealPlan[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Données de test
+    const mockMealPlans: MealPlan[] = [
       {
         id: '1',
-        studentId: student.id,
+        studentId: '1',
         date: '2023-12-05',
         meals: [
           {
@@ -301,90 +600,8 @@ class AirtableService {
         ]
       }
     ];
-    this.mealPlansData.set(student.id, mealPlans);
-  }
-
-  // Authentication
-  async verifyAccess(accessCode: string): Promise<Student | null> {
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 800));
     
-    try {
-      const student = this.studentData.get(accessCode);
-      if (student) {
-        return student;
-      }
-      return null;
-    } catch (error) {
-      console.error('Error verifying access:', error);
-      toast.error("Erreur lors de la vérification de l'accès");
-      return null;
-    }
-  }
-
-  // Goals
-  async getStudentGoals(studentId: string): Promise<Goal[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    try {
-      return this.goalsData.get(studentId) || [];
-    } catch (error) {
-      console.error('Error getting goals:', error);
-      toast.error("Erreur lors de la récupération des objectifs");
-      return [];
-    }
-  }
-
-  // Measurements
-  async getStudentMeasurements(studentId: string): Promise<Measurement[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    try {
-      return this.measurementsData.get(studentId) || [];
-    } catch (error) {
-      console.error('Error getting measurements:', error);
-      toast.error("Erreur lors de la récupération des mesures");
-      return [];
-    }
-  }
-
-  // Calculations
-  async getStudentCalculations(studentId: string): Promise<Calculation[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    try {
-      return this.calculationsData.get(studentId) || [];
-    } catch (error) {
-      console.error('Error getting calculations:', error);
-      toast.error("Erreur lors de la récupération des calculs");
-      return [];
-    }
-  }
-
-  // Workouts
-  async getStudentWorkouts(studentId: string): Promise<Workout[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    try {
-      return this.workoutsData.get(studentId) || [];
-    } catch (error) {
-      console.error('Error getting workouts:', error);
-      toast.error("Erreur lors de la récupération des entraînements");
-      return [];
-    }
-  }
-
-  // Meal Plans
-  async getStudentMealPlans(studentId: string): Promise<MealPlan[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    try {
-      return this.mealPlansData.get(studentId) || [];
-    } catch (error) {
-      console.error('Error getting meal plans:', error);
-      toast.error("Erreur lors de la récupération des plans alimentaires");
-      return [];
-    }
+    return mockMealPlans.filter(mealPlan => mealPlan.studentId === studentId);
   }
 }
 

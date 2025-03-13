@@ -1,48 +1,43 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { StudentProvider } from "./context/StudentContext";
-import { AnimatePresence } from "framer-motion";
+import { useState } from 'react'
+import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Toaster } from "@/components/ui/sonner"
+import { AnimatePresence } from 'framer-motion'
+import { StudentProvider } from './context/StudentContext'
+import Index from './pages/Index'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Profile from './pages/Profile'
+import Measurements from './pages/Measurements'
+import Calculations from './pages/Calculations'
+import Workouts from './pages/Workouts'
+import Nutrition from './pages/Nutrition'
+import AirtableConfig from './pages/AirtableConfig'
+import NotFound from './pages/NotFound'
 
-// Pages
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import Measurements from "./pages/Measurements";
-import Calculations from "./pages/Calculations";
-import Workouts from "./pages/Workouts";
-import Nutrition from "./pages/Nutrition";
-import NotFound from "./pages/NotFound";
+function App() {
+  return (
+    <Router>
+      <StudentProvider>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/measurements" element={<Measurements />} />
+            <Route path="/calculations" element={<Calculations />} />
+            <Route path="/workouts" element={<Workouts />} />
+            <Route path="/nutrition" element={<Nutrition />} />
+            <Route path="/airtable-config" element={<AirtableConfig />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AnimatePresence>
+        <Toaster position="bottom-right" />
+      </StudentProvider>
+    </Router>
+  )
+}
 
-// Main app component with routes
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <StudentProvider>
-          <Toaster />
-          <Sonner />
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/measurements" element={<Measurements />} />
-              <Route path="/calculations" element={<Calculations />} />
-              <Route path="/workouts" element={<Workouts />} />
-              <Route path="/nutrition" element={<Nutrition />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AnimatePresence>
-        </StudentProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+export default App
