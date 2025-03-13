@@ -1,4 +1,3 @@
-
 export interface Student {
   id: string;
   name: string;
@@ -39,6 +38,19 @@ export interface Measurement {
   height: number;
   bodyFat?: number;
   musclePercentage?: number;
+  // Additional fields from Airtable
+  water?: number;
+  visceralFat?: number;
+  thighCircumferenceLeft?: number; 
+  thighCircumferenceRight?: number;
+  hipCircumference?: number;
+  waistCircumference?: number;
+  chestCircumference?: number;
+  armCircumferenceLeft?: number;
+  armCircumferenceRight?: number;
+  // Calculated fields from Airtable
+  weightLost?: number;
+  weightRemaining?: number;
 }
 
 export interface Calculation {

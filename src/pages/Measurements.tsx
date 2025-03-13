@@ -8,11 +8,13 @@ import Layout from '../components/Layout';
 import DashboardHeader from '../components/DashboardHeader';
 import { Ruler, Target, CheckCircle, Clock, AlertCircle, TrendingUp, TrendingDown, ArrowRight, Scale, ChevronUp, ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { format, parseISO } from 'date-fns';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { format, parseISO, compareDesc } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 const Measurements = () => {
   const { student } = useStudent();
@@ -35,7 +37,7 @@ const Measurements = () => {
         const measurementsData = await AirtableService.getStudentMeasurements(student.id);
         // Sort by date (newest first)
         setMeasurements(measurementsData.sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
+          compareDesc(new Date(a.date), new Date(b.date))
         ));
       } catch (error) {
         console.error('Error fetching measurements:', error);
@@ -71,7 +73,9 @@ const Measurements = () => {
   const previousMeasurement = measurements[1];
   
   // Calculate differences for trend indicators
-  const calculateDifference = (current: number, previous: number) => {
+  const calculateDifference = (current: number | undefined, previous: number | undefined) => {
+    if (current === undefined || previous === undefined) return { value: '-', isPositive: false, isNeutral: true };
+    
     const diff = current - previous;
     return {
       value: Math.abs(diff).toFixed(1),
@@ -85,13 +89,47 @@ const Measurements = () => {
   const totalGoals = goals.length;
   const progress = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
   
-  // Prepare data for charts
-  const chartData = [...measurements].reverse().map(m => ({
-    date: format(new Date(m.date), 'dd/MM', { locale: fr }),
-    weight: m.weight,
-    bodyFat: m.bodyFat || 0,
-    muscle: m.musclePercentage || 0
-  }));
+  // Prepare data for weight chart (in chronological order for the chart)
+  const weightChartData = [...measurements]
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(m => ({
+      date: format(new Date(m.date), 'dd/MM/yy', { locale: fr }),
+      fullDate: m.date,
+      weight: m.weight,
+    }));
+    
+  // Prepare data for body composition chart (in chronological order for the chart)
+  const bodyCompositionChartData = [...measurements]
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(m => ({
+      date: format(new Date(m.date), 'dd/MM/yy', { locale: fr }),
+      fullDate: m.date,
+      bodyFat: m.bodyFat || 0,
+      muscle: m.musclePercentage || 0,
+      water: m.water || 0,
+    }))
+    .filter(data => data.bodyFat > 0 || data.muscle > 0);
+    
+  // Prepare data for measurements chart (in chronological order for the chart)
+  const measurementsChartData = [...measurements]
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(m => ({
+      date: format(new Date(m.date), 'dd/MM/yy', { locale: fr }),
+      fullDate: m.date,
+      waist: m.waistCircumference || 0,
+      hip: m.hipCircumference || 0,
+      chest: m.chestCircumference || 0,
+    }))
+    .filter(data => data.waist > 0 || data.hip > 0 || data.chest > 0);
+  
+  // Helper function to format dates on the UI
+  const formatMeasurementDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'dd MMMM yyyy', { locale: fr });
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   return (
     <Layout>
@@ -180,36 +218,60 @@ const Measurements = () => {
                       Poids
                     </CardTitle>
                     <CardDescription>
-                      Dernière mesure: {format(new Date(latestMeasurement.date), 'dd MMMM yyyy', { locale: fr })}
+                      Dernière mesure: {latestMeasurement ? formatMeasurementDate(latestMeasurement.date) : 'N/A'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold mb-2">
-                      {latestMeasurement.weight} <span className="text-base font-normal text-gray-500">kg</span>
-                    </div>
-                    
-                    {previousMeasurement && (
-                      <div className="flex items-center text-sm">
-                        {(() => {
-                          const diff = calculateDifference(latestMeasurement.weight, previousMeasurement.weight);
-                          return (
-                            <>
-                              {diff.isNeutral ? (
-                                <ArrowRight className="h-4 w-4 mr-1 text-gray-500" />
-                              ) : diff.isPositive ? (
-                                <ChevronUp className="h-4 w-4 mr-1 text-red-500" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4 mr-1 text-green-500" />
-                              )}
-                              <span 
-                                className={diff.isNeutral ? 'text-gray-500' : (diff.isPositive ? 'text-red-500' : 'text-green-500')}
-                              >
-                                {diff.value} kg depuis la dernière mesure
-                              </span>
-                            </>
-                          );
-                        })()}
-                      </div>
+                    {latestMeasurement ? (
+                      <>
+                        <div className="text-3xl font-bold mb-2">
+                          {latestMeasurement.weight} <span className="text-base font-normal text-gray-500">kg</span>
+                        </div>
+                        
+                        {previousMeasurement && (
+                          <div className="flex items-center text-sm">
+                            {(() => {
+                              const diff = calculateDifference(latestMeasurement.weight, previousMeasurement.weight);
+                              return (
+                                <>
+                                  {diff.isNeutral ? (
+                                    <ArrowRight className="h-4 w-4 mr-1 text-gray-500" />
+                                  ) : diff.isPositive ? (
+                                    <ChevronUp className="h-4 w-4 mr-1 text-red-500" />
+                                  ) : (
+                                    <ChevronDown className="h-4 w-4 mr-1 text-green-500" />
+                                  )}
+                                  <span 
+                                    className={diff.isNeutral ? 'text-gray-500' : (diff.isPositive ? 'text-red-500' : 'text-green-500')}
+                                  >
+                                    {diff.value} kg depuis la dernière mesure
+                                  </span>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        )}
+                        
+                        {latestMeasurement.weightLost !== undefined && (
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <div className="text-sm text-gray-500">Poids perdu depuis le début</div>
+                            <div className="font-semibold text-xl">
+                              {Math.abs(latestMeasurement.weightLost).toFixed(1)} kg
+                            </div>
+                          </div>
+                        )}
+                        
+                        {latestMeasurement.weightRemaining !== undefined && (
+                          <div className="mt-2">
+                            <div className="text-sm text-gray-500">Restant pour atteindre l'objectif</div>
+                            <div className="font-semibold text-xl">
+                              {Math.abs(latestMeasurement.weightRemaining).toFixed(1)} kg
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-center text-gray-500">Données non disponibles</div>
                     )}
                   </CardContent>
                 </Card>
@@ -219,83 +281,132 @@ const Measurements = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
+                className="md:col-span-2"
               >
                 <Card className="overflow-hidden h-full">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center">
-                      <Ruler className="h-5 w-5 mr-2 text-coach-500" />
-                      Taille
+                      <TrendingUp className="h-5 w-5 mr-2 text-coach-500" />
+                      Composition corporelle
                     </CardTitle>
                     <CardDescription>
-                      Dernière mesure: {format(new Date(latestMeasurement.date), 'dd MMMM yyyy', { locale: fr })}
+                      Dernière mesure: {latestMeasurement ? formatMeasurementDate(latestMeasurement.date) : 'N/A'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold mb-2">
-                      {latestMeasurement.height} <span className="text-base font-normal text-gray-500">cm</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <ArrowRight className="h-4 w-4 mr-1" />
-                      <span>Mesure de référence</span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {latestMeasurement?.bodyFat !== undefined && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">Masse grasse</h3>
+                          <p className="text-xl font-semibold">
+                            {latestMeasurement.bodyFat}
+                            <span className="text-base font-normal text-gray-500">%</span>
+                          </p>
+                          
+                          {previousMeasurement?.bodyFat !== undefined && (
+                            <div className="flex items-center text-xs">
+                              {(() => {
+                                const diff = calculateDifference(latestMeasurement.bodyFat, previousMeasurement.bodyFat);
+                                return (
+                                  <>
+                                    {diff.isNeutral ? (
+                                      <ArrowRight className="h-3 w-3 mr-1 text-gray-500" />
+                                    ) : diff.isPositive ? (
+                                      <ChevronUp className="h-3 w-3 mr-1 text-red-500" />
+                                    ) : (
+                                      <ChevronDown className="h-3 w-3 mr-1 text-green-500" />
+                                    )}
+                                    <span 
+                                      className={diff.isNeutral ? 'text-gray-500' : (diff.isPositive ? 'text-red-500' : 'text-green-500')}
+                                    >
+                                      {diff.value}%
+                                    </span>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {latestMeasurement?.musclePercentage !== undefined && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">Masse musculaire</h3>
+                          <p className="text-xl font-semibold">
+                            {latestMeasurement.musclePercentage}
+                            <span className="text-base font-normal text-gray-500">%</span>
+                          </p>
+                          
+                          {previousMeasurement?.musclePercentage !== undefined && (
+                            <div className="flex items-center text-xs">
+                              {(() => {
+                                const diff = calculateDifference(latestMeasurement.musclePercentage, previousMeasurement.musclePercentage);
+                                return (
+                                  <>
+                                    {diff.isNeutral ? (
+                                      <ArrowRight className="h-3 w-3 mr-1 text-gray-500" />
+                                    ) : diff.isPositive ? (
+                                      <ChevronUp className="h-3 w-3 mr-1 text-green-500" />
+                                    ) : (
+                                      <ChevronDown className="h-3 w-3 mr-1 text-red-500" />
+                                    )}
+                                    <span 
+                                      className={diff.isNeutral ? 'text-gray-500' : (diff.isPositive ? 'text-green-500' : 'text-red-500')}
+                                    >
+                                      {diff.value}%
+                                    </span>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {latestMeasurement?.water !== undefined && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">Eau</h3>
+                          <p className="text-xl font-semibold">
+                            {latestMeasurement.water}
+                            <span className="text-base font-normal text-gray-500">%</span>
+                          </p>
+                          
+                          {previousMeasurement?.water !== undefined && (
+                            <div className="flex items-center text-xs">
+                              {(() => {
+                                const diff = calculateDifference(latestMeasurement.water, previousMeasurement.water);
+                                return (
+                                  <>
+                                    {diff.isNeutral ? (
+                                      <ArrowRight className="h-3 w-3 mr-1 text-gray-500" />
+                                    ) : diff.isPositive ? (
+                                      <ChevronUp className="h-3 w-3 mr-1 text-blue-500" />
+                                    ) : (
+                                      <ChevronDown className="h-3 w-3 mr-1 text-orange-500" />
+                                    )}
+                                    <span 
+                                      className={diff.isNeutral ? 'text-gray-500' : (diff.isPositive ? 'text-blue-500' : 'text-orange-500')}
+                                    >
+                                      {diff.value}%
+                                    </span>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
-              
-              {latestMeasurement.bodyFat && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                >
-                  <Card className="overflow-hidden h-full">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center">
-                        Masse grasse
-                      </CardTitle>
-                      <CardDescription>
-                        Dernière mesure: {format(new Date(latestMeasurement.date), 'dd MMMM yyyy', { locale: fr })}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold mb-2">
-                        {latestMeasurement.bodyFat} <span className="text-base font-normal text-gray-500">%</span>
-                      </div>
-                      
-                      {previousMeasurement && previousMeasurement.bodyFat && (
-                        <div className="flex items-center text-sm">
-                          {(() => {
-                            const diff = calculateDifference(latestMeasurement.bodyFat!, previousMeasurement.bodyFat!);
-                            return (
-                              <>
-                                {diff.isNeutral ? (
-                                  <ArrowRight className="h-4 w-4 mr-1 text-gray-500" />
-                                ) : diff.isPositive ? (
-                                  <ChevronUp className="h-4 w-4 mr-1 text-red-500" />
-                                ) : (
-                                  <ChevronDown className="h-4 w-4 mr-1 text-green-500" />
-                                )}
-                                <span 
-                                  className={diff.isNeutral ? 'text-gray-500' : (diff.isPositive ? 'text-red-500' : 'text-green-500')}
-                                >
-                                  {diff.value}% depuis la dernière mesure
-                                </span>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
             </div>
 
             {/* Weight Evolution Chart */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
               className="mb-8"
             >
               <Card className="overflow-hidden">
@@ -307,44 +418,178 @@ const Measurements = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                        <XAxis 
-                          dataKey="date" 
-                          tick={{ fontSize: 12 }} 
-                          tickLine={false}
-                          axisLine={{ stroke: '#f0f0f0' }}
-                        />
-                        <YAxis 
-                          domain={['dataMin - 2', 'dataMax + 2']} 
-                          tick={{ fontSize: 12 }} 
-                          tickLine={false}
-                          axisLine={{ stroke: '#f0f0f0' }}
-                        />
-                        <Tooltip 
-                          contentStyle={{ 
-                            background: 'white', 
-                            border: '1px solid #f0f0f0',
-                            borderRadius: '8px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
-                          }}
-                          formatter={(value: number) => [`${value} kg`, 'Poids']}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="weight" 
-                          stroke="#0ea5e9" 
-                          strokeWidth={2} 
-                          dot={{ r: 4, strokeWidth: 2, fill: 'white' }} 
-                          activeDot={{ r: 6, strokeWidth: 0, fill: '#0ea5e9' }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    {weightChartData.length > 0 ? (
+                      <ChartContainer 
+                        className="w-full"
+                        config={{
+                          weight: { label: "Poids", color: "#0ea5e9" },
+                        }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={weightChartData} margin={{ top: 5, right: 20, left: 0, bottom: 20 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <XAxis 
+                              dataKey="date" 
+                              tick={{ fontSize: 12 }} 
+                              tickLine={false}
+                              axisLine={{ stroke: '#f0f0f0' }}
+                            />
+                            <YAxis 
+                              domain={['auto', 'auto']} 
+                              tick={{ fontSize: 12 }} 
+                              tickLine={false}
+                              axisLine={{ stroke: '#f0f0f0' }}
+                            />
+                            <ChartTooltip 
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="rounded-lg border bg-background p-2 shadow-sm">
+                                      <div className="font-medium">{formatMeasurementDate(data.fullDate)}</div>
+                                      <div className="text-sm text-muted-foreground">
+                                        <span className="font-medium text-foreground">{data.weight} kg</span> de poids
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="weight" 
+                              stroke="var(--color-weight, #0ea5e9)" 
+                              strokeWidth={2} 
+                              dot={{ r: 4, strokeWidth: 2, fill: 'white' }} 
+                              activeDot={{ r: 6, strokeWidth: 0, fill: "#0ea5e9" }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    ) : (
+                      <div className="flex justify-center items-center h-full">
+                        <span className="text-muted-foreground">Pas assez de données pour afficher un graphique</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
+
+            {/* Body Composition Chart */}
+            {bodyCompositionChartData.length > 1 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="mb-8"
+              >
+                <Card className="overflow-hidden">
+                  <CardHeader>
+                    <CardTitle>Composition corporelle</CardTitle>
+                    <CardDescription>
+                      Évolution de votre composition corporelle au fil du temps
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 w-full">
+                      <ChartContainer 
+                        className="w-full"
+                        config={{
+                          bodyFat: { label: "Masse grasse", color: "#ef4444" },
+                          muscle: { label: "Masse musculaire", color: "#22c55e" },
+                          water: { label: "Eau", color: "#0ea5e9" },
+                        }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={bodyCompositionChartData} margin={{ top: 5, right: 20, left: 0, bottom: 20 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <XAxis 
+                              dataKey="date" 
+                              tick={{ fontSize: 12 }} 
+                              tickLine={false}
+                              axisLine={{ stroke: '#f0f0f0' }}
+                            />
+                            <YAxis 
+                              domain={['auto', 'auto']} 
+                              tick={{ fontSize: 12 }} 
+                              tickLine={false}
+                              axisLine={{ stroke: '#f0f0f0' }}
+                            />
+                            <ChartTooltip 
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="rounded-lg border bg-background p-2 shadow-sm">
+                                      <div className="font-medium">{formatMeasurementDate(data.fullDate)}</div>
+                                      {data.bodyFat > 0 && (
+                                        <div className="grid grid-flow-col items-center gap-1 text-sm text-muted-foreground">
+                                          <div className="h-2 w-2 rounded-full bg-red-500" />
+                                          <span className="font-medium text-foreground">{data.bodyFat}%</span> de masse grasse
+                                        </div>
+                                      )}
+                                      {data.muscle > 0 && (
+                                        <div className="grid grid-flow-col items-center gap-1 text-sm text-muted-foreground">
+                                          <div className="h-2 w-2 rounded-full bg-green-500" />
+                                          <span className="font-medium text-foreground">{data.muscle}%</span> de masse musculaire
+                                        </div>
+                                      )}
+                                      {data.water > 0 && (
+                                        <div className="grid grid-flow-col items-center gap-1 text-sm text-muted-foreground">
+                                          <div className="h-2 w-2 rounded-full bg-blue-500" />
+                                          <span className="font-medium text-foreground">{data.water}%</span> d'eau
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Legend />
+                            {bodyCompositionChartData.some(d => d.bodyFat > 0) && (
+                              <Line 
+                                type="monotone" 
+                                dataKey="bodyFat" 
+                                name="Masse grasse"
+                                stroke="var(--color-bodyFat, #ef4444)" 
+                                strokeWidth={2} 
+                                dot={{ r: 4, strokeWidth: 2, fill: 'white' }} 
+                                activeDot={{ r: 6, strokeWidth: 0, fill: "#ef4444" }}
+                              />
+                            )}
+                            {bodyCompositionChartData.some(d => d.muscle > 0) && (
+                              <Line 
+                                type="monotone" 
+                                dataKey="muscle" 
+                                name="Masse musculaire"
+                                stroke="var(--color-muscle, #22c55e)" 
+                                strokeWidth={2} 
+                                dot={{ r: 4, strokeWidth: 2, fill: 'white' }} 
+                                activeDot={{ r: 6, strokeWidth: 0, fill: "#22c55e" }}
+                              />
+                            )}
+                            {bodyCompositionChartData.some(d => d.water > 0) && (
+                              <Line 
+                                type="monotone" 
+                                dataKey="water" 
+                                name="Eau"
+                                stroke="var(--color-water, #0ea5e9)" 
+                                strokeWidth={2} 
+                                dot={{ r: 4, strokeWidth: 2, fill: 'white' }} 
+                                activeDot={{ r: 6, strokeWidth: 0, fill: "#0ea5e9" }}
+                              />
+                            )}
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
             {/* Measurement History */}
             <motion.div
@@ -354,50 +599,37 @@ const Measurements = () => {
             >
               <div className="mb-6">
                 <h2 className="text-xl font-semibold">Historique des mesures</h2>
-                <p className="text-muted-foreground">Toutes vos mesures enregistrées</p>
+                <p className="text-muted-foreground">Toutes vos mesures enregistrées, triées par date décroissante</p>
               </div>
               
-              <div className="space-y-4">
-                {measurements.map((measurement, index) => (
-                  <Card key={measurement.id} className="overflow-hidden animated-card-hover">
-                    <CardContent className="p-6">
-                      <div>
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="font-semibold">
-                            {format(new Date(measurement.date), 'dd MMMM yyyy', { locale: fr })}
-                          </h3>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div>
-                            <p className="text-sm text-gray-500">Poids</p>
-                            <p className="font-medium">{measurement.weight} kg</p>
-                          </div>
-                          
-                          <div>
-                            <p className="text-sm text-gray-500">Taille</p>
-                            <p className="font-medium">{measurement.height} cm</p>
-                          </div>
-                          
-                          {measurement.bodyFat && (
-                            <div>
-                              <p className="text-sm text-gray-500">Masse grasse</p>
-                              <p className="font-medium">{measurement.bodyFat}%</p>
-                            </div>
-                          )}
-                          
-                          {measurement.musclePercentage && (
-                            <div>
-                              <p className="text-sm text-gray-500">Masse musculaire</p>
-                              <p className="font-medium">{measurement.musclePercentage}%</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <Card>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Poids (kg)</TableHead>
+                        <TableHead>Masse grasse (%)</TableHead>
+                        <TableHead>Masse musculaire (%)</TableHead>
+                        <TableHead>Tour de taille (cm)</TableHead>
+                        <TableHead>Tour de hanches (cm)</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {measurements.map((measurement) => (
+                        <TableRow key={measurement.id}>
+                          <TableCell className="font-medium">{formatMeasurementDate(measurement.date)}</TableCell>
+                          <TableCell>{measurement.weight}</TableCell>
+                          <TableCell>{measurement.bodyFat || '-'}</TableCell>
+                          <TableCell>{measurement.musclePercentage || '-'}</TableCell>
+                          <TableCell>{measurement.waistCircumference || '-'}</TableCell>
+                          <TableCell>{measurement.hipCircumference || '-'}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Card>
             </motion.div>
           </>
         )}
