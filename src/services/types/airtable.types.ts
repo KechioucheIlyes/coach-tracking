@@ -1,4 +1,3 @@
-
 export interface Student {
   id: string;
   name: string;
@@ -58,6 +57,9 @@ export interface Measurement {
   // Calculated fields from Airtable
   weightLost?: number;
   weightRemaining?: number;
+  // Added fields for weight progression
+  initialWeight?: number;
+  targetWeight?: number;
 }
 
 export interface Calculation {

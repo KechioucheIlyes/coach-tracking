@@ -48,6 +48,9 @@ class MeasurementService {
           // Champs calculés depuis Airtable
           weightLost: measurement["Poids Perdu"] ? Number(measurement["Poids Perdu"]) : undefined,
           weightRemaining: measurement["Perte Restant"] ? Number(measurement["Perte Restant"]) : undefined,
+          // Nouveaux champs pour la progression du poids
+          initialWeight: measurement["↗ Poids Initial"] ? Number(measurement["↗ Poids Initial"][0]) : undefined,
+          targetWeight: measurement["↗ Poids Cible"] ? Number(measurement["↗ Poids Cible"][0]) : undefined,
         }))
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
@@ -96,6 +99,9 @@ class MeasurementService {
               armCircumferenceRight: measurement["Tour de Bras D"] ? Number(measurement["Tour de Bras D"]) : undefined,
               weightLost: measurement["Poids Perdu"] ? Number(measurement["Poids Perdu"]) : undefined,
               weightRemaining: measurement["Perte Restant"] ? Number(measurement["Perte Restant"]) : undefined,
+              // Nouveaux champs pour la progression du poids
+              initialWeight: measurement["↗ Poids Initial"] ? Number(measurement["↗ Poids Initial"][0]) : undefined,
+              targetWeight: measurement["↗ Poids Cible"] ? Number(measurement["↗ Poids Cible"][0]) : undefined,
             }))
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           
