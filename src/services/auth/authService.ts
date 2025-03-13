@@ -4,27 +4,10 @@ import AirtableApiService from "../api/airtableApi";
 import { Student } from "../types/airtable.types";
 import { mockStudent } from "../mocks/airtableMocks";
 
-// Ajout de l'étudiant Féline Faure pour le mode démo
-const additionalMockStudents: Record<string, Student> = {
-  "rech0KgjCrK24UrBH": {
-    id: '2',
-    name: 'Féline Faure',
-    accessCode: 'rech0KgjCrK24UrBH',
-    email: 'feline@example.com'
-  }
-};
-
 class AuthService {
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {
-    // Vérifier d'abord si c'est un étudiant du mode démo
-    if (accessCode === mockStudent.accessCode || additionalMockStudents[accessCode]) {
-      console.log('Utilisation des données de démo pour le code:', accessCode);
-      // Retourner soit l'étudiant mockStudent soit l'étudiant additionnel
-      return accessCode === mockStudent.accessCode ? mockStudent : additionalMockStudents[accessCode];
-    }
-    
-    // Sinon, essayer avec Airtable si configuré
+    // En mode démo ou développement, utiliser les données fictives
     if (!AirtableApiService.isConfigured) {
       console.warn('Mode démo: utilisation de données fictives');
       return this.verifyAccessMock(accessCode);
@@ -33,38 +16,64 @@ class AuthService {
     try {
       console.log('Tentative de vérification avec le code:', accessCode);
       
-      // Testons avec un nom de table plus simple, sans accents
-      const tableName = 'Eleves'; // "Élèves" pourrait causer des problèmes d'encodage
+      // Définir plusieurs noms de table possibles à essayer
+      const tableNames = ['Eleves', 'Students', 'Étudiants', 'Élèves', 'Student'];
       
-      // Filtre pour trouver l'étudiant avec le code d'accès spécifié
-      const formula = encodeURIComponent(`{code} = '${accessCode}'`);
-      console.log('Formule de filtrage:', formula);
+      let student = null;
       
-      // Essayons sans filtre d'abord pour voir si nous pouvons accéder à la table
-      const students = await AirtableApiService.fetchFromAirtable<any>(tableName);
-      console.log('Résultat de la requête:', students);
-      
-      // Si nous avons des résultats, filtrons manuellement
-      if (students && students.length > 0) {
-        // Trouver l'étudiant avec le code correspondant
-        const student = students.find((s: any) => s.code === accessCode);
-        
-        if (student) {
-          console.log('Étudiant trouvé:', student);
+      // Tester chaque nom de table jusqu'à trouver le bon
+      for (const tableName of tableNames) {
+        try {
+          console.log(`Essai avec la table: ${tableName}`);
+          const students = await AirtableApiService.fetchFromAirtable<any>(tableName);
           
-          return {
-            id: student.id,
-            name: student.Name || student.name || '',
-            accessCode: student.code || '',
-            email: student.Email || student.email || '',
-          };
+          if (students && students.length > 0) {
+            console.log(`Table ${tableName} trouvée avec ${students.length} enregistrements`);
+            
+            // Vérifier plusieurs champs possibles pour le code d'accès
+            const possibleCodeFields = ['code', 'Code', 'accessCode', 'AccessCode', 'access_code', 'access_Code'];
+            
+            // Chercher l'étudiant avec le bon code d'accès, en testant tous les champs possibles
+            const matchingStudent = students.find((s: any) => {
+              return possibleCodeFields.some(field => s[field] === accessCode);
+            });
+            
+            if (matchingStudent) {
+              console.log('Étudiant trouvé:', matchingStudent);
+              
+              // Déterminer les champs à utiliser pour les données
+              const nameField = matchingStudent.Name || matchingStudent.name || matchingStudent.nom || '';
+              const emailField = matchingStudent.Email || matchingStudent.email || matchingStudent.courriel || '';
+              
+              // Déterminer quel champ de code a été utilisé
+              const usedCodeField = possibleCodeFields.find(field => matchingStudent[field] === accessCode) || 'code';
+              
+              student = {
+                id: matchingStudent.id,
+                name: nameField,
+                accessCode: matchingStudent[usedCodeField] || '',
+                email: emailField,
+              };
+              
+              break; // Sortir de la boucle, nous avons trouvé l'étudiant
+            }
+          }
+        } catch (error) {
+          console.warn(`Échec avec la table ${tableName}:`, error);
+          // Continuer avec la table suivante
         }
       }
       
-      console.log('Aucun étudiant trouvé avec ce code');
-      // Si l'étudiant est dans nos données de démo, on le retourne
-      if (additionalMockStudents[accessCode]) {
-        return additionalMockStudents[accessCode];
+      if (student) {
+        return student;
+      }
+      
+      console.log('Aucun étudiant trouvé avec ce code après avoir essayé toutes les tables');
+      
+      // Si l'étudiant n'est pas trouvé mais que le code correspond à notre démo, utiliser les données fictives
+      if (accessCode === mockStudent.accessCode) {
+        console.log('Utilisation des données de démo pour le code:', accessCode);
+        return mockStudent;
       }
       
       return null;
@@ -72,10 +81,10 @@ class AuthService {
       console.error('Error verifying access:', error);
       toast.error("Erreur lors de la vérification de l'accès");
       
-      // En cas d'erreur, essayons avec les données de démo pour permettre l'accès
-      if (accessCode === mockStudent.accessCode || additionalMockStudents[accessCode]) {
+      // En cas d'erreur générale, si le code correspond à la démo, on retourne les données fictives
+      if (accessCode === mockStudent.accessCode) {
         console.log('Fallback vers les données de démo après erreur');
-        return accessCode === mockStudent.accessCode ? mockStudent : additionalMockStudents[accessCode];
+        return mockStudent;
       }
       
       return null;
@@ -88,8 +97,6 @@ class AuthService {
     
     if (accessCode === mockStudent.accessCode) {
       return mockStudent;
-    } else if (additionalMockStudents[accessCode]) {
-      return additionalMockStudents[accessCode];
     }
     
     return null;

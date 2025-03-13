@@ -82,7 +82,7 @@ const Login = () => {
                 autoFocus
               />
               <p className="text-xs text-muted-foreground">
-                Codes démo: "access123" (Thomas) ou "rech0KgjCrK24UrBH" (Féline)
+                Utilisez le code fourni par votre coach (pour la démo: access123)
               </p>
             </div>
 
