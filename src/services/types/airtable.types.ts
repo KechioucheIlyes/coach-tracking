@@ -1,3 +1,4 @@
+
 export interface Student {
   id: string;
   name: string;
@@ -28,6 +29,11 @@ export interface Goal {
   description: string;
   targetDate: string;
   status: 'pending' | 'in-progress' | 'achieved';
+  // Additional fields for weight goal
+  initialWeight?: number;
+  targetWeight?: number;
+  currentWeight?: number;
+  weightRemaining?: number;
 }
 
 export interface Measurement {

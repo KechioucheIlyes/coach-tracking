@@ -122,6 +122,20 @@ const Measurements = () => {
     }
   };
 
+  const calculateWeightProgress = () => {
+    if (!weightGoal || !weightGoal.initialWeight || !weightGoal.targetWeight || !weightGoal.currentWeight) {
+      return 0;
+    }
+    
+    const totalLossNeeded = weightGoal.initialWeight - weightGoal.targetWeight;
+    const currentLoss = weightGoal.initialWeight - weightGoal.currentWeight;
+    
+    if (totalLossNeeded <= 0) return 0;
+    return Math.min(Math.max((currentLoss / totalLossNeeded) * 100, 0), 100);
+  };
+  
+  const weightProgressPercent = calculateWeightProgress();
+
   return (
     <Layout>
       <motion.div
@@ -175,12 +189,56 @@ const Measurements = () => {
                       </div>
                       
                       {weightGoal && (
-                        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center mb-2">
-                            <Scale className="h-4 w-4 mr-2 text-coach-500" />
-                            <span className="font-medium">{weightGoal.description}</span>
+                        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center mb-3">
+                            <Scale className="h-5 w-5 mr-2 text-coach-500" />
+                            <span className="font-medium text-lg">Objectif de poids</span>
                           </div>
-                          <div className="flex items-center text-sm">
+                          
+                          {weightGoal.initialWeight && (
+                            <div className="bg-white p-3 rounded shadow-sm">
+                              <div className="text-sm text-gray-500">Poids initial</div>
+                              <div className="font-semibold text-xl">{weightGoal.initialWeight} kg</div>
+                            </div>
+                          )}
+                          
+                          {weightGoal.currentWeight && (
+                            <div className="bg-white p-3 rounded shadow-sm">
+                              <div className="text-sm text-gray-500">Poids actuel</div>
+                              <div className="font-semibold text-xl">{weightGoal.currentWeight} kg</div>
+                            </div>
+                          )}
+                          
+                          {weightGoal.targetWeight && (
+                            <div className="bg-white p-3 rounded shadow-sm">
+                              <div className="text-sm text-gray-500">Poids cible</div>
+                              <div className="font-semibold text-xl">{weightGoal.targetWeight} kg</div>
+                            </div>
+                          )}
+                          
+                          <div className="mb-2 mt-4">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-sm text-muted-foreground">Progression vers l'objectif</span>
+                              <span className="text-sm font-medium">{weightProgressPercent.toFixed(0)}%</span>
+                            </div>
+                            <Progress value={weightProgressPercent} className="h-2" />
+                          </div>
+                          
+                          {weightGoal.weightRemaining !== undefined && (
+                            <div className="text-sm mt-2 text-center">
+                              {weightGoal.weightRemaining <= 0 ? (
+                                <span className="text-green-600 font-medium">
+                                  Objectif atteint ! Félicitations !
+                                </span>
+                              ) : (
+                                <span className="text-blue-600">
+                                  Encore {Math.abs(weightGoal.weightRemaining).toFixed(1)} kg pour atteindre votre objectif
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
+                          <div className="mt-3 flex items-center justify-center">
                             {weightGoal.status === 'achieved' ? (
                               <span className="flex items-center text-green-600">
                                 <CheckCircle className="h-4 w-4 mr-1" />
@@ -285,6 +343,24 @@ const Measurements = () => {
                                 </>
                               );
                             })()}
+                          </div>
+                        )}
+                        
+                        {weightGoal?.initialWeight && (
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <div className="text-sm text-gray-500">Poids initial</div>
+                            <div className="font-semibold">
+                              {weightGoal.initialWeight} kg
+                            </div>
+                          </div>
+                        )}
+                        
+                        {weightGoal?.targetWeight && (
+                          <div className="mt-2">
+                            <div className="text-sm text-gray-500">Poids cible</div>
+                            <div className="font-semibold">
+                              {weightGoal.targetWeight} kg
+                            </div>
                           </div>
                         )}
                         

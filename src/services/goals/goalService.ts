@@ -24,6 +24,11 @@ class GoalService {
       const measurements = await this.getStudentMeasurements(studentId);
       const latestMeasurement = measurements[0]; // La plus récente mesure
       
+      // Récupérer les données de l'élève pour obtenir le poids initial et le poids cible
+      const studentData = await this.getStudentData(studentId);
+      const initialWeight = studentData?.initialWeight;
+      const targetWeight = studentData?.targetWeight;
+      
       let allGoals = goals.map(goal => ({
         id: goal.id,
         studentId: goal.StudentId,
@@ -34,12 +39,27 @@ class GoalService {
       
       // Ajouter l'objectif de poids si les données nécessaires sont disponibles
       if (latestMeasurement && latestMeasurement.weightRemaining !== undefined) {
+        let weightDescription = `Atteindre l'objectif de poids`;
+        
+        if (targetWeight) {
+          weightDescription += ` (${targetWeight} kg)`;
+        }
+        
+        if (latestMeasurement.weightRemaining !== undefined) {
+          weightDescription += ` - ${Math.abs(latestMeasurement.weightRemaining).toFixed(1)} kg restants`;
+        }
+        
         const weightGoal: Goal = {
           id: 'weight-goal',
           studentId: studentId,
-          description: `Atteindre l'objectif de poids (${Math.abs(latestMeasurement.weightRemaining).toFixed(1)} kg restants)`,
+          description: weightDescription,
           targetDate: new Date().toISOString().split('T')[0], // Date du jour
-          status: latestMeasurement.weightRemaining <= 0 ? 'achieved' : 'in-progress'
+          status: latestMeasurement.weightRemaining <= 0 ? 'achieved' : 'in-progress',
+          // Ajout des données supplémentaires pour l'affichage
+          initialWeight,
+          targetWeight,
+          currentWeight: latestMeasurement.weight,
+          weightRemaining: latestMeasurement.weightRemaining
         };
         
         console.log("Adding weight goal:", weightGoal);
@@ -101,17 +121,43 @@ class GoalService {
     }
   }
   
+  // Méthode pour récupérer les données de l'élève
+  private async getStudentData(studentId: string): Promise<any> {
+    try {
+      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: `{ID}='${studentId}'`
+      });
+      
+      if (students && students.length > 0) {
+        return {
+          initialWeight: students[0]["Poids Initial"] ? Number(students[0]["Poids Initial"]) : undefined,
+          targetWeight: students[0]["Objectif Poids"] ? Number(students[0]["Objectif Poids"]) : undefined,
+          height: students[0]["Taille"] ? Number(students[0]["Taille"]) : undefined
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting student data:', error);
+      return null;
+    }
+  }
+  
   // Version mock pour le développement
   private async getStudentGoalsMock(studentId: string): Promise<Goal[]> {
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Ajouter un objectif de poids aux objectifs mockés
+    // Ajouter un objectif de poids aux objectifs mockés avec des données simulées
     const weightGoal: Goal = {
       id: 'weight-goal',
       studentId: studentId,
-      description: "Atteindre l'objectif de poids (3.5 kg restants)",
+      description: "Atteindre l'objectif de poids (70 kg) - 3.5 kg restants",
       targetDate: new Date().toISOString().split('T')[0], // Date du jour
-      status: 'in-progress'
+      status: 'in-progress',
+      initialWeight: 80,
+      targetWeight: 70,
+      currentWeight: 73.5,
+      weightRemaining: 3.5
     };
     
     const regularGoals = mockGoals.filter(goal => goal.studentId === studentId);
