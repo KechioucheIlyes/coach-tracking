@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
 import { Student } from "../types/airtable.types";
@@ -20,7 +19,7 @@ class AuthService {
   private tableId = "tbll5MlIcTSqCOLEJ";
   
   // Base ID pour les diagnostics
-  private baseId = "app4LDBPHMVKbzSHj";
+  private baseId = "app8673yjmXB3WcDT";
 
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {
