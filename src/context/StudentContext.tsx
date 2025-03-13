@@ -26,18 +26,19 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
   const [student, setStudent] = useState<Student | null>(null);
   const [accessCode, setAccessCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isAirtableConfigured, setIsAirtableConfigured] = useState<boolean>(true); // Pré-configuré maintenant
+  const [isAirtableConfigured, setIsAirtableConfigured] = useState<boolean>(true);
   const navigate = useNavigate();
 
   // Vérifier la configuration d'Airtable et la session sauvegardée
   useEffect(() => {
-    // La configuration est maintenant définie par défaut dans le service
     setIsAirtableConfigured(true);
     
     const savedAccessCode = localStorage.getItem('accessCode');
     if (savedAccessCode) {
       setAccessCode(savedAccessCode);
-      login(savedAccessCode);
+      login(savedAccessCode).catch(error => {
+        console.error('Auto-login error:', error);
+      });
     }
   }, []);
 
@@ -46,15 +47,18 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
     const codeToUse = code || accessCode;
     
     try {
+      console.log('Tentative de connexion avec code:', codeToUse);
       const studentData = await AirtableService.verifyAccess(codeToUse);
       
       if (studentData) {
+        console.log('Connexion réussie:', studentData);
         setStudent(studentData);
         localStorage.setItem('accessCode', codeToUse);
         toast.success(`Bienvenue, ${studentData.name} !`);
         navigate('/dashboard');
         return true;
       } else {
+        console.log('Code invalide:', codeToUse);
         toast.error("Code d'accès invalide");
         return false;
       }

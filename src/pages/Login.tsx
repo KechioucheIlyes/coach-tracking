@@ -6,9 +6,12 @@ import { useStudent } from '../context/StudentContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const Login = () => {
   const { student, accessCode, setAccessCode, login, isLoading } = useStudent();
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   
   // If student is already logged in, redirect to dashboard
@@ -20,13 +23,18 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
     if (!accessCode.trim()) {
+      setError("Veuillez saisir un code d'accès");
       toast.error("Veuillez saisir un code d'accès");
       return;
     }
     
-    await login();
+    const success = await login();
+    if (!success) {
+      setError("Code d'accès invalide, veuillez vérifier et réessayer");
+    }
   };
 
   return (
@@ -64,6 +72,13 @@ const Login = () => {
             </p>
           </div>
 
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label 
@@ -82,7 +97,7 @@ const Login = () => {
                 autoFocus
               />
               <p className="text-xs text-muted-foreground">
-                Utilisez le code fourni par votre coach (pour la démo: access123)
+                Codes de démo: access123 ou rech0KgjCrK24UrBH (Féline Faure)
               </p>
             </div>
 
