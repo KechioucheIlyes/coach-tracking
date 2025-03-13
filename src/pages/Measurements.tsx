@@ -177,6 +177,55 @@ const Measurements = () => {
               transition={{ delay: 0.1, duration: 0.5 }}
               className="mb-8"
             >
+              <Card className="mb-6">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center">
+                    <Scale className="mr-2 h-5 w-5 text-coach-500" />
+                    Progression du poids
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {weightGoal && weightGoal.initialWeight && weightGoal.targetWeight && weightGoal.currentWeight ? (
+                    <div className="space-y-4">
+                      <div className="flex justify-between mb-2 text-sm">
+                        <div className="font-medium">
+                          <span>Poids initial: </span>
+                          <span className="text-muted-foreground">{weightGoal.initialWeight} kg (0%)</span>
+                        </div>
+                        <div className="font-medium">
+                          <span>Poids actuel: </span>
+                          <span className="text-coach-600">{weightGoal.currentWeight} kg ({weightProgressPercent.toFixed(0)}%)</span>
+                        </div>
+                        <div className="font-medium">
+                          <span>Poids cible: </span> 
+                          <span className="text-muted-foreground">{weightGoal.targetWeight} kg (100%)</span>
+                        </div>
+                      </div>
+                      
+                      <div className="relative pt-1">
+                        <Progress 
+                          value={weightProgressPercent} 
+                          className="h-4" 
+                          variant={calculateWeightProgressVariant(weightProgressPercent)} 
+                        />
+                      </div>
+                      
+                      <div className="text-center text-sm text-muted-foreground">
+                        {weightGoal.weightRemaining !== undefined && (
+                          weightGoal.weightRemaining <= 0 
+                            ? <span className="text-green-600 font-medium">Objectif atteint ! Félicitations !</span>
+                            : <span>Il vous reste {Math.abs(weightGoal.weightRemaining).toFixed(1)} kg pour atteindre votre objectif</span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Aucun objectif de poids défini
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="flex items-center">
