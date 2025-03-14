@@ -20,6 +20,18 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
   // Format the date
   const formattedDate = format(new Date(workout.week), 'dd MMMM yyyy', { locale: fr });
   
+  // Sort exercises by 'Partie' field (from smallest to largest)
+  const sortedExercises = [...workout.exercises].sort((a, b) => {
+    const partA = a.part || workout.part || "0";
+    const partB = b.part || workout.part || "0";
+    
+    // Convert to numbers if possible for proper numerical sorting
+    const numA = isNaN(Number(partA)) ? 0 : Number(partA);
+    const numB = isNaN(Number(partB)) ? 0 : Number(partB);
+    
+    return numA - numB;
+  });
+  
   return (
     <Card className="border-orange-200 shadow-sm">
       <CardHeader className="bg-orange-50 pb-3 border-b border-orange-100">
@@ -51,7 +63,7 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {workout.exercises.map((exercise) => (
+              {sortedExercises.map((exercise) => (
                 <TableRow key={exercise.id}>
                   <TableCell className="font-medium text-orange-700">
                     {exercise.part || workout.part || 'Principal'}
