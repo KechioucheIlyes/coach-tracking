@@ -16,6 +16,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStudent } from '../context/StudentContext';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,6 +33,7 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     const handleResize = () => {
@@ -171,8 +173,8 @@ const Layout = ({ children }: LayoutProps) => {
 
       {/* Main Content */}
       <main className={cn(
-        "flex-1 p-4 md:p-6 transition-all duration-300",
-        screenWidth >= 768 ? "ml-0" : isMobileMenuOpen ? "ml-0" : "ml-0"
+        "flex-1 transition-all duration-300",
+        isMobile ? "p-3 pt-14" : "p-4 md:p-6"
       )}>
         <div className="max-w-7xl mx-auto">
           <AnimatePresence mode="wait">

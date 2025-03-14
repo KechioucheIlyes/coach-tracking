@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardHeaderProps {
   title: string;
@@ -20,15 +21,17 @@ const DashboardHeader = ({
   className,
   action
 }: DashboardHeaderProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className={cn(
-      "mb-8 flex flex-col space-y-3",
+      "mb-8 flex flex-col space-y-2",
       className
     )}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start">
           {icon && (
-            <div className="mr-3 p-2 rounded-full bg-coach-100 text-coach-600">
+            <div className="mr-3 p-2 rounded-full bg-coach-100 text-coach-600 flex-shrink-0 mt-1">
               {icon}
             </div>
           )}
@@ -41,7 +44,10 @@ const DashboardHeader = ({
         </div>
         
         {action && (
-          <div>
+          <div className={cn(
+            "flex-shrink-0",
+            isMobile ? "ml-auto" : ""
+          )}>
             {action}
           </div>
         )}
