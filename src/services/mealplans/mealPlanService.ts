@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
 import { MealPlan, Meal, MealItem } from "../types/airtable.types";
@@ -15,8 +14,10 @@ class MealPlanService {
       const studentName = await this.getStudentName(studentId);
       console.log("Nom de l'élève pour plans alimentaires:", studentName);
       
-      // Utiliser une formule Airtable simple avec égalité stricte
-      const formula = encodeURIComponent(`{Élève}='${studentName}'`);
+      // Construire une formule simple sans caractères spéciaux
+      // Airtable peut avoir des problèmes avec les apostrophes et les accolades
+      // Essayons avec une approche différente utilisant SEARCH()
+      const formula = `SEARCH("${studentName}", {Élève})`;
       console.log("Formule utilisée pour plans alimentaires:", formula);
       
       const planAlimentaire = await AirtableApiService.fetchFromAirtable<any>('Plan Alimentaire', { 
@@ -27,6 +28,24 @@ class MealPlanService {
       
       // Transformation des données Airtable en structure MealPlan
       const mealPlansMap = new Map<string, MealPlan>();
+      
+      // Si nous n'avons pas de plans alimentaires, essayons avec l'ID de l'élève directement
+      if (!planAlimentaire || planAlimentaire.length === 0) {
+        console.log("Aucun plan alimentaire trouvé, tentative avec l'ID de l'élève:", studentId);
+        
+        // Récupérer les plans alimentaires en utilisant l'ID au lieu du nom
+        const plansById = await AirtableApiService.fetchFromAirtable<any>('Plan Alimentaire', {
+          filterByFormula: `{ID Élève}='${studentId}'`
+        });
+        
+        if (plansById && plansById.length > 0) {
+          console.log("Plans alimentaires trouvés par ID:", plansById.length);
+        } else {
+          console.log("Aucun plan alimentaire trouvé par ID non plus.");
+          return this.getStudentMealPlansMock(studentId);
+        }
+      }
+      
       
       for (const item of planAlimentaire) {
         const date = item["Semaine"] || new Date().toISOString().split('T')[0];
