@@ -32,7 +32,6 @@ const Nutrition = () => {
           title="Plan Alimentaire"
           subtitle="Suivez votre plan alimentaire personnalisé"
           icon={<Utensils size={20} />}
-          backLink="/dashboard"
         />
 
         <Card className="p-6 text-center">

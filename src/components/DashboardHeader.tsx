@@ -9,8 +9,6 @@ interface DashboardHeaderProps {
   title: string;
   subtitle?: string;
   icon?: ReactNode;
-  backLink?: string;
-  backText?: string;
   className?: string;
   action?: ReactNode;
 }
@@ -19,8 +17,6 @@ const DashboardHeader = ({
   title,
   subtitle,
   icon,
-  backLink,
-  backText = 'Retour',
   className,
   action
 }: DashboardHeaderProps) => {
@@ -29,13 +25,6 @@ const DashboardHeader = ({
       "mb-8 flex flex-col space-y-3",
       className
     )}>
-      {backLink && (
-        <Link to={backLink} className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors text-sm mb-2">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          {backText}
-        </Link>
-      )}
-      
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           {icon && (

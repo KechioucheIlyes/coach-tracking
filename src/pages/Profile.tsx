@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -25,7 +24,6 @@ const Profile = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
-  // Check if user is logged in
   useEffect(() => {
     if (!student) {
       navigate('/');
@@ -35,7 +33,6 @@ const Profile = () => {
 
   if (!student) return null;
 
-  // Format date helper
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Non renseigné';
     try {
@@ -56,7 +53,6 @@ const Profile = () => {
           title="Profil & Objectifs"
           subtitle="Consultez votre fiche bilan et vos objectifs"
           icon={<FileText size={20} />}
-          backLink="/dashboard"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

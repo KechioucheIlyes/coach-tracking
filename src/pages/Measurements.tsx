@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -68,15 +67,12 @@ const Measurements = () => {
     fetchGoals();
   }, [student, navigate]);
 
-  // Function to open YouForm with student data
   const openYouForm = () => {
     if (!student) return;
     
-    // Get first name of student
     const firstName = student.name.split(' ')[0];
     const accessCode = student.accessCode || '';
     
-    // Open YouForm URL with parameters
     window.open(`https://app.youform.com/forms/l0zyez4p?nom=${firstName}&id=${accessCode}`, '_blank');
   };
 
@@ -173,7 +169,6 @@ const Measurements = () => {
           title="Mesures"
           subtitle="Suivez l'évolution de vos mesures corporelles"
           icon={<Ruler size={20} />}
-          backLink="/dashboard"
           action={
             <Button 
               className="bg-coach-600 hover:bg-coach-700"
@@ -658,14 +653,12 @@ const Measurements = () => {
               </motion.div>
             )}
 
-            {/* TABLES SECTION - REPLACING SINGLE HISTORY TABLE WITH TWO TABLES */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
               className="space-y-8"
             >
-              {/* Weight and Body Composition Table */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold flex items-center mb-2">
                   <Scale className="mr-2 h-5 w-5 text-coach-500" />
@@ -681,7 +674,7 @@ const Measurements = () => {
                           <TableHead>Date</TableHead>
                           <TableHead>Poids (kg)</TableHead>
                           <TableHead>Masse grasse (%)</TableHead>
-                          <TableHead>Masse musulaire (%)</TableHead>
+                          <TableHead>Masse musculaire (%)</TableHead>
                           <TableHead>Eau (%)</TableHead>
                           <TableHead>Graisse viscérale</TableHead>
                         </TableRow>
@@ -703,7 +696,6 @@ const Measurements = () => {
                 </Card>
               </div>
               
-              {/* Body Measurements Table */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold flex items-center mb-2">
                   <Ruler className="mr-2 h-5 w-5 text-coach-500" />

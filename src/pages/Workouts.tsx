@@ -32,7 +32,6 @@ const Workouts = () => {
           title="Entraînements"
           subtitle="Accédez à vos programmes d'entraînement"
           icon={<Dumbbell size={20} />}
-          backLink="/dashboard"
         />
 
         <Card className="p-6 text-center">
