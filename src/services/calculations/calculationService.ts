@@ -21,10 +21,13 @@ class CalculationService {
       if (studentName) {
         // Étape 2: Utiliser le nom pour filtrer les calculs avec la formule {Élève}='Nom'
         try {
-          console.log(`Trying with formula: {Élève}='${studentName}'`);
-          const formula = encodeURIComponent(`{Élève}='${studentName}'`);
+          // Utilisation exacte de la syntaxe fournie par l'utilisateur
+          const exactFormula = `{Élève}='${studentName}'`;
+          console.log(`Trying with exact formula: ${exactFormula}`);
+          
+          const encodedFormula = encodeURIComponent(exactFormula);
           const calculationsWithName = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
-            filterByFormula: formula 
+            filterByFormula: encodedFormula 
           });
           
           if (calculationsWithName.length > 0) {
@@ -32,10 +35,12 @@ class CalculationService {
             return this.mapCalculations(calculationsWithName, studentId);
           }
         } catch (error) {
-          console.log("Student name formula failed, trying other methods");
+          console.log("Student name formula failed:", error);
+          // Continuer avec d'autres méthodes
         }
       }
       
+      // Si la méthode précédente a échoué, essayons des alternatives
       // Première tentative : récupérer tous les enregistrements et filtrer côté client
       try {
         console.log("Fetching all BCJ records and filtering client-side");
