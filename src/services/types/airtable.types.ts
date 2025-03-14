@@ -1,4 +1,3 @@
-
 export interface Student {
   id: string;
   name: string;
@@ -21,6 +20,8 @@ export interface Student {
   birthDate?: string;
   status?: string;
   studentCode?: string;
+  // The objectives field is needed for display in the calculation page
+  objective?: string; // Alternative field name that might be used in some places
 }
 
 export interface Goal {
