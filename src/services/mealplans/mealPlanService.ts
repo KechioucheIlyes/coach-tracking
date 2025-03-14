@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
 import { MealPlan, Meal, MealItem } from "../types/airtable.types";
@@ -52,6 +53,7 @@ class MealPlanService {
         const mealType = this.mapMealType(item["Repas"] || "");
         const mealItemId = item.id;
         const mealPlanId = `${studentId}-${date}`;
+        const day = item["Jour"] || "1"; // Get the day from Airtable, default to "1" if not present
         
         // Create meal item
         const mealItem: MealItem = {
@@ -65,7 +67,8 @@ class MealPlanService {
           ]),
           protein: Number(item["Protéines (g)"]) || 0,
           carbs: Number(item["Glucides (g)"]) || 0,
-          fat: Number(item["Lipides (g)"]) || 0
+          fat: Number(item["Lipides (g)"]) || 0,
+          day: day // Add the day property
         };
         
         // Get or create the meal plan
@@ -80,13 +83,14 @@ class MealPlanService {
         
         const mealPlan = mealPlansMap.get(mealPlanId)!;
         
-        // Find or create the meal with this type
-        let meal = mealPlan.meals.find(m => m.type === mealType);
+        // Find or create the meal with this type and day
+        let meal = mealPlan.meals.find(m => m.type === mealType && m.day === day);
         if (!meal) {
           meal = {
-            id: `${mealPlanId}-${mealType}`,
+            id: `${mealPlanId}-${mealType}-${day}`,
             type: mealType,
-            items: []
+            items: [],
+            day: day // Add the day property
           };
           mealPlan.meals.push(meal);
         }

@@ -116,12 +116,14 @@ export interface MealItem {
   protein: number;
   carbs: number;
   fat: number;
+  day?: string; // Day of the week or program day
 }
 
 export interface Meal {
   id: string;
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
   items: MealItem[];
+  day?: string; // Day of the week or program day
 }
 
 export interface MealPlan {
