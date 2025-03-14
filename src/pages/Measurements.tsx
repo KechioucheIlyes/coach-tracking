@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -687,7 +686,7 @@ const Measurements = () => {
                   <Ruler className="mr-2 h-5 w-5 text-coach-500" />
                   Evolution des mensurations
                 </h2>
-                <p className="text-muted-foreground mb-4">Historique de vos mesures corporelles</p>
+                <p className="text-muted-foreground mb-4">Historique de vos mesures corporelles en cm</p>
                 
                 <Card>
                   <div className="overflow-x-auto">
@@ -695,26 +694,26 @@ const Measurements = () => {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Date</TableHead>
-                          <TableHead>Tour de cuisse G (cm)</TableHead>
-                          <TableHead>Tour de cuisse D (cm)</TableHead>
-                          <TableHead>Tour de hanches (cm)</TableHead>
-                          <TableHead>Tour de taille (cm)</TableHead>
-                          <TableHead>Tour de poitrine (cm)</TableHead>
-                          <TableHead>Tour de bras G (cm)</TableHead>
-                          <TableHead>Tour de bras D (cm)</TableHead>
+                          <TableHead>Tour de cuisse G/D</TableHead>
+                          <TableHead>Tour de hanches</TableHead>
+                          <TableHead>Tour de taille</TableHead>
+                          <TableHead>Tour de poitrine</TableHead>
+                          <TableHead>Tour de bras G/D</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {measurements.map((measurement) => (
                           <TableRow key={`measurements-${measurement.id}`}>
                             <TableCell className="font-medium">{formatMeasurementDate(measurement.date)}</TableCell>
-                            <TableCell>{measurement.thighCircumferenceLeft || '-'}</TableCell>
-                            <TableCell>{measurement.thighCircumferenceRight || '-'}</TableCell>
+                            <TableCell>
+                              {measurement.thighCircumferenceLeft || '-'}/{measurement.thighCircumferenceRight || '-'}
+                            </TableCell>
                             <TableCell>{measurement.hipCircumference || '-'}</TableCell>
                             <TableCell>{measurement.waistCircumference || '-'}</TableCell>
                             <TableCell>{measurement.chestCircumference || '-'}</TableCell>
-                            <TableCell>{measurement.armCircumferenceLeft || '-'}</TableCell>
-                            <TableCell>{measurement.armCircumferenceRight || '-'}</TableCell>
+                            <TableCell>
+                              {measurement.armCircumferenceLeft || '-'}/{measurement.armCircumferenceRight || '-'}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
