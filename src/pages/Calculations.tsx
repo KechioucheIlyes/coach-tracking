@@ -6,7 +6,7 @@ import { useStudent } from '../context/StudentContext';
 import AirtableService, { Calculation } from '../services/AirtableService';
 import Layout from '../components/Layout';
 import DashboardHeader from '../components/DashboardHeader';
-import { Calculator, Flame, BarChart3 } from 'lucide-react';
+import { Calculator, Flame, BarChart3, Target } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -83,6 +83,21 @@ const Calculations = () => {
                 Dernière mise à jour: {format(new Date(latestCalculation.date), 'dd MMMM yyyy', { locale: fr })}
               </p>
             </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="mb-8"
+            >
+              <CalorieCard 
+                title={`Besoin Calorique Journalier pour ${student.objective || 'votre objectif'}`}
+                description="Calories adaptées à votre objectif"
+                value={latestCalculation.objective || latestCalculation.bcj}
+                icon={Target}
+                explanation="Ce nombre représente les calories journalières adaptées spécifiquement à votre objectif personnel."
+              />
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}

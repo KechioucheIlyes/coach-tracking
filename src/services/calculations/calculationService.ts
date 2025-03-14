@@ -102,7 +102,7 @@ class CalculationService {
       fatPercentage: calculation["Lipides (%)"] || 0,
       totalGrams: calculation["Total (g)"] || 0,
       totalKcal: calculation["Total (kcal)"] || 0,
-      objective: calculation["BCJ / Obj (kcal)"] || 0
+      objective: calculation["BCJ / Obj (kcal)"] || calculation.bcj || 0
     }));
   }
 
