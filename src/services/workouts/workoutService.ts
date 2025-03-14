@@ -11,9 +11,18 @@ class WorkoutService {
     }
     
     try {
-      // Filter by student ID using the same formula as in measurements
-      const formula = encodeURIComponent(`{Élève} = '${studentId}'`);
-      const workoutsRaw = await AirtableApiService.fetchFromAirtable('Workout', { filterByFormula: formula });
+      // Utiliser une formule de filtrage simplifiée sans caractères spéciaux
+      // au lieu de: const formula = encodeURIComponent(`{Élève} = '${studentId}'`);
+      const formula = `FIND('${studentId}', {Élève})`;
+      
+      // Essayer d'obtenir les données d'entraînement
+      console.log(`Tentative de récupérer les workouts avec la formule: ${formula}`);
+      
+      const workoutsRaw = await AirtableApiService.fetchFromAirtable('Workout', { 
+        filterByFormula: formula 
+      });
+      
+      console.log('Données workouts brutes reçues:', workoutsRaw);
       
       // Group workouts by week, day, and block
       const workoutGroups = new Map<string, any[]>();
@@ -64,12 +73,13 @@ class WorkoutService {
     } catch (error) {
       console.error('Error getting workouts:', error);
       toast.error("Erreur lors de la récupération des entraînements");
-      return [];
+      return this.getStudentWorkoutsMock(studentId);
     }
   }
 
   // Mock version for development
   private async getStudentWorkoutsMock(studentId: string): Promise<Workout[]> {
+    console.log('Utilisation des données mock pour les workouts');
     await new Promise(resolve => setTimeout(resolve, 500));
     return mockWorkouts.filter(workout => workout.studentId === studentId);
   }

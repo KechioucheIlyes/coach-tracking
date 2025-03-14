@@ -1,3 +1,4 @@
+
 import { Student, Goal, Measurement, Calculation, Workout, MealPlan } from '../types/airtable.types';
 
 // Mock student data - now empty as we've removed the demo codes
@@ -84,8 +85,7 @@ export const mockWorkouts: Workout[] = [
       {
         id: '1',
         name: 'Squat',
-        sets: '4',
-        reps: '10',
+        format: '4x10',
         rest: '90s',
         weight: 80,
         notes: 'Augmenter le poids progressivement'
@@ -93,16 +93,14 @@ export const mockWorkouts: Workout[] = [
       {
         id: '2',
         name: 'Presse à cuisse',
-        sets: '3',
-        reps: '12',
+        format: '3x12',
         rest: '60s',
         weight: 120
       },
       {
         id: '3',
         name: 'Extension des jambes',
-        sets: '3',
-        reps: '15',
+        format: '3x15',
         rest: '60s',
         weight: 60
       }
@@ -119,24 +117,21 @@ export const mockWorkouts: Workout[] = [
       {
         id: '1',
         name: 'Développé couché',
-        sets: '4',
-        reps: '8',
+        format: '4x8',
         rest: '90s',
         weight: 70
       },
       {
         id: '2',
         name: 'Élévations latérales',
-        sets: '3',
-        reps: '12',
+        format: '3x12',
         rest: '60s',
         weight: 10
       },
       {
         id: '3',
         name: 'Dips',
-        sets: '3',
-        reps: '10',
+        format: '3x10',
         rest: '60s',
         weight: 0,
         notes: 'Poids du corps'
