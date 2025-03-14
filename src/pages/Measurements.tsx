@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -197,7 +198,7 @@ const Measurements = () => {
               transition={{ delay: 0.1, duration: 0.5 }}
               className="mt-6 mb-8"
             >
-              <Card className="mb-6 border border-green-200 bg-green-50">
+              <Card className="mb-6 border border-green-200 bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center">
                     <Scale className="mr-2 h-5 w-5 text-green-500" />
@@ -258,7 +259,7 @@ const Measurements = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                <Card className="overflow-hidden h-full border border-green-200 bg-green-50">
+                <Card className="overflow-hidden h-full border border-green-200 bg-white">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center">
                       <Scale className="h-5 w-5 mr-2 text-green-500" />
@@ -348,7 +349,7 @@ const Measurements = () => {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="md:col-span-2"
               >
-                <Card className="overflow-hidden h-full border border-green-200 bg-green-50">
+                <Card className="overflow-hidden h-full border border-green-200 bg-white">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center">
                       <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
@@ -473,7 +474,7 @@ const Measurements = () => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="mb-8"
             >
-              <Card className="overflow-hidden border border-green-200 bg-green-50">
+              <Card className="overflow-hidden border border-green-200 bg-white">
                 <CardHeader>
                   <CardTitle>Évolution du poids</CardTitle>
                   <CardDescription>
@@ -548,7 +549,7 @@ const Measurements = () => {
                 transition={{ delay: 0.5, duration: 0.5 }}
                 className="mb-8"
               >
-                <Card className="overflow-hidden border border-green-200 bg-green-50">
+                <Card className="overflow-hidden border border-green-200 bg-white">
                   <CardHeader>
                     <CardTitle>Composition corporelle</CardTitle>
                     <CardDescription>
@@ -667,7 +668,7 @@ const Measurements = () => {
                 </h2>
                 <p className="text-muted-foreground mb-4">Historique de votre poids et composition corporelle</p>
                 
-                <Card className="border border-green-200 bg-green-50">
+                <Card className="border border-green-200 bg-white">
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
@@ -704,7 +705,7 @@ const Measurements = () => {
                 </h2>
                 <p className="text-muted-foreground mb-4">Historique de vos mesures corporelles en cm</p>
                 
-                <Card className="border border-green-200 bg-green-50">
+                <Card className="border border-green-200 bg-white">
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>

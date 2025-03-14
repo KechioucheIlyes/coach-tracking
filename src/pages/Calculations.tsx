@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -97,7 +98,7 @@ const Calculations = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.5 }}
               >
-                <Card className="overflow-hidden h-full border border-purple-200 bg-purple-50">
+                <Card className="overflow-hidden h-full border border-purple-200 bg-white">
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <Flame className="h-5 w-5 mr-2 text-purple-500" />
@@ -123,7 +124,7 @@ const Calculations = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                <Card className="overflow-hidden h-full border border-purple-200 bg-purple-50">
+                <Card className="overflow-hidden h-full border border-purple-200 bg-white">
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <BarChart3 className="h-5 w-5 mr-2 text-purple-500" />
@@ -151,7 +152,7 @@ const Calculations = () => {
               transition={{ delay: 0.3, duration: 0.5 }}
               className="mb-8"
             >
-              <Card className="border border-purple-200 bg-purple-50">
+              <Card className="border border-purple-200 bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Sandwich className="h-5 w-5 mr-2 text-purple-500" />
@@ -195,7 +196,7 @@ const Calculations = () => {
                   
                   <div className="w-full md:w-1/2 flex flex-col justify-center">
                     <div className="grid grid-cols-1 gap-4">
-                      <div className="p-4 rounded-lg bg-purple-50">
+                      <div className="p-4 rounded-lg bg-gray-50">
                         <div className="flex items-center mb-2">
                           <div className="w-4 h-4 rounded-full bg-coach-500 mr-2"></div>
                           <h3 className="font-medium">Protéines</h3>
@@ -206,7 +207,7 @@ const Calculations = () => {
                         </div>
                       </div>
                       
-                      <div className="p-4 rounded-lg bg-purple-50">
+                      <div className="p-4 rounded-lg bg-gray-50">
                         <div className="flex items-center mb-2">
                           <div className="w-4 h-4 rounded-full bg-yellow-500 mr-2"></div>
                           <h3 className="font-medium">Glucides</h3>
@@ -217,7 +218,7 @@ const Calculations = () => {
                         </div>
                       </div>
                       
-                      <div className="p-4 rounded-lg bg-purple-50">
+                      <div className="p-4 rounded-lg bg-gray-50">
                         <div className="flex items-center mb-2">
                           <div className="w-4 h-4 rounded-full bg-orange-500 mr-2"></div>
                           <h3 className="font-medium">Lipides</h3>
@@ -245,7 +246,7 @@ const Calculations = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <Card className="border border-purple-200 bg-purple-50">
+              <Card className="border border-purple-200 bg-white">
                 <CardHeader>
                   <CardTitle>À quoi servent ces calculs ?</CardTitle>
                 </CardHeader>
@@ -262,7 +263,7 @@ const Calculations = () => {
                     <strong>Macronutriments</strong> : La répartition entre protéines, glucides et lipides est personnalisée en fonction de vos objectifs. Les protéines sont essentielles pour la construction musculaire, les glucides fournissent de l'énergie, et les lipides sont importants pour diverses fonctions hormonales et cellulaires.
                   </p>
                   
-                  <div className="bg-purple-100 p-4 rounded-lg text-purple-800 border border-purple-200">
+                  <div className="bg-purple-50 p-4 rounded-lg text-purple-800 border border-purple-200">
                     <p className="font-medium mb-1">Note importante :</p>
                     <p className="text-sm">Ces calculs sont des estimations basées sur des formules scientifiques, mais ils peuvent varier selon votre métabolisme individuel. Utilisez-les comme guide et ajustez en fonction de vos résultats réels.</p>
                   </div>
