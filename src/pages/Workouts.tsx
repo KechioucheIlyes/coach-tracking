@@ -56,8 +56,20 @@ const Workouts = () => {
     return acc;
   }, {});
   
+  // Get sorted days
+  const sortedDays = Object.keys(workoutsByDay).sort((a, b) => Number(a) - Number(b));
+  
   // Get the rest of the workouts for history (from older weeks)
   const workoutHistory = workouts.filter(w => w.week !== (workouts[0]?.week || ''));
+
+  // Group history workouts by block (4 weeks per block)
+  const workoutsByBlock = workoutHistory.reduce<Record<string, Workout[]>>((acc, workout) => {
+    if (!acc[workout.block]) {
+      acc[workout.block] = [];
+    }
+    acc[workout.block].push(workout);
+    return acc;
+  }, {});
 
   if (!student) return null;
 
@@ -96,11 +108,13 @@ const Workouts = () => {
         {!isLoading && latestWorkouts.length > 0 && (
           <div className="mb-10">
             <h2 className="text-xl font-semibold mb-4">Dernier entraînement</h2>
-            {Object.entries(workoutsByDay).map(([day, dayWorkouts]) => (
-              <div key={day} className="mb-6 last:mb-0">
-                <h3 className="text-lg font-medium text-orange-700 mb-3">Jour {day}</h3>
-                <div className="space-y-4">
-                  {dayWorkouts.map(workout => (
+            {sortedDays.map((day) => (
+              <div key={day} className="mb-8 last:mb-0">
+                <h3 className="text-lg font-semibold text-orange-800 mb-4 pb-2 border-b border-orange-200">
+                  Jour {day}
+                </h3>
+                <div className="space-y-6">
+                  {workoutsByDay[day].map(workout => (
                     <WorkoutCard key={workout.id} workout={workout} />
                   ))}
                 </div>
