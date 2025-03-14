@@ -27,6 +27,7 @@ const Workouts = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
+        className="bg-orange-50"
       >
         <DashboardHeader
           title="Entraînements"

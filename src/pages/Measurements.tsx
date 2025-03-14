@@ -164,14 +164,15 @@ const Measurements = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
+        className="bg-green-50"
       >
         <DashboardHeader
           title="Mesures"
           subtitle="Suivez l'évolution de vos mesures corporelles"
-          icon={<Ruler size={20} />}
+          icon={<Ruler size={20} className="text-green-500" />}
           action={
             <Button 
-              className="bg-coach-600 hover:bg-coach-700 w-full md:w-auto"
+              className="bg-green-600 hover:bg-green-700 w-full md:w-auto"
               onClick={openYouForm}
             >
               <ClipboardCheck className="mr-2 h-4 w-4" />
@@ -182,10 +183,10 @@ const Measurements = () => {
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coach-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
           </div>
         ) : measurements.length === 0 ? (
-          <Card className="p-6 text-center">
+          <Card className="p-6 text-center border border-green-200 bg-green-50">
             <p className="text-muted-foreground">Aucune mesure enregistrée pour le moment.</p>
           </Card>
         ) : (
@@ -196,10 +197,10 @@ const Measurements = () => {
               transition={{ delay: 0.1, duration: 0.5 }}
               className="mb-8"
             >
-              <Card className="mb-6">
+              <Card className="mb-6 border border-green-200 bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center">
-                    <Scale className="mr-2 h-5 w-5 text-coach-500" />
+                    <Scale className="mr-2 h-5 w-5 text-green-500" />
                     Progression du poids
                   </CardTitle>
                 </CardHeader>
@@ -213,7 +214,7 @@ const Measurements = () => {
                         </div>
                         <div className="font-medium">
                           <span>Poids actuel: </span>
-                          <span className="text-coach-600">{latestMeasurement.weight} kg</span>
+                          <span className="text-green-600">{latestMeasurement.weight} kg</span>
                         </div>
                         <div className="font-medium">
                           <span>Poids cible: </span> 
@@ -257,10 +258,10 @@ const Measurements = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                <Card className="overflow-hidden h-full">
+                <Card className="overflow-hidden h-full border border-green-200 bg-white">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center">
-                      <Scale className="h-5 w-5 mr-2 text-coach-500" />
+                      <Scale className="h-5 w-5 mr-2 text-green-500" />
                       Poids
                     </CardTitle>
                     <CardDescription>
@@ -347,10 +348,10 @@ const Measurements = () => {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="md:col-span-2"
               >
-                <Card className="overflow-hidden h-full">
+                <Card className="overflow-hidden h-full border border-green-200 bg-white">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center">
-                      <TrendingUp className="h-5 w-5 mr-2 text-coach-500" />
+                      <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
                       Composition corporelle
                     </CardTitle>
                     <CardDescription>
@@ -472,7 +473,7 @@ const Measurements = () => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="mb-8"
             >
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden border border-green-200 bg-white">
                 <CardHeader>
                   <CardTitle>Évolution du poids</CardTitle>
                   <CardDescription>
@@ -547,7 +548,7 @@ const Measurements = () => {
                 transition={{ delay: 0.5, duration: 0.5 }}
                 className="mb-8"
               >
-                <Card className="overflow-hidden">
+                <Card className="overflow-hidden border border-green-200 bg-white">
                   <CardHeader>
                     <CardTitle>Composition corporelle</CardTitle>
                     <CardDescription>
@@ -661,12 +662,12 @@ const Measurements = () => {
             >
               <div className="mb-6">
                 <h2 className="text-xl font-semibold flex items-center mb-2">
-                  <Scale className="mr-2 h-5 w-5 text-coach-500" />
+                  <Scale className="mr-2 h-5 w-5 text-green-500" />
                   Evolution du poids
                 </h2>
                 <p className="text-muted-foreground mb-4">Historique de votre poids et composition corporelle</p>
                 
-                <Card>
+                <Card className="border border-green-200 bg-white">
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
@@ -698,12 +699,12 @@ const Measurements = () => {
               
               <div className="mb-6">
                 <h2 className="text-xl font-semibold flex items-center mb-2">
-                  <Ruler className="mr-2 h-5 w-5 text-coach-500" />
+                  <Ruler className="mr-2 h-5 w-5 text-green-500" />
                   Evolution des mensurations
                 </h2>
                 <p className="text-muted-foreground mb-4">Historique de vos mesures corporelles en cm</p>
                 
-                <Card>
+                <Card className="border border-green-200 bg-white">
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
@@ -745,4 +746,3 @@ const Measurements = () => {
 };
 
 export default Measurements;
-

@@ -48,7 +48,7 @@ const Calculations = () => {
   if (!student) return null;
   
   const macroData = calculation ? [
-    { name: 'Protéines', value: calculation.protein, color: '#0ea5e9' },
+    { name: 'Protéines', value: calculation.protein, color: '#8B5CF6' },
     { name: 'Glucides', value: calculation.carbs, color: '#eab308' },
     { name: 'Lipides', value: calculation.fat, color: '#f97316' }
   ] : [];
@@ -67,25 +67,25 @@ const Calculations = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-blue-50"
+        className="bg-purple-50"
       >
         <DashboardHeader
           title="Calculs Nutritionnels"
           subtitle="BMR, BCJ et macronutriments personnalisés"
-          icon={<Calculator size={20} className="text-blue-500" />}
+          icon={<Calculator size={20} className="text-purple-500" />}
         />
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
         ) : !calculation ? (
-          <Card className="p-6 text-center border border-blue-200 bg-blue-50">
+          <Card className="p-6 text-center border border-purple-200 bg-purple-50">
             <p className="text-muted-foreground">Aucun calcul nutritionnel disponible pour le moment.</p>
           </Card>
         ) : (
           <>
-            <div className="mb-4 glass-card p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-4 glass-card p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <p className="text-muted-foreground text-sm">
                 Dernière mise à jour: {format(new Date(calculation.date), 'dd MMMM yyyy', { locale: fr })}
               </p>
@@ -97,10 +97,10 @@ const Calculations = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.5 }}
               >
-                <Card className="overflow-hidden h-full border border-blue-200 bg-white">
+                <Card className="overflow-hidden h-full border border-purple-200 bg-white">
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <Flame className="h-5 w-5 mr-2 text-blue-500" />
+                      <Flame className="h-5 w-5 mr-2 text-purple-500" />
                       Métabolisme de Base (BMR)
                     </CardTitle>
                     <CardDescription>
@@ -123,10 +123,10 @@ const Calculations = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                <Card className="overflow-hidden h-full border border-blue-200 bg-white">
+                <Card className="overflow-hidden h-full border border-purple-200 bg-white">
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <BarChart3 className="h-5 w-5 mr-2 text-blue-500" />
+                      <BarChart3 className="h-5 w-5 mr-2 text-purple-500" />
                       Besoin Calorique Journalier (BCJ)
                     </CardTitle>
                     <CardDescription>
@@ -151,10 +151,10 @@ const Calculations = () => {
               transition={{ delay: 0.3, duration: 0.5 }}
               className="mb-8"
             >
-              <Card className="border border-blue-200 bg-white">
+              <Card className="border border-purple-200 bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Sandwich className="h-5 w-5 mr-2 text-blue-500" />
+                    <Sandwich className="h-5 w-5 mr-2 text-purple-500" />
                     Répartition des macronutriments
                   </CardTitle>
                   <CardDescription>
@@ -245,7 +245,7 @@ const Calculations = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <Card className="border border-blue-200 bg-white">
+              <Card className="border border-purple-200 bg-white">
                 <CardHeader>
                   <CardTitle>À quoi servent ces calculs ?</CardTitle>
                 </CardHeader>
@@ -262,7 +262,7 @@ const Calculations = () => {
                     <strong>Macronutriments</strong> : La répartition entre protéines, glucides et lipides est personnalisée en fonction de vos objectifs. Les protéines sont essentielles pour la construction musculaire, les glucides fournissent de l'énergie, et les lipides sont importants pour diverses fonctions hormonales et cellulaires.
                   </p>
                   
-                  <div className="bg-blue-50 p-4 rounded-lg text-blue-800 border border-blue-200">
+                  <div className="bg-purple-50 p-4 rounded-lg text-purple-800 border border-purple-200">
                     <p className="font-medium mb-1">Note importante :</p>
                     <p className="text-sm">Ces calculs sont des estimations basées sur des formules scientifiques, mais ils peuvent varier selon votre métabolisme individuel. Utilisez-les comme guide et ajustez en fonction de vos résultats réels.</p>
                   </div>
@@ -277,3 +277,4 @@ const Calculations = () => {
 };
 
 export default Calculations;
+
