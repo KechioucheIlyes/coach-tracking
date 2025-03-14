@@ -37,35 +37,40 @@ const Dashboard = () => {
       description: 'Consultez votre fiche bilan et vos objectifs',
       icon: <FileText size={24} />,
       href: '/profile',
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      bgColor: 'bg-blue-50'
     },
     {
       title: 'Mesures',
       description: 'Suivez l\'évolution de vos mesures corporelles',
       icon: <Ruler size={24} />,
       href: '/measurements',
-      color: 'bg-green-500'
+      color: 'bg-green-500',
+      bgColor: 'bg-green-50'
     },
     {
       title: 'Calculs Nutritionnels',
       description: 'BMR, BCJ et macronutriments personnalisés',
       icon: <Calculator size={24} />,
       href: '/calculations',
-      color: 'bg-purple-500'
+      color: 'bg-purple-500',
+      bgColor: 'bg-purple-50'
     },
     {
       title: 'Entraînements',
       description: 'Accédez à vos programmes d\'entraînement',
       icon: <Dumbbell size={24} />,
       href: '/workouts',
-      color: 'bg-orange-500'
+      color: 'bg-orange-500',
+      bgColor: 'bg-orange-50'
     },
     {
       title: 'Plan Alimentaire',
       description: 'Suivez votre plan alimentaire personnalisé',
       icon: <Utensils size={24} />,
       href: '/nutrition',
-      color: 'bg-red-500'
+      color: 'bg-red-500',
+      bgColor: 'bg-red-50'
     },
   ];
 
@@ -117,7 +122,7 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <Card className="h-full hover:shadow-md transition-shadow overflow-hidden animated-card">
+              <Card className={`h-full hover:shadow-md transition-shadow overflow-hidden animated-card ${item.bgColor} border-${item.color.split('-')[1]}-200`}>
                 <CardHeader className="pb-2">
                   <div className={`w-12 h-12 rounded-lg ${item.color} flex items-center justify-center text-white mb-4`}>
                     {item.icon}
@@ -127,7 +132,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardFooter>
                   <Button 
-                    className="w-full bg-coach-500 hover:bg-coach-600 text-white" 
+                    className={`w-full text-white bg-${item.color.split('-')[1]}-500 hover:bg-${item.color.split('-')[1]}-600`}
                     onClick={() => navigate(item.href)}
                   >
                     Accéder

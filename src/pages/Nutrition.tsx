@@ -27,14 +27,16 @@ const Nutrition = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
+        className="bg-red-50 px-4 py-6 rounded-lg"
       >
         <DashboardHeader
           title="Plan Alimentaire"
           subtitle="Suivez votre plan alimentaire personnalisé"
           icon={<Utensils size={20} />}
+          className="bg-white p-4 rounded-lg shadow-sm mb-6"
         />
 
-        <Card className="p-6 text-center">
+        <Card className="p-6 text-center border-red-200 shadow-sm">
           <p className="text-muted-foreground">
             Votre plan alimentaire personnalisé sera bientôt disponible.
           </p>

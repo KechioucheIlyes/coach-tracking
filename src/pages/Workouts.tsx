@@ -27,14 +27,16 @@ const Workouts = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
+        className="bg-orange-50 px-4 py-6 rounded-lg"
       >
         <DashboardHeader
           title="Entraînements"
           subtitle="Accédez à vos programmes d'entraînement"
           icon={<Dumbbell size={20} />}
+          className="bg-white p-4 rounded-lg shadow-sm mb-6"
         />
 
-        <Card className="p-6 text-center">
+        <Card className="p-6 text-center border-orange-200 shadow-sm">
           <p className="text-muted-foreground">
             Vos programmes d'entraînement seront bientôt disponibles.
           </p>

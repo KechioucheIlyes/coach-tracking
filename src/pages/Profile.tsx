@@ -48,11 +48,13 @@ const Profile = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
+        className="bg-blue-50 px-4 py-6 rounded-lg"
       >
         <DashboardHeader
           title="Profil & Objectifs"
           subtitle="Consultez votre fiche bilan et vos objectifs"
           icon={<FileText size={20} />}
+          className="bg-white p-4 rounded-lg shadow-sm mb-6"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -62,10 +64,10 @@ const Profile = () => {
             transition={{ delay: 0.1, duration: 0.5 }}
             className="md:col-span-1"
           >
-            <Card className="h-full">
+            <Card className="h-full border-blue-200 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <User className="mr-2 h-5 w-5 text-coach-500" />
+                  <User className="mr-2 h-5 w-5 text-blue-500" />
                   Informations Personnelles
                 </CardTitle>
                 {student.status && (
@@ -84,7 +86,7 @@ const Profile = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-center mb-6">
-                    <div className="w-24 h-24 bg-coach-100 text-coach-600 rounded-full flex items-center justify-center text-3xl font-semibold">
+                    <div className="w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl font-semibold">
                       {student.name.charAt(0)}
                     </div>
                   </div>
@@ -140,10 +142,10 @@ const Profile = () => {
             className="md:col-span-2"
           >
             <div className="grid grid-cols-1 gap-6">
-              <Card>
+              <Card className="border-blue-200 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="flex items-center">
-                    <Weight className="mr-2 h-5 w-5 text-coach-500" />
+                    <Weight className="mr-2 h-5 w-5 text-blue-500" />
                     Objectifs Physiques
                   </CardTitle>
                 </CardHeader>
@@ -174,10 +176,10 @@ const Profile = () => {
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="border-blue-200 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="flex items-center">
-                    <Utensils className="mr-2 h-5 w-5 text-coach-500" />
+                    <Utensils className="mr-2 h-5 w-5 text-blue-500" />
                     Profil Alimentaire
                   </CardTitle>
                 </CardHeader>
@@ -207,10 +209,10 @@ const Profile = () => {
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="border-blue-200 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="flex items-center">
-                    <Activity className="mr-2 h-5 w-5 text-coach-500" />
+                    <Activity className="mr-2 h-5 w-5 text-blue-500" />
                     Activité
                   </CardTitle>
                 </CardHeader>
