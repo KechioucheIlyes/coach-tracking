@@ -33,7 +33,13 @@ class MeasurementService {
           studentId: measurement["Élève"] ? measurement["Élève"][0] : studentId,
           date: measurement["Date de Mesure"],
           weight: Number(measurement["Poids"]) || 0,
-          height: 0, // La taille est généralement constante et stockée sur l'étudiant
+          height: Number(measurement["Taille"]) || 0,
+          waist: 0, // Required field with default value
+          hips: 0, // Required field with default value
+          chest: 0, // Required field with default value
+          arm: 0, // Required field with default value
+          thigh: 0, // Required field with default value
+          calf: 0, // Required field with default value
           bodyFat: measurement["Masse Grasse (%)"] ? Number(measurement["Masse Grasse (%)"]) : undefined,
           musclePercentage: measurement["Masse Musulaire"] ? Number(measurement["Masse Musulaire"]) : undefined,
           water: measurement["Eau"] ? Number(measurement["Eau"]) : undefined,
@@ -86,6 +92,12 @@ class MeasurementService {
               date: measurement["Date de Mesure"],
               weight: Number(measurement["Poids"]) || 0,
               height: 0,
+              waist: 0, // Required field with default value
+              hips: 0, // Required field with default value
+              chest: 0, // Required field with default value
+              arm: 0, // Required field with default value
+              thigh: 0, // Required field with default value
+              calf: 0, // Required field with default value
               bodyFat: measurement["Masse Grasse (%)"] ? Number(measurement["Masse Grasse (%)"]) : undefined,
               musclePercentage: measurement["Masse Musulaire"] ? Number(measurement["Masse Musulaire"]) : undefined,
               water: measurement["Eau"] ? Number(measurement["Eau"]) : undefined,
