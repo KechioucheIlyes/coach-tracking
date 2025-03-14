@@ -48,7 +48,6 @@ const WorkoutHistoryTable = ({ workouts }: WorkoutHistoryTableProps) => {
                 <TableHead className="w-32">Semaine</TableHead>
                 <TableHead>Bloc</TableHead>
                 <TableHead>Jour</TableHead>
-                <TableHead>Partie</TableHead>
                 <TableHead>Exercices</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -61,7 +60,6 @@ const WorkoutHistoryTable = ({ workouts }: WorkoutHistoryTableProps) => {
                   </TableCell>
                   <TableCell>{workout.block}</TableCell>
                   <TableCell>{workout.day}</TableCell>
-                  <TableCell>{workout.part}</TableCell>
                   <TableCell>{workout.exercises.length}</TableCell>
                   <TableCell className="text-right">
                     <Button 
