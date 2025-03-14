@@ -8,7 +8,8 @@ import Layout from '../components/Layout';
 import DashboardHeader from '../components/DashboardHeader';
 import { 
   Ruler, Target, CheckCircle, Clock, AlertCircle, TrendingUp, TrendingDown, 
-  ArrowRight, Scale, ChevronUp, ChevronDown, ActivitySquare, ChevronRight
+  ArrowRight, Scale, ChevronUp, ChevronDown, ActivitySquare, ChevronRight,
+  History, LineChart as LineChartIcon
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -195,7 +196,7 @@ const Measurements = () => {
                         </div>
                         <div className="font-medium">
                           <span>Poids actuel: </span>
-                          <span className="text-coach-600">{latestMeasurement.weight} kg ({weightProgressPercent.toFixed(0)}%)</span>
+                          <span className="text-coach-600">{latestMeasurement.weight} kg</span>
                         </div>
                         <div className="font-medium">
                           <span>Poids cible: </span> 
@@ -462,7 +463,7 @@ const Measurements = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-96 w-full">
+                  <div className="h-[500px] w-full">
                     {weightChartData.length > 0 ? (
                       <ChartContainer 
                         className="w-full"
@@ -537,7 +538,7 @@ const Measurements = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-96 w-full">
+                    <div className="h-[500px] w-full">
                       <ChartContainer 
                         className="w-full"
                         config={{
@@ -635,47 +636,92 @@ const Measurements = () => {
               </motion.div>
             )}
 
+            {/* TABLES SECTION - REPLACING SINGLE HISTORY TABLE WITH TWO TABLES */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
+              className="space-y-8"
             >
+              {/* Weight and Body Composition Table */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold flex items-center">
-                  <Clock className="mr-2 h-5 w-5 text-coach-500" />
-                  Historique des mesures
+                <h2 className="text-xl font-semibold flex items-center mb-2">
+                  <Scale className="mr-2 h-5 w-5 text-coach-500" />
+                  Evolution du poids
                 </h2>
-                <p className="text-muted-foreground">Toutes vos mesures enregistrées, triées par date décroissante</p>
+                <p className="text-muted-foreground mb-4">Historique de votre poids et composition corporelle</p>
+                
+                <Card>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Poids (kg)</TableHead>
+                          <TableHead>Masse grasse (%)</TableHead>
+                          <TableHead>Masse musulaire (%)</TableHead>
+                          <TableHead>Eau (%)</TableHead>
+                          <TableHead>Graisse viscérale</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {measurements.map((measurement) => (
+                          <TableRow key={`weight-${measurement.id}`}>
+                            <TableCell className="font-medium">{formatMeasurementDate(measurement.date)}</TableCell>
+                            <TableCell>{measurement.weight || '-'}</TableCell>
+                            <TableCell>{measurement.bodyFat || '-'}</TableCell>
+                            <TableCell>{measurement.musclePercentage || '-'}</TableCell>
+                            <TableCell>{measurement.water || '-'}</TableCell>
+                            <TableCell>{measurement.visceralFat || '-'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </Card>
               </div>
               
-              <Card>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Poids (kg)</TableHead>
-                        <TableHead>Masse grasse (%)</TableHead>
-                        <TableHead>Masse musculaire (%)</TableHead>
-                        <TableHead>Tour de taille (cm)</TableHead>
-                        <TableHead>Tour de hanches (cm)</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {measurements.map((measurement) => (
-                        <TableRow key={measurement.id}>
-                          <TableCell className="font-medium">{formatMeasurementDate(measurement.date)}</TableCell>
-                          <TableCell>{measurement.weight}</TableCell>
-                          <TableCell>{measurement.bodyFat || '-'}</TableCell>
-                          <TableCell>{measurement.musclePercentage || '-'}</TableCell>
-                          <TableCell>{measurement.waistCircumference || '-'}</TableCell>
-                          <TableCell>{measurement.hipCircumference || '-'}</TableCell>
+              {/* Body Measurements Table */}
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold flex items-center mb-2">
+                  <Ruler className="mr-2 h-5 w-5 text-coach-500" />
+                  Evolution des mensurations
+                </h2>
+                <p className="text-muted-foreground mb-4">Historique de vos mesures corporelles</p>
+                
+                <Card>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Tour de cuisse G (cm)</TableHead>
+                          <TableHead>Tour de cuisse D (cm)</TableHead>
+                          <TableHead>Tour de hanches (cm)</TableHead>
+                          <TableHead>Tour de taille (cm)</TableHead>
+                          <TableHead>Tour de poitrine (cm)</TableHead>
+                          <TableHead>Tour de bras G (cm)</TableHead>
+                          <TableHead>Tour de bras D (cm)</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </Card>
+                      </TableHeader>
+                      <TableBody>
+                        {measurements.map((measurement) => (
+                          <TableRow key={`measurements-${measurement.id}`}>
+                            <TableCell className="font-medium">{formatMeasurementDate(measurement.date)}</TableCell>
+                            <TableCell>{measurement.thighCircumferenceLeft || '-'}</TableCell>
+                            <TableCell>{measurement.thighCircumferenceRight || '-'}</TableCell>
+                            <TableCell>{measurement.hipCircumference || '-'}</TableCell>
+                            <TableCell>{measurement.waistCircumference || '-'}</TableCell>
+                            <TableCell>{measurement.chestCircumference || '-'}</TableCell>
+                            <TableCell>{measurement.armCircumferenceLeft || '-'}</TableCell>
+                            <TableCell>{measurement.armCircumferenceRight || '-'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </Card>
+              </div>
             </motion.div>
           </>
         )}
