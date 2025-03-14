@@ -61,7 +61,7 @@ const Login = () => {
     try {
       const success = await login();
       if (!success) {
-        setError("Code d'accès invalide, veuillez vérifier et réessayer.");
+        setError("Accès refusé. Veuillez vérifier votre code d'accès ou contacter votre coach si votre compte est suspendu.");
       }
     } catch (error) {
       console.error("Erreur de connexion:", error);

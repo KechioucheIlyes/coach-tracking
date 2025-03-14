@@ -67,8 +67,8 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
         navigate('/dashboard');
         return true;
       } else {
-        console.log('Code invalide:', codeToUse);
-        toast.error("Code d'accès invalide. Veuillez vérifier votre code et réessayer.");
+        console.log('Code invalide ou compte inactif:', codeToUse);
+        toast.error("Accès refusé. Veuillez vérifier votre code d'accès ou contacter votre coach.");
         return false;
       }
     } catch (error) {

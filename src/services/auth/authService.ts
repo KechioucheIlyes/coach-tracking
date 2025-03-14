@@ -71,6 +71,16 @@ class AuthService {
           // Extraire les champs selon la structure Airtable
           const fields = matchingEleve.fields || matchingEleve;
           
+          // Vérifier le statut de l'élève
+          const status = fields["Statut"] || fields["fldIOn1hHf5zB762X"] || null;
+          console.log('Statut de l\'élève:', status);
+          
+          // Uniquement autoriser les élèves avec statut 'Actif' ou 'Pause'
+          if (status !== 'Actif' && status !== 'Pause') {
+            console.log('Accès refusé: statut invalide', status);
+            return null;
+          }
+          
           // Construire un objet Student complet avec les détails supplémentaires
           return {
             id: matchingEleve.id,
@@ -92,7 +102,7 @@ class AuthService {
             mealFrequency: fields["Fréquence de Repas"] || fields["fldo8qtXMMY5RW5TC"] || null,
             objectives: fields["Objectifs"] || fields["fld2rLbZsXv1ryqBZ"] || null,
             birthDate: fields["Date de naissance"] || fields["fldNFRFGZkFfZo712"] || null,
-            status: fields["Statut"] || fields["fldIOn1hHf5zB762X"] || null,
+            status: status,
             studentCode: fields["IDU Eleve"] || fields["fldcbSf4aqCxWXLCD"] || null,
           };
         } else {
