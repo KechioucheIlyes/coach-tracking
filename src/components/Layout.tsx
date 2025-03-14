@@ -9,7 +9,8 @@ import {
   Settings, 
   Menu, 
   X, 
-  LogOut 
+  LogOut,
+  LayoutDashboard
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -48,6 +49,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   // Navigation items
   const navItems: NavItem[] = [
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { label: 'Profil & Objectifs', icon: FileText, path: '/profile' },
     { label: 'Mesures', icon: Ruler, path: '/measurements' },
     { label: 'Calculs Nutritionnels', icon: Calculator, path: '/calculations' },
@@ -112,6 +114,28 @@ const Layout = ({ children }: LayoutProps) => {
               <p className="text-sm text-gray-500 mt-1">Espace personnel</p>
             </div>
 
+            {/* User Info - Moved to top */}
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 rounded-full bg-coach-100 text-coach-600 flex items-center justify-center font-semibold">
+                    {student.name.charAt(0)}
+                  </div>
+                  <div className="ml-3">
+                    <p className="font-medium">{student.name}</p>
+                    <p className="text-xs text-gray-500">Accès étudiant</p>
+                  </div>
+                </div>
+                <button
+                  onClick={logout}
+                  className="p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                  title="Déconnexion"
+                >
+                  <LogOut className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+
             {/* Navigation Links */}
             <nav className="flex-1 p-4 space-y-1">
               {navItems.map((item, index) => (
@@ -141,26 +165,6 @@ const Layout = ({ children }: LayoutProps) => {
                 </motion.div>
               ))}
             </nav>
-
-            {/* User Info & Logout */}
-            <div className="p-4 border-t">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-coach-100 text-coach-600 flex items-center justify-center font-semibold">
-                  {student.name.charAt(0)}
-                </div>
-                <div className="ml-3">
-                  <p className="font-medium">{student.name}</p>
-                  <p className="text-xs text-gray-500">Accès étudiant</p>
-                </div>
-              </div>
-              <button
-                onClick={logout}
-                className="flex items-center w-full px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <LogOut className="h-5 w-5 mr-3 text-gray-500" />
-                <span>Déconnexion</span>
-              </button>
-            </div>
           </motion.aside>
         )}
       </AnimatePresence>
