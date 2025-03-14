@@ -8,8 +8,9 @@ import DashboardHeader from '../components/DashboardHeader';
 import { 
   Ruler, Target, CheckCircle, Clock, AlertCircle, TrendingUp, TrendingDown, 
   ArrowRight, Scale, ChevronUp, ChevronDown, ActivitySquare, ChevronRight,
-  History, LineChart as LineChartIcon
+  History, LineChart as LineChartIcon, ClipboardCheck
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { format, parseISO, compareDesc } from 'date-fns';
@@ -67,6 +68,10 @@ const Measurements = () => {
   }, [student, navigate]);
 
   if (!student) return null;
+  
+  // Extract student name (first part before space)
+  const studentFirstName = student.name.split(' ')[0];
+  const studentAccessCode = student.accessCode || '';
   
   const latestMeasurement = measurements[0];
   const previousMeasurement = measurements[1];
@@ -160,6 +165,16 @@ const Measurements = () => {
           subtitle="Suivez l'évolution de vos mesures corporelles"
           icon={<Ruler size={20} />}
           backLink="/dashboard"
+          action={
+            <Button 
+              className="bg-coach-600 hover:bg-coach-700"
+              data-youform-open={`l0zyez4p?nom=${studentFirstName}&id=${studentAccessCode}`} 
+              data-youform-position="center"
+            >
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              Enregistrer vos mesures
+            </Button>
+          }
         />
 
         {isLoading ? (
@@ -635,7 +650,6 @@ const Measurements = () => {
               </motion.div>
             )}
 
-            {/* TABLES SECTION - REPLACING SINGLE HISTORY TABLE WITH TWO TABLES */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
