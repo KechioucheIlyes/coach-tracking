@@ -1,4 +1,3 @@
-
 import { Student, Goal, Measurement, Calculation, Workout, MealPlan } from '../types/airtable.types';
 
 // Mock student data - now empty as we've removed the demo codes
@@ -77,61 +76,70 @@ export const mockWorkouts: Workout[] = [
   {
     id: '1',
     studentId: '1',
-    date: '2023-12-05',
-    title: 'Entraînement Jambes',
-    description: 'Focus sur les quadriceps et ischio-jambiers',
+    week: '2023-12-05',
+    day: '1',
+    block: '2',
+    part: '1',
     exercises: [
       {
         id: '1',
         name: 'Squat',
-        sets: 4,
-        reps: 10,
-        rest: 90,
+        sets: '4',
+        reps: '10',
+        rest: '90s',
+        weight: 80,
         notes: 'Augmenter le poids progressivement'
       },
       {
         id: '2',
         name: 'Presse à cuisse',
-        sets: 3,
-        reps: 12,
-        rest: 60
+        sets: '3',
+        reps: '12',
+        rest: '60s',
+        weight: 120
       },
       {
         id: '3',
         name: 'Extension des jambes',
-        sets: 3,
-        reps: 15,
-        rest: 60
+        sets: '3',
+        reps: '15',
+        rest: '60s',
+        weight: 60
       }
     ]
   },
   {
     id: '2',
     studentId: '1',
-    date: '2023-12-07',
-    title: 'Entraînement Haut du Corps',
-    description: 'Pectoraux, épaules et triceps',
+    week: '2023-12-07',
+    day: '2',
+    block: '2',
+    part: '2',
     exercises: [
       {
         id: '1',
         name: 'Développé couché',
-        sets: 4,
-        reps: 8,
-        rest: 90
+        sets: '4',
+        reps: '8',
+        rest: '90s',
+        weight: 70
       },
       {
         id: '2',
         name: 'Élévations latérales',
-        sets: 3,
-        reps: 12,
-        rest: 60
+        sets: '3',
+        reps: '12',
+        rest: '60s',
+        weight: 10
       },
       {
         id: '3',
         name: 'Dips',
-        sets: 3,
-        reps: 10,
-        rest: 60
+        sets: '3',
+        reps: '10',
+        rest: '60s',
+        weight: 0,
+        notes: 'Poids du corps'
       }
     ]
   }
