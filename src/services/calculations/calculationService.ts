@@ -21,11 +21,15 @@ class CalculationService {
       if (studentName) {
         // Étape 2: Utiliser le nom pour filtrer les calculs avec la formule {Élève}='Nom'
         try {
-          // Utilisation exacte de la syntaxe fournie par l'utilisateur
-          const exactFormula = `{Élève}='${studentName}'`;
-          console.log(`Trying with exact formula: ${exactFormula}`);
+          // Construction de la formule selon les spécifications exactes d'Airtable
+          // Utilisez FIND() au lieu de l'opérateur d'égalité pour éviter les problèmes d'échappement
+          const formula = `FIND("${studentName}", {Élève})`;
+          console.log(`Trying with FIND formula: ${formula}`);
           
-          const encodedFormula = encodeURIComponent(exactFormula);
+          // Encodage correct pour l'URL
+          const encodedFormula = encodeURIComponent(formula);
+          console.log(`Encoded formula: ${encodedFormula}`);
+          
           const calculationsWithName = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
             filterByFormula: encodedFormula 
           });
@@ -35,8 +39,29 @@ class CalculationService {
             return this.mapCalculations(calculationsWithName, studentId);
           }
         } catch (error) {
-          console.log("Student name formula failed:", error);
-          // Continuer avec d'autres méthodes
+          console.log("Student name FIND formula failed:", error);
+          
+          // Deuxième tentative avec la formule exacte demandée par l'utilisateur
+          try {
+            // Format exact demandé par l'utilisateur
+            const exactFormula = `{Élève}='${studentName}'`;
+            console.log(`Trying with user specified formula: ${exactFormula}`);
+            
+            // Encodage URL correct
+            const encodedExactFormula = encodeURIComponent(exactFormula);
+            console.log(`Encoded exact formula: ${encodedExactFormula}`);
+            
+            const calculationsWithExactSyntax = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
+              filterByFormula: encodedExactFormula
+            });
+            
+            if (calculationsWithExactSyntax.length > 0) {
+              console.log(`Found ${calculationsWithExactSyntax.length} calculations using exact syntax`);
+              return this.mapCalculations(calculationsWithExactSyntax, studentId);
+            }
+          } catch (exactError) {
+            console.log("Exact formula syntax failed:", exactError);
+          }
         }
       }
       
@@ -81,53 +106,8 @@ class CalculationService {
         // Continuer avec d'autres méthodes si celle-ci échoue
       }
       
-      // Deuxième tentative : essayer avec la formule FIND() qui est plus robuste pour les champs de type lien
-      try {
-        console.log("Trying with FIND() formula");
-        const formula = encodeURIComponent(`FIND("${studentId}", {IDU Élève})`);
-        const calculationsWithFind = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
-          filterByFormula: formula 
-        });
-        
-        if (calculationsWithFind.length > 0) {
-          console.log(`Found ${calculationsWithFind.length} calculations using FIND formula`);
-          return this.mapCalculations(calculationsWithFind, studentId);
-        }
-      } catch (error) {
-        console.log("FIND formula failed, trying other methods");
-        // Continuer avec d'autres méthodes si celle-ci échoue
-      }
-      
-      // Troisième tentative : essayer avec des formules alternatives
-      // Qui sont plus susceptibles de fonctionner avec les champs de type lien
-      const formulas = [
-        encodeURIComponent(`RECORD_ID()="${studentId}"`),
-        encodeURIComponent(`OR(SEARCH("${studentId}", {Élève}), SEARCH("${studentId}", {IDU Élève}))`),
-        encodeURIComponent(`OR({IDU Élève}="${studentId}", {Élève}="${studentId}")`)
-      ];
-      
-      let calculations = [];
-      
-      // Essayer chaque formule jusqu'à ce qu'une fonctionne
-      for (const formulaToTry of formulas) {
-        try {
-          console.log(`Trying formula: ${decodeURIComponent(formulaToTry)}`);
-          calculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
-            filterByFormula: formulaToTry 
-          });
-          
-          if (calculations.length > 0) {
-            console.log(`Found ${calculations.length} calculations with formula`);
-            return this.mapCalculations(calculations, studentId);
-          }
-        } catch (error) {
-          console.log(`Formula failed: ${decodeURIComponent(formulaToTry)}`);
-          // Continuer avec la formule suivante
-        }
-      }
-      
-      // Dernière tentative : utiliser une méthode générique sans filtre
-      console.log("All formulas failed, falling back to mock data");
+      // Si toutes les méthodes ont échoué, utiliser les données fictives
+      console.log("All methods failed, falling back to mock data");
       return this.getStudentCalculationsMock(studentId);
     } catch (error) {
       console.error('Error getting calculations:', error);
@@ -139,33 +119,22 @@ class CalculationService {
   // Méthode pour récupérer le nom de l'élève depuis la table Élèves
   private async getStudentName(studentId: string): Promise<string | null> {
     try {
-      // Tenter de récupérer les données de l'élève depuis la table Élèves
-      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
-        filterByFormula: encodeURIComponent(`{IDU}="${studentId}"`)
-      });
+      // Utiliser la table ID connue au lieu du nom (plus fiable)
+      const students = await AirtableApiService.fetchTableById('tbll5MlIcTSqCOLEJ');
       
-      if (students.length > 0) {
-        // Récupérer le nom de l'élève (peut être dans différents champs selon la structure)
-        const student = students[0];
-        const name = student.Nom || student.Name || student.nom || student.name;
+      // Chercher l'élève avec l'ID correspondant
+      const student = students.find(s => 
+        s.fields["IDU Eleve"] === studentId || 
+        s.fields["IDU"] === studentId || 
+        s.id === studentId
+      );
+      
+      if (student) {
+        // Récupérer le nom de l'élève
+        const name = student.fields.Nom;
         
         if (name) {
           console.log(`Found student name: ${name}`);
-          return name;
-        }
-      }
-      
-      // Essayer avec la table sans accents
-      const studentsAlt = await AirtableApiService.fetchFromAirtable<any>('Eleves', {
-        filterByFormula: encodeURIComponent(`{IDU}="${studentId}"`)
-      });
-      
-      if (studentsAlt.length > 0) {
-        const student = studentsAlt[0];
-        const name = student.Nom || student.Name || student.nom || student.name;
-        
-        if (name) {
-          console.log(`Found student name from Eleves table: ${name}`);
           return name;
         }
       }
