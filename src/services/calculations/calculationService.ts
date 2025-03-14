@@ -12,103 +12,27 @@ class CalculationService {
     }
     
     try {
-      console.log(`Fetching calculations for student ${studentId}`);
-      
-      // Étape 1: Récupérer le nom de l'élève depuis la table Élèves
+      // Étape 1: Récupérer le nom de l'élève à partir du contexte
       const studentName = await this.getStudentName(studentId);
-      console.log(`Nom d'élève récupéré: ${studentName || "Non trouvé"}`);
+      console.log("Nom de l'élève:", studentName);
       
-      if (studentName) {
-        // Étape 2: Utiliser le nom pour filtrer les calculs avec la formule {Élève}='Nom'
-        try {
-          // Construction de la formule selon les spécifications exactes d'Airtable
-          // Utilisez FIND() au lieu de l'opérateur d'égalité pour éviter les problèmes d'échappement
-          const formula = `FIND("${studentName}", {Élève})`;
-          console.log(`Trying with FIND formula: ${formula}`);
-          
-          // Encodage correct pour l'URL
-          const encodedFormula = encodeURIComponent(formula);
-          console.log(`Encoded formula: ${encodedFormula}`);
-          
-          const calculationsWithName = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
-            filterByFormula: encodedFormula 
-          });
-          
-          if (calculationsWithName.length > 0) {
-            console.log(`Found ${calculationsWithName.length} calculations using student name formula`);
-            return this.mapCalculations(calculationsWithName, studentId);
-          }
-        } catch (error) {
-          console.log("Student name FIND formula failed:", error);
-          
-          // Deuxième tentative avec la formule exacte demandée par l'utilisateur
-          try {
-            // Format exact demandé par l'utilisateur
-            const exactFormula = `{Élève}='${studentName}'`;
-            console.log(`Trying with user specified formula: ${exactFormula}`);
-            
-            // Encodage URL correct
-            const encodedExactFormula = encodeURIComponent(exactFormula);
-            console.log(`Encoded exact formula: ${encodedExactFormula}`);
-            
-            const calculationsWithExactSyntax = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
-              filterByFormula: encodedExactFormula
-            });
-            
-            if (calculationsWithExactSyntax.length > 0) {
-              console.log(`Found ${calculationsWithExactSyntax.length} calculations using exact syntax`);
-              return this.mapCalculations(calculationsWithExactSyntax, studentId);
-            }
-          } catch (exactError) {
-            console.log("Exact formula syntax failed:", exactError);
-          }
-        }
+      // Étape 2: Utiliser la formule Airtable avec le nom de l'élève
+      const formula = `{Élève}='${studentName}'`;
+      console.log("Formule utilisée:", formula);
+      
+      const calculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
+        filterByFormula: formula 
+      });
+      
+      console.log("Calculs récupérés:", calculations);
+      
+      if (calculations.length > 0) {
+        // Mapper les données reçues au format attendu
+        return this.mapCalculations(calculations, studentId);
+      } else {
+        console.log("Aucun calcul trouvé, utilisation des données de test");
+        return this.getStudentCalculationsMock(studentId);
       }
-      
-      // Si la méthode précédente a échoué, essayons des alternatives
-      // Première tentative : récupérer tous les enregistrements et filtrer côté client
-      try {
-        console.log("Fetching all BCJ records and filtering client-side");
-        const allCalculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', {});
-        console.log(`Retrieved ${allCalculations.length} total calculations`);
-        
-        // Filtrer manuellement en vérifiant tous les formats possibles de référence à l'élève
-        const calculations = allCalculations.filter(calc => {
-          // Vérifier si Élève est un tableau d'IDs (cas le plus courant dans Airtable)
-          if (Array.isArray(calc.Élève) && calc.Élève.includes(studentId)) {
-            return true;
-          }
-          
-          // Vérifier si IDU Élève est un tableau et contient l'ID
-          if (Array.isArray(calc["IDU Élève"]) && calc["IDU Élève"].includes(studentId)) {
-            return true;
-          }
-          
-          // Si on a récupéré le nom de l'élève, vérifier aussi par nom
-          if (studentName) {
-            if (calc.Élève === studentName) return true;
-            if (Array.isArray(calc.Élève) && calc.Élève.includes(studentName)) return true;
-          }
-          
-          // Autres vérifications (champs exacts ou contient)
-          return (calc.StudentId === studentId) || 
-                 (typeof calc.Élève === 'string' && calc.Élève.includes(studentId)) || 
-                 (typeof calc["IDU Élève"] === 'string' && calc["IDU Élève"] === studentId);
-        });
-        
-        console.log(`Filtered to ${calculations.length} calculations for student ${studentId}`);
-        
-        if (calculations.length > 0) {
-          return this.mapCalculations(calculations, studentId);
-        }
-      } catch (error) {
-        console.error("Error fetching all records:", error);
-        // Continuer avec d'autres méthodes si celle-ci échoue
-      }
-      
-      // Si toutes les méthodes ont échoué, utiliser les données fictives
-      console.log("All methods failed, falling back to mock data");
-      return this.getStudentCalculationsMock(studentId);
     } catch (error) {
       console.error('Error getting calculations:', error);
       toast.error("Erreur lors de la récupération des calculs");
@@ -116,34 +40,46 @@ class CalculationService {
     }
   }
   
-  // Méthode pour récupérer le nom de l'élève depuis la table Élèves
-  private async getStudentName(studentId: string): Promise<string | null> {
+  // Méthode pour récupérer le nom de l'élève à partir de son ID
+  private async getStudentName(studentId: string): Promise<string> {
     try {
-      // Utiliser la table ID connue au lieu du nom (plus fiable)
-      const students = await AirtableApiService.fetchTableById('tbll5MlIcTSqCOLEJ');
+      // Récupérer l'élève depuis Airtable
+      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: `{ID}='${studentId}'`
+      });
       
-      // Chercher l'élève avec l'ID correspondant
-      const student = students.find(s => 
-        s.fields["IDU Eleve"] === studentId || 
-        s.fields["IDU"] === studentId || 
-        s.id === studentId
+      if (students && students.length > 0) {
+        return students[0]["Nom"];
+      }
+      
+      // Si on ne trouve pas l'élève avec l'ID, essayer avec le code directement
+      const studentsByCode = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: `{code}='${studentId}'`
+      });
+      
+      if (studentsByCode && studentsByCode.length > 0) {
+        return studentsByCode[0]["Nom"];
+      }
+      
+      // Fallback: essayer avec tous les champs
+      const allStudents = await AirtableApiService.fetchAllRecords('Élèves');
+      
+      const student = allStudents.find(s => 
+        s.id === studentId || 
+        s.code === studentId || 
+        s.ID === studentId || 
+        s["IDU Eleve"] === studentId
       );
       
       if (student) {
-        // Récupérer le nom de l'élève
-        const name = student.fields.Nom;
-        
-        if (name) {
-          console.log(`Found student name: ${name}`);
-          return name;
-        }
+        return student["Nom"];
       }
       
-      console.log("Could not find student name");
-      return null;
+      console.warn(`Impossible de trouver le nom de l'élève avec l'ID: ${studentId}`);
+      return studentId; // Retourner l'ID comme fallback
     } catch (error) {
-      console.error('Error fetching student name:', error);
-      return null;
+      console.error('Erreur lors de la récupération du nom de l\'élève:', error);
+      return studentId; // Retourner l'ID comme fallback
     }
   }
   
