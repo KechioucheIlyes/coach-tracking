@@ -172,7 +172,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Main Content */}
       <main className={cn(
         "flex-1 p-4 md:p-6 transition-all duration-300",
-        screenWidth >= 768 ? "ml-0" : isMobileMenuOpen ? "ml-0" : "ml-0"
+        screenWidth >= 768 ? "md:pl-0" : ""
       )}>
         <div className="max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
