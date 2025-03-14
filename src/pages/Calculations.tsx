@@ -83,7 +83,7 @@ const Calculations = () => {
           <>
             <div className="mt-6 mb-4 glass-card p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <p className="text-muted-foreground text-sm">
-                Dernière mise à jour: {format(new Date(latestCalculation.date), 'dd MMMM yyyy', { locale: fr })}
+                BLOC du {format(new Date(latestCalculation.date), 'dd MMMM yyyy', { locale: fr })}
               </p>
             </div>
 
