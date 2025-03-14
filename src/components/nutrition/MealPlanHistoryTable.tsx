@@ -23,9 +23,13 @@ const MealPlanHistoryTable = ({ mealPlans, onSelectMealPlan }: MealPlanHistoryTa
     return mealPlan.meals.flatMap(m => m.items).reduce((sum, item) => sum + (item.calories || 0), 0);
   };
 
-  // Count total number of meals in a meal plan
-  const countMeals = (mealPlan: MealPlan) => {
-    return new Set(mealPlan.meals.map(meal => meal.type)).size;
+  // Get unique days in a meal plan
+  const getDaysInPlan = (mealPlan: MealPlan) => {
+    const days = mealPlan.meals
+      .map(meal => meal.day)
+      .filter((day, index, self) => day && self.indexOf(day) === index);
+    
+    return days.length;
   };
   
   return (
@@ -33,8 +37,8 @@ const MealPlanHistoryTable = ({ mealPlans, onSelectMealPlan }: MealPlanHistoryTa
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-32">Date</TableHead>
-            <TableHead>Repas</TableHead>
+            <TableHead className="w-32">Semaine du</TableHead>
+            <TableHead>Jours</TableHead>
             <TableHead>Calories</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
@@ -45,7 +49,7 @@ const MealPlanHistoryTable = ({ mealPlans, onSelectMealPlan }: MealPlanHistoryTa
               <TableCell className="font-medium">
                 {format(new Date(mealPlan.date), 'dd MMM yyyy', { locale: fr })}
               </TableCell>
-              <TableCell>{countMeals(mealPlan)}</TableCell>
+              <TableCell>{getDaysInPlan(mealPlan)}</TableCell>
               <TableCell>{calculateTotalCalories(mealPlan)} kcal</TableCell>
               <TableCell className="text-right">
                 <Button 
