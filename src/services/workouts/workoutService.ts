@@ -56,7 +56,8 @@ class WorkoutService {
               format: ex['Format de Travail'],
               rest: ex.Rest,
               weight: ex['Charge (Kg)'],
-              notes: ex.Notes
+              notes: ex.Notes,
+              part: ex.Partie  // Adding the individual exercise's partie
             }))
           };
           

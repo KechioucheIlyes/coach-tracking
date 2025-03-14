@@ -94,6 +94,7 @@ export interface Exercise {
   weight?: number;
   notes?: string;
   format?: string;
+  part?: string;  // Adding part property to individual exercises
 }
 
 export interface Workout {

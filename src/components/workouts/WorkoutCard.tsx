@@ -54,7 +54,7 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
               {workout.exercises.map((exercise) => (
                 <TableRow key={exercise.id}>
                   <TableCell className="font-medium text-orange-700">
-                    {workout.part || 'Principal'}
+                    {exercise.part || workout.part || 'Principal'}
                   </TableCell>
                   <TableCell className="font-medium">{exercise.name}</TableCell>
                   <TableCell>{exercise.format}</TableCell>
