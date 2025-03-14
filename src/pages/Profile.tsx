@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -54,7 +55,7 @@ const Profile = () => {
           title="Profil & Objectifs"
           subtitle="Consultez votre fiche bilan et vos objectifs"
           icon={<FileText size={20} />}
-          className="bg-white p-4 rounded-lg shadow-sm mb-6"
+          className="mb-6"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
