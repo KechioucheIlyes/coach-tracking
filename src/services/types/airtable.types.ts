@@ -1,3 +1,4 @@
+
 export interface Student {
   id: string;
   name: string;
@@ -71,6 +72,15 @@ export interface Calculation {
   protein: number;
   carbs: number;
   fat: number;
+  proteinKcal?: number;
+  carbsKcal?: number;
+  fatKcal?: number;
+  proteinPercentage?: number;
+  carbsPercentage?: number;
+  fatPercentage?: number;
+  totalGrams?: number;
+  totalKcal?: number;
+  objective?: number;
 }
 
 export interface Exercise {

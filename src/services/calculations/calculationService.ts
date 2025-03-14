@@ -14,19 +14,28 @@ class CalculationService {
     try {
       console.log(`Fetching calculations for student ${studentId}`);
       const formula = encodeURIComponent(`{StudentId} = '${studentId}'`);
-      const calculations = await AirtableApiService.fetchFromAirtable<any>('Calculations', { filterByFormula: formula });
+      const calculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', { filterByFormula: formula });
       
       console.log(`Retrieved ${calculations.length} calculations`);
       
       return calculations.map(calculation => ({
         id: calculation.id,
-        studentId: calculation.StudentId,
-        date: calculation.Date,
-        bmr: calculation.BMR,
-        bcj: calculation.BCJ,
-        protein: calculation.Protein,
-        carbs: calculation.Carbs,
-        fat: calculation.Fat,
+        studentId: calculation.StudentId || calculation.Élève || studentId,
+        date: calculation.Date || calculation.Semaine,
+        bmr: calculation.BMR || calculation["BMR (kcal)"] || 0,
+        bcj: calculation.BCJ || calculation["BCJ (kcal)"] || 0,
+        protein: calculation.Protein || calculation["Protéines (g)"] || 0,
+        carbs: calculation.Carbs || calculation["Glucides (g)"] || 0,
+        fat: calculation.Fat || calculation["Lipides (g)"] || 0,
+        proteinKcal: calculation["Protéines (kcal)"] || 0,
+        carbsKcal: calculation["Glucides (kcal)"] || 0,
+        fatKcal: calculation["Lipides (kcal)"] || 0,
+        proteinPercentage: calculation["Protéines (%)"] || 0,
+        carbsPercentage: calculation["Glucides (%)"] || 0,
+        fatPercentage: calculation["Lipides (%)"] || 0,
+        totalGrams: calculation["Total (g)"] || 0,
+        totalKcal: calculation["Total (kcal)"] || 0,
+        objective: calculation["BCJ / Obj (kcal)"] || 0
       }));
     } catch (error) {
       console.error('Error getting calculations:', error);
