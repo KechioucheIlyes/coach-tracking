@@ -12,7 +12,7 @@ import AirtableService from '@/services/AirtableService';
 import MealPlanView from '@/components/nutrition/MealPlanView';
 import MealPlanHistoryTable from '@/components/nutrition/MealPlanHistoryTable';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -21,7 +21,7 @@ const queryClient = new QueryClient();
 const NutritionContent = () => {
   const { student } = useStudent();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('latest');
+  const [selectedMealPlan, setSelectedMealPlan] = useState<MealPlan | null>(null);
   
   // Check if user is logged in
   useEffect(() => {
@@ -44,6 +44,9 @@ const NutritionContent = () => {
   
   // Get the latest meal plan
   const latestMealPlan = sortedMealPlans.length > 0 ? sortedMealPlans[0] : null;
+  
+  // Get the rest of the meal plans for history
+  const mealPlanHistory = latestMealPlan ? sortedMealPlans.filter(mp => mp.id !== latestMealPlan.id) : [];
 
   if (!student) return null;
 
@@ -60,36 +63,62 @@ const NutritionContent = () => {
         icon={<Utensils size={20} className="text-red-500" />}
       />
 
-      {isLoading ? (
-        <Card className="p-6 mt-6 text-center border border-red-200 bg-red-50 shadow-sm">
-          <p className="text-muted-foreground">Chargement du plan alimentaire...</p>
-        </Card>
-      ) : error ? (
+      {/* Loading state */}
+      {isLoading && (
+        <div className="space-y-6 mt-6">
+          <Skeleton className="h-48 w-full rounded-lg" />
+          <Skeleton className="h-64 w-full rounded-lg" />
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
         <Card className="p-6 mt-6 text-center border border-red-200 bg-red-50 shadow-sm">
           <p className="text-red-500">Erreur lors du chargement du plan alimentaire.</p>
         </Card>
-      ) : mealPlans.length === 0 ? (
+      )}
+
+      {/* No meal plans state */}
+      {!isLoading && !error && mealPlans.length === 0 && (
         <Card className="p-6 mt-6 text-center border border-red-200 bg-red-50 shadow-sm">
           <p className="text-muted-foreground">
             Votre plan alimentaire personnalisé sera bientôt disponible.
           </p>
         </Card>
-      ) : (
+      )}
+
+      {/* Latest meal plan */}
+      {!isLoading && !error && latestMealPlan && !selectedMealPlan && (
+        <div className="mb-10 mt-6">
+          <h2 className="text-xl font-semibold mb-4">Dernier plan alimentaire</h2>
+          <MealPlanView mealPlan={latestMealPlan} />
+        </div>
+      )}
+
+      {/* Selected meal plan from history */}
+      {selectedMealPlan && (
+        <div className="mb-10 mt-6">
+          <button 
+            className="text-red-600 hover:text-red-700 flex items-center mb-4"
+            onClick={() => setSelectedMealPlan(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 rotate-180">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+            <span>Retour</span>
+          </button>
+          <MealPlanView mealPlan={selectedMealPlan} />
+        </div>
+      )}
+
+      {/* Meal plan history */}
+      {!isLoading && !error && mealPlanHistory.length > 0 && !selectedMealPlan && (
         <div className="mt-6">
-          <Tabs defaultValue="latest" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="bg-white">
-              <TabsTrigger value="latest">Dernier plan</TabsTrigger>
-              <TabsTrigger value="history">Historique</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="latest" className="pt-4">
-              {latestMealPlan && <MealPlanView mealPlan={latestMealPlan} />}
-            </TabsContent>
-            
-            <TabsContent value="history" className="pt-4">
-              <MealPlanHistoryTable mealPlans={sortedMealPlans} />
-            </TabsContent>
-          </Tabs>
+          <h2 className="text-xl font-semibold mb-4">Historique des plans alimentaires</h2>
+          <MealPlanHistoryTable 
+            mealPlans={mealPlanHistory} 
+            onSelectMealPlan={setSelectedMealPlan} 
+          />
         </div>
       )}
     </motion.div>

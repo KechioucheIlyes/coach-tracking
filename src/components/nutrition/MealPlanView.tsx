@@ -3,24 +3,13 @@ import { MealPlan } from "@/services/types/airtable.types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useState } from "react";
 
 interface MealPlanViewProps {
   mealPlan: MealPlan;
 }
 
 const MealPlanView = ({ mealPlan }: MealPlanViewProps) => {
-  // Group meals by type
-  const mealsByType = mealPlan.meals.reduce((acc, meal) => {
-    if (!acc[meal.type]) {
-      acc[meal.type] = [];
-    }
-    acc[meal.type].push(meal);
-    return acc;
-  }, {} as Record<string, typeof mealPlan.meals>);
-
-  // Order meal types
-  const mealTypeOrder = ["breakfast", "lunch", "snack", "dinner"];
-  
   // Format meal type for display
   const formatMealType = (type: string) => {
     switch (type) {
@@ -31,6 +20,14 @@ const MealPlanView = ({ mealPlan }: MealPlanViewProps) => {
       default: return type;
     }
   };
+
+  // Order meal types for consistent display
+  const mealTypeOrder = ["breakfast", "lunch", "snack", "dinner"];
+  
+  // Sort meals by type for consistent display order
+  const sortedMeals = [...mealPlan.meals].sort((a, b) => 
+    mealTypeOrder.indexOf(a.type) - mealTypeOrder.indexOf(b.type)
+  );
 
   // Calculate total macros for a meal
   const calculateMealMacros = (items: typeof mealPlan.meals[0]['items']) => {
@@ -52,60 +49,46 @@ const MealPlanView = ({ mealPlan }: MealPlanViewProps) => {
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {Object.keys(mealsByType)
-          .sort((a, b) => 
-            mealTypeOrder.indexOf(a) - mealTypeOrder.indexOf(b)
-          )
-          .map(mealType => (
-            <Card key={mealType} className="overflow-hidden border-red-200 shadow-sm">
-              <CardHeader className="bg-red-100 pb-2">
-                <CardTitle className="text-lg">{formatMealType(mealType)}</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y">
-                  {mealsByType[mealType].map(meal => (
-                    meal.items.map((item, itemIndex) => (
-                      <div key={`${meal.id}-${itemIndex}`} className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-muted-foreground">{item.quantity}</p>
-                          </div>
-                          <div className="text-right text-sm">
-                            <p className="font-medium">{item.calories || 0} kcal</p>
-                            <p className="text-muted-foreground">
-                              P: {item.protein || 0}g • C: {item.carbs || 0}g • L: {item.fat || 0}g
-                            </p>
-                          </div>
+      <Card className="overflow-hidden border-red-200 shadow-sm">
+        <CardHeader className="bg-red-100 pb-2">
+          <CardTitle className="text-lg">Programme journalier</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="divide-y">
+            {sortedMeals.map(meal => (
+              <div key={meal.id} className="p-4">
+                <h3 className="font-medium text-red-700 mb-2">{formatMealType(meal.type)}</h3>
+                <div className="space-y-3">
+                  {meal.items.map((item, itemIndex) => (
+                    <div key={`${meal.id}-${itemIndex}`} className="pl-2 border-l-2 border-red-100">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-sm text-muted-foreground">{item.quantity}</p>
+                        </div>
+                        <div className="text-right text-sm">
+                          <p className="font-medium">{item.calories || 0} kcal</p>
+                          <p className="text-muted-foreground">
+                            P: {item.protein || 0}g • C: {item.carbs || 0}g • L: {item.fat || 0}g
+                          </p>
                         </div>
                       </div>
-                    ))
+                    </div>
                   ))}
                 </div>
-
-                {mealsByType[mealType].length > 0 && (
-                  <div className="bg-red-50 p-4 border-t border-red-200">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span>Total</span>
-                      <span>
-                        {calculateMealMacros(mealsByType[mealType].flatMap(m => m.items)).calories} kcal
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>Macronutriments</span>
-                      <span>
-                        P: {calculateMealMacros(mealsByType[mealType].flatMap(m => m.items)).protein}g •
-                        C: {calculateMealMacros(mealsByType[mealType].flatMap(m => m.items)).carbs}g •
-                        L: {calculateMealMacros(mealsByType[mealType].flatMap(m => m.items)).fat}g
-                      </span>
-                    </div>
+                <div className="mt-2 pt-2 border-t border-red-100">
+                  <div className="flex justify-between text-sm text-red-600 font-medium">
+                    <span>Total {formatMealType(meal.type)}</span>
+                    <span>
+                      {calculateMealMacros(meal.items).calories} kcal
+                    </span>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-      </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-red-200 shadow-sm bg-red-50">
         <CardContent className="p-4">
