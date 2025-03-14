@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useStudent } from '../context/StudentContext';
@@ -19,16 +19,6 @@ import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Slider } from '@/components/ui/slider';
-
-// Function to format measurement dates
-const formatMeasurementDate = (dateString: string): string => {
-  try {
-    return format(parseISO(dateString), 'dd MMM yyyy', { locale: fr });
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return dateString;
-  }
-};
 
 const Measurements = () => {
   const { student } = useStudent();
@@ -75,35 +65,6 @@ const Measurements = () => {
     fetchMeasurements();
     fetchGoals();
   }, [student, navigate]);
-
-  // Prepare chart data for weight evolution
-  const weightChartData = useMemo(() => {
-    if (!measurements || measurements.length === 0) return [];
-    
-    return measurements
-      .filter(m => m.weight)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(measurement => ({
-        date: formatMeasurementDate(measurement.date),
-        fullDate: measurement.date,
-        weight: measurement.weight
-      }));
-  }, [measurements]);
-
-  // Prepare chart data for body composition
-  const bodyCompositionChartData = useMemo(() => {
-    if (!measurements || measurements.length === 0) return [];
-    
-    return measurements
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(measurement => ({
-        date: formatMeasurementDate(measurement.date),
-        fullDate: measurement.date,
-        bodyFat: measurement.bodyFat || 0,
-        muscle: measurement.musclePercentage || 0,
-        water: measurement.water || 0
-      }));
-  }, [measurements]);
 
   if (!student) return null;
   
