@@ -69,7 +69,6 @@ const Measurements = () => {
 
   if (!student) return null;
   
-  // Extract student name (first part before space)
   const studentFirstName = student.name.split(' ')[0];
   const studentAccessCode = student.accessCode || '';
   
@@ -168,8 +167,15 @@ const Measurements = () => {
           action={
             <Button 
               className="bg-coach-600 hover:bg-coach-700"
-              data-youform-open={`l0zyez4p?nom=${studentFirstName}&id=${studentAccessCode}`} 
-              data-youform-position="center"
+              onClick={(e) => {
+                e.preventDefault();
+                if (window.YouFormWidget) {
+                  window.YouFormWidget.open(`l0zyez4p?nom=${studentFirstName}&id=${studentAccessCode}`, { position: 'center' });
+                } else {
+                  console.error('YouForm widget script not loaded');
+                  toast.error("Impossible d'ouvrir le formulaire. Veuillez réessayer.");
+                }
+              }}
             >
               <ClipboardCheck className="mr-2 h-4 w-4" />
               Enregistrer vos mesures
@@ -656,7 +662,6 @@ const Measurements = () => {
               transition={{ delay: 0.6, duration: 0.5 }}
               className="space-y-8"
             >
-              {/* Weight and Body Composition Table */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold flex items-center mb-2">
                   <Scale className="mr-2 h-5 w-5 text-coach-500" />
@@ -672,7 +677,7 @@ const Measurements = () => {
                           <TableHead>Date</TableHead>
                           <TableHead>Poids (kg)</TableHead>
                           <TableHead>Masse grasse (%)</TableHead>
-                          <TableHead>Masse musulaire (%)</TableHead>
+                          <TableHead>Masse musculaire (%)</TableHead>
                           <TableHead>Eau (%)</TableHead>
                           <TableHead>Graisse viscérale</TableHead>
                         </TableRow>
@@ -694,7 +699,6 @@ const Measurements = () => {
                 </Card>
               </div>
               
-              {/* Body Measurements Table */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold flex items-center mb-2">
                   <Ruler className="mr-2 h-5 w-5 text-coach-500" />
