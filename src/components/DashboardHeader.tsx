@@ -28,7 +28,10 @@ const DashboardHeader = ({
       "mb-8 flex flex-col space-y-2",
       className
     )}>
-      <div className="flex items-start justify-between gap-4">
+      <div className={cn(
+        "flex items-start justify-between gap-4",
+        isMobile && action ? "flex-col" : ""
+      )}>
         <div className="flex items-start">
           {icon && (
             <div className="mr-3 p-2 rounded-full bg-coach-100 text-coach-600 flex-shrink-0 mt-1">
@@ -46,7 +49,7 @@ const DashboardHeader = ({
         {action && (
           <div className={cn(
             "flex-shrink-0",
-            isMobile ? "ml-auto" : ""
+            isMobile ? "w-full mt-2" : ""
           )}>
             {action}
           </div>

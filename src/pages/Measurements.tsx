@@ -171,7 +171,7 @@ const Measurements = () => {
           icon={<Ruler size={20} />}
           action={
             <Button 
-              className="bg-coach-600 hover:bg-coach-700"
+              className="bg-coach-600 hover:bg-coach-700 w-full md:w-auto"
               onClick={openYouForm}
             >
               <ClipboardCheck className="mr-2 h-4 w-4" />
@@ -745,3 +745,4 @@ const Measurements = () => {
 };
 
 export default Measurements;
+
