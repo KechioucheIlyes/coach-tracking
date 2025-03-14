@@ -32,7 +32,7 @@ const DashboardHeader = ({
               {icon}
             </div>
           )}
-          <div>
+          <div className="text-left">
             <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
             {subtitle && (
               <p className="text-muted-foreground">{subtitle}</p>
