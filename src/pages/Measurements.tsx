@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -8,8 +9,9 @@ import DashboardHeader from '../components/DashboardHeader';
 import { 
   Ruler, Target, CheckCircle, Clock, AlertCircle, TrendingUp, TrendingDown, 
   ArrowRight, Scale, ChevronUp, ChevronDown, ActivitySquare, ChevronRight,
-  History, LineChart as LineChartIcon
+  History, LineChart as LineChartIcon, ClipboardCheck
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { format, parseISO, compareDesc } from 'date-fns';
@@ -65,6 +67,18 @@ const Measurements = () => {
     fetchMeasurements();
     fetchGoals();
   }, [student, navigate]);
+
+  // Function to open YouForm with student data
+  const openYouForm = () => {
+    if (!student) return;
+    
+    // Get first name of student
+    const firstName = student.name.split(' ')[0];
+    const accessCode = student.accessCode || '';
+    
+    // Open YouForm URL with parameters
+    window.open(`https://app.youform.com/forms/l0zyez4p?nom=${firstName}&id=${accessCode}`, '_blank');
+  };
 
   if (!student) return null;
   
@@ -160,6 +174,15 @@ const Measurements = () => {
           subtitle="Suivez l'évolution de vos mesures corporelles"
           icon={<Ruler size={20} />}
           backLink="/dashboard"
+          action={
+            <Button 
+              className="bg-coach-600 hover:bg-coach-700"
+              onClick={openYouForm}
+            >
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              Enregistrer vos mesures
+            </Button>
+          }
         />
 
         {isLoading ? (
