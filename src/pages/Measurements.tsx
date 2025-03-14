@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -164,7 +165,7 @@ const Measurements = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-green-50"
+        className="p-6 pb-8 bg-green-50 rounded-lg"
       >
         <DashboardHeader
           title="Mesures"
@@ -186,7 +187,7 @@ const Measurements = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
           </div>
         ) : measurements.length === 0 ? (
-          <Card className="p-6 text-center border border-green-200 bg-green-50">
+          <Card className="p-6 mt-6 text-center border border-green-200 bg-green-50">
             <p className="text-muted-foreground">Aucune mesure enregistrée pour le moment.</p>
           </Card>
         ) : (
@@ -195,7 +196,7 @@ const Measurements = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="mb-8"
+              className="mt-6 mb-8"
             >
               <Card className="mb-6 border border-green-200 bg-white">
                 <CardHeader className="pb-2">

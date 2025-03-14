@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -67,7 +68,7 @@ const Calculations = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-purple-50"
+        className="p-6 pb-8 bg-purple-50 rounded-lg"
       >
         <DashboardHeader
           title="Calculs Nutritionnels"
@@ -80,12 +81,12 @@ const Calculations = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
         ) : !calculation ? (
-          <Card className="p-6 text-center border border-purple-200 bg-purple-50">
+          <Card className="p-6 mt-6 text-center border border-purple-200 bg-purple-50">
             <p className="text-muted-foreground">Aucun calcul nutritionnel disponible pour le moment.</p>
           </Card>
         ) : (
           <>
-            <div className="mb-4 glass-card p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <div className="mt-6 mb-4 glass-card p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <p className="text-muted-foreground text-sm">
                 Dernière mise à jour: {format(new Date(calculation.date), 'dd MMMM yyyy', { locale: fr })}
               </p>
@@ -277,4 +278,3 @@ const Calculations = () => {
 };
 
 export default Calculations;
-
