@@ -19,11 +19,6 @@ const ExplanationCard = () => {
         <p>
           <strong>Macronutriments</strong> : La répartition entre protéines, glucides et lipides est personnalisée en fonction de vos objectifs. Les protéines sont essentielles pour la construction musculaire, les glucides fournissent de l'énergie, et les lipides sont importants pour diverses fonctions hormonales et cellulaires.
         </p>
-        
-        <div className="bg-purple-50 p-4 rounded-lg text-purple-800 border border-purple-200">
-          <p className="font-medium mb-1">Note importante :</p>
-          <p className="text-sm">Ces calculs sont des estimations basées sur des formules scientifiques, mais ils peuvent varier selon votre métabolisme individuel. Utilisez-les comme guide et ajustez en fonction de vos résultats réels.</p>
-        </div>
       </CardContent>
     </Card>
   );
