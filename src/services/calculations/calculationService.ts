@@ -14,6 +14,28 @@ class CalculationService {
     try {
       console.log(`Fetching calculations for student ${studentId}`);
       
+      // Étape 1: Récupérer le nom de l'élève depuis la table Élèves
+      const studentName = await this.getStudentName(studentId);
+      console.log(`Nom d'élève récupéré: ${studentName || "Non trouvé"}`);
+      
+      if (studentName) {
+        // Étape 2: Utiliser le nom pour filtrer les calculs avec la formule {Élève}='Nom'
+        try {
+          console.log(`Trying with formula: {Élève}='${studentName}'`);
+          const formula = encodeURIComponent(`{Élève}='${studentName}'`);
+          const calculationsWithName = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
+            filterByFormula: formula 
+          });
+          
+          if (calculationsWithName.length > 0) {
+            console.log(`Found ${calculationsWithName.length} calculations using student name formula`);
+            return this.mapCalculations(calculationsWithName, studentId);
+          }
+        } catch (error) {
+          console.log("Student name formula failed, trying other methods");
+        }
+      }
+      
       // Première tentative : récupérer tous les enregistrements et filtrer côté client
       try {
         console.log("Fetching all BCJ records and filtering client-side");
@@ -30,6 +52,12 @@ class CalculationService {
           // Vérifier si IDU Élève est un tableau et contient l'ID
           if (Array.isArray(calc["IDU Élève"]) && calc["IDU Élève"].includes(studentId)) {
             return true;
+          }
+          
+          // Si on a récupéré le nom de l'élève, vérifier aussi par nom
+          if (studentName) {
+            if (calc.Élève === studentName) return true;
+            if (Array.isArray(calc.Élève) && calc.Élève.includes(studentName)) return true;
           }
           
           // Autres vérifications (champs exacts ou contient)
@@ -100,6 +128,48 @@ class CalculationService {
       console.error('Error getting calculations:', error);
       toast.error("Erreur lors de la récupération des calculs");
       return this.getStudentCalculationsMock(studentId);
+    }
+  }
+  
+  // Méthode pour récupérer le nom de l'élève depuis la table Élèves
+  private async getStudentName(studentId: string): Promise<string | null> {
+    try {
+      // Tenter de récupérer les données de l'élève depuis la table Élèves
+      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: encodeURIComponent(`{IDU}="${studentId}"`)
+      });
+      
+      if (students.length > 0) {
+        // Récupérer le nom de l'élève (peut être dans différents champs selon la structure)
+        const student = students[0];
+        const name = student.Nom || student.Name || student.nom || student.name;
+        
+        if (name) {
+          console.log(`Found student name: ${name}`);
+          return name;
+        }
+      }
+      
+      // Essayer avec la table sans accents
+      const studentsAlt = await AirtableApiService.fetchFromAirtable<any>('Eleves', {
+        filterByFormula: encodeURIComponent(`{IDU}="${studentId}"`)
+      });
+      
+      if (studentsAlt.length > 0) {
+        const student = studentsAlt[0];
+        const name = student.Nom || student.Name || student.nom || student.name;
+        
+        if (name) {
+          console.log(`Found student name from Eleves table: ${name}`);
+          return name;
+        }
+      }
+      
+      console.log("Could not find student name");
+      return null;
+    } catch (error) {
+      console.error('Error fetching student name:', error);
+      return null;
     }
   }
   
