@@ -20,6 +20,19 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
   // Format the date
   const formattedDate = format(new Date(workout.week), 'dd MMMM yyyy', { locale: fr });
   
+  // Group exercises by part
+  const exercisesByPart = workout.exercises.reduce<Record<string, Exercise[]>>((acc, exercise) => {
+    const part = workout.part || 'Principal';
+    if (!acc[part]) {
+      acc[part] = [];
+    }
+    acc[part].push(exercise);
+    return acc;
+  }, {});
+  
+  // Get sorted parts
+  const sortedParts = Object.keys(exercisesByPart).sort();
+  
   return (
     <Card className="border-orange-200 shadow-sm">
       <CardHeader className="bg-orange-50 pb-3 border-b border-orange-100">
@@ -34,39 +47,39 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
             <div className="px-3 py-1 bg-orange-100 rounded-full text-sm font-medium text-orange-700">
               Jour {workout.day}
             </div>
-            {workout.part && (
-              <div className="px-3 py-1 bg-orange-100 rounded-full text-sm font-medium text-orange-700">
-                Partie {workout.part}
-              </div>
-            )}
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-4">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Exercice</TableHead>
-                <TableHead>Format</TableHead>
-                <TableHead>Repos</TableHead>
-                <TableHead>Charge (kg)</TableHead>
-                <TableHead>Notes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {workout.exercises.map((exercise) => (
-                <TableRow key={exercise.id}>
-                  <TableCell className="font-medium">{exercise.name}</TableCell>
-                  <TableCell>{exercise.format}</TableCell>
-                  <TableCell>{exercise.rest}</TableCell>
-                  <TableCell>{exercise.weight}</TableCell>
-                  <TableCell className="max-w-[300px]">{exercise.notes}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        {sortedParts.map((part) => (
+          <div key={part} className="mb-6 last:mb-0">
+            <h3 className="text-lg font-medium text-orange-700 mb-3">Partie {part}</h3>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Exercice</TableHead>
+                    <TableHead>Format</TableHead>
+                    <TableHead>Repos</TableHead>
+                    <TableHead>Charge (kg)</TableHead>
+                    <TableHead>Notes</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {exercisesByPart[part].map((exercise) => (
+                    <TableRow key={exercise.id}>
+                      <TableCell className="font-medium">{exercise.name}</TableCell>
+                      <TableCell>{exercise.format}</TableCell>
+                      <TableCell>{exercise.rest}</TableCell>
+                      <TableCell>{exercise.weight}</TableCell>
+                      <TableCell className="max-w-[300px]">{exercise.notes}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );

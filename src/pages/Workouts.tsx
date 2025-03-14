@@ -42,10 +42,22 @@ const Workouts = () => {
     }
   };
 
-  // Get the most recent workout (already sorted in the service)
-  const latestWorkout = workouts.length > 0 ? workouts[0] : null;
-  // Get the rest of the workouts for history
-  const workoutHistory = workouts.slice(1);
+  // Get the most recent workout week
+  const latestWorkouts = workouts.length > 0 
+    ? workouts.filter(w => w.week === workouts[0].week)
+    : [];
+    
+  // Group latest workouts by day
+  const workoutsByDay = latestWorkouts.reduce<Record<string, Workout[]>>((acc, workout) => {
+    if (!acc[workout.day]) {
+      acc[workout.day] = [];
+    }
+    acc[workout.day].push(workout);
+    return acc;
+  }, {});
+  
+  // Get the rest of the workouts for history (from older weeks)
+  const workoutHistory = workouts.filter(w => w.week !== (workouts[0]?.week || ''));
 
   if (!student) return null;
 
@@ -80,11 +92,20 @@ const Workouts = () => {
           </Card>
         )}
 
-        {/* Latest workout */}
-        {!isLoading && latestWorkout && (
+        {/* Latest workouts by day */}
+        {!isLoading && latestWorkouts.length > 0 && (
           <div className="mb-10">
             <h2 className="text-xl font-semibold mb-4">Dernier entraînement</h2>
-            <WorkoutCard workout={latestWorkout} />
+            {Object.entries(workoutsByDay).map(([day, dayWorkouts]) => (
+              <div key={day} className="mb-6 last:mb-0">
+                <h3 className="text-lg font-medium text-orange-700 mb-3">Jour {day}</h3>
+                <div className="space-y-4">
+                  {dayWorkouts.map(workout => (
+                    <WorkoutCard key={workout.id} workout={workout} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
