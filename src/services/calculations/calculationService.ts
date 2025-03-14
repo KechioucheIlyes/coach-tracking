@@ -14,46 +14,78 @@ class CalculationService {
     try {
       console.log(`Fetching calculations for student ${studentId}`);
       
-      // Première étape: récupérer le nom de l'élève à partir de son ID
-      const studentName = await this.getStudentName(studentId);
-      console.log(`Fetching calculations for student name: ${studentName}`);
-      
-      if (studentName) {
-        // Utiliser le filtre suggéré par l'utilisateur avec le nom de l'élève
-        const formula = encodeURIComponent(`{Élève}='${studentName}'`);
-        console.log(`Using filter formula: ${decodeURIComponent(formula)}`);
+      // Première tentative : récupérer tous les enregistrements et filtrer côté client
+      try {
+        console.log("Fetching all BCJ records and filtering client-side");
+        const allCalculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', {});
+        console.log(`Retrieved ${allCalculations.length} total calculations`);
         
-        try {
-          const calculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', { filterByFormula: formula });
-          console.log(`Retrieved ${calculations.length} calculations using name filter`);
-          
-          if (calculations.length > 0) {
-            return this.mapCalculations(calculations, studentId);
+        // Filtrer manuellement en vérifiant tous les formats possibles de référence à l'élève
+        const calculations = allCalculations.filter(calc => {
+          // Vérifier si Élève est un tableau d'IDs (cas le plus courant dans Airtable)
+          if (Array.isArray(calc.Élève) && calc.Élève.includes(studentId)) {
+            return true;
           }
-        } catch (error) {
-          console.error("Error with name-based filter:", error);
-          // Continuer avec les autres méthodes si celle-ci échoue
+          
+          // Vérifier si IDU Élève est un tableau et contient l'ID
+          if (Array.isArray(calc["IDU Élève"]) && calc["IDU Élève"].includes(studentId)) {
+            return true;
+          }
+          
+          // Autres vérifications (champs exacts ou contient)
+          return (calc.StudentId === studentId) || 
+                 (typeof calc.Élève === 'string' && calc.Élève.includes(studentId)) || 
+                 (typeof calc["IDU Élève"] === 'string' && calc["IDU Élève"] === studentId);
+        });
+        
+        console.log(`Filtered to ${calculations.length} calculations for student ${studentId}`);
+        
+        if (calculations.length > 0) {
+          return this.mapCalculations(calculations, studentId);
         }
+      } catch (error) {
+        console.error("Error fetching all records:", error);
+        // Continuer avec d'autres méthodes si celle-ci échoue
       }
       
-      // Si la méthode par nom échoue, essayer avec différentes formules basées sur l'ID
+      // Deuxième tentative : essayer avec la formule FIND() qui est plus robuste pour les champs de type lien
+      try {
+        console.log("Trying with FIND() formula");
+        const formula = encodeURIComponent(`FIND("${studentId}", {IDU Élève})`);
+        const calculationsWithFind = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
+          filterByFormula: formula 
+        });
+        
+        if (calculationsWithFind.length > 0) {
+          console.log(`Found ${calculationsWithFind.length} calculations using FIND formula`);
+          return this.mapCalculations(calculationsWithFind, studentId);
+        }
+      } catch (error) {
+        console.log("FIND formula failed, trying other methods");
+        // Continuer avec d'autres méthodes si celle-ci échoue
+      }
+      
+      // Troisième tentative : essayer avec des formules alternatives
+      // Qui sont plus susceptibles de fonctionner avec les champs de type lien
       const formulas = [
-        encodeURIComponent(`{IDU Élève}='${studentId}'`),
-        encodeURIComponent(`{StudentId}='${studentId}'`),
-        encodeURIComponent(`{Élève}='${studentId}'`)
+        encodeURIComponent(`RECORD_ID()="${studentId}"`),
+        encodeURIComponent(`OR(SEARCH("${studentId}", {Élève}), SEARCH("${studentId}", {IDU Élève}))`),
+        encodeURIComponent(`OR({IDU Élève}="${studentId}", {Élève}="${studentId}")`)
       ];
       
       let calculations = [];
-      let success = false;
       
       // Essayer chaque formule jusqu'à ce qu'une fonctionne
       for (const formulaToTry of formulas) {
         try {
-          calculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', { filterByFormula: formulaToTry });
-          console.log(`Retrieved ${calculations.length} calculations using formula: ${decodeURIComponent(formulaToTry)}`);
+          console.log(`Trying formula: ${decodeURIComponent(formulaToTry)}`);
+          calculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', { 
+            filterByFormula: formulaToTry 
+          });
+          
           if (calculations.length > 0) {
-            success = true;
-            break;
+            console.log(`Found ${calculations.length} calculations with formula`);
+            return this.mapCalculations(calculations, studentId);
           }
         } catch (error) {
           console.log(`Formula failed: ${decodeURIComponent(formulaToTry)}`);
@@ -61,64 +93,13 @@ class CalculationService {
         }
       }
       
-      // Si toutes les formules échouent, récupérer tous les enregistrements et filtrer manuellement
-      if (!success) {
-        console.log("All formulas failed, trying to fetch all records");
-        try {
-          const allCalculations = await AirtableApiService.fetchFromAirtable<any>('BCJ', {});
-          console.log(`Retrieved ${allCalculations.length} total calculations`);
-          
-          // Filtrer manuellement avec différents champs possibles
-          calculations = allCalculations.filter(calc => 
-            (calc.StudentId === studentId) || 
-            (calc.Élève && calc.Élève.includes(studentId)) || 
-            (calc["IDU Élève"] === studentId) ||
-            (studentName && calc.Élève && calc.Élève.includes(studentName))
-          );
-          
-          console.log(`Filtered to ${calculations.length} calculations for student ${studentId}`);
-        } catch (error) {
-          console.error("Error fetching all calculations:", error);
-          // En dernier recours, utiliser les données mock
-          return this.getStudentCalculationsMock(studentId);
-        }
-      }
-      
-      return this.mapCalculations(calculations, studentId);
+      // Dernière tentative : utiliser une méthode générique sans filtre
+      console.log("All formulas failed, falling back to mock data");
+      return this.getStudentCalculationsMock(studentId);
     } catch (error) {
       console.error('Error getting calculations:', error);
       toast.error("Erreur lors de la récupération des calculs");
       return this.getStudentCalculationsMock(studentId);
-    }
-  }
-
-  // Méthode pour récupérer le nom de l'élève à partir de son ID
-  private async getStudentName(studentId: string): Promise<string | null> {
-    try {
-      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
-        filterByFormula: encodeURIComponent(`{ID}='${studentId}'`)
-      });
-      
-      if (students && students.length > 0) {
-        console.log(`Found student: ${students[0].Nom}`);
-        return students[0].Nom;
-      }
-      
-      // Essayer avec le champ code
-      const studentsById = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
-        filterByFormula: encodeURIComponent(`{code}='${studentId}'`)
-      });
-      
-      if (studentsById && studentsById.length > 0) {
-        console.log(`Found student by code: ${studentsById[0].Nom}`);
-        return studentsById[0].Nom;
-      }
-      
-      console.log(`Could not find student name for ID: ${studentId}`);
-      return null;
-    } catch (error) {
-      console.error("Error getting student name:", error);
-      return null;
     }
   }
   
