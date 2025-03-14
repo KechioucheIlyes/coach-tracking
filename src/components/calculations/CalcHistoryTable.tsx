@@ -32,7 +32,6 @@ const CalcHistoryTable = ({ calculations }: CalcHistoryTableProps) => {
             <TableHead>Protéines</TableHead>
             <TableHead>Glucides</TableHead>
             <TableHead>Lipides</TableHead>
-            <TableHead>Total</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -47,10 +46,6 @@ const CalcHistoryTable = ({ calculations }: CalcHistoryTableProps) => {
               <TableCell>{formatNumber(calc.proteinKcal || (calc.protein * 4))}</TableCell>
               <TableCell>{formatNumber(calc.carbsKcal || (calc.carbs * 4))}</TableCell>
               <TableCell>{formatNumber(calc.fatKcal || (calc.fat * 9))}</TableCell>
-              <TableCell>
-                {formatNumber(calc.totalKcal || 
-                  ((calc.protein * 4) + (calc.carbs * 4) + (calc.fat * 9)))}
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>
