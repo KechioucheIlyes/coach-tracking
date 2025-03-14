@@ -1,20 +1,40 @@
+
 export interface Student {
   id: string;
   name: string;
-  email?: string;
-  code: string;
   accessCode: string;
-  objective?: string;
+  email?: string;
+  // Additional fields from Airtable
+  age?: number;
+  gender?: string;
+  initialWeight?: number;
+  targetWeight?: number;
+  height?: number;
+  profession?: string;
+  medicalHistory?: string;
+  activityLevel?: string;
+  motivation?: string;
+  diet?: string;
+  eatingHabits?: string;
+  mealFrequency?: string;
+  objectives?: string;
+  birthDate?: string;
+  status?: string;
+  studentCode?: string;
 }
 
 export interface Goal {
   id: string;
   studentId: string;
-  date: string;
-  weight: number;
-  bodyFat: number;
-  muscleMass: number;
-  objective: string;
+  description: string;
+  targetDate: string;
+  status: 'pending' | 'in-progress' | 'achieved';
+  // Additional fields for weight goal
+  initialWeight?: number;
+  targetWeight?: number;
+  currentWeight?: number;
+  weightRemaining?: number;
+  progressPercentage?: number;
 }
 
 export interface Measurement {
@@ -23,12 +43,24 @@ export interface Measurement {
   date: string;
   weight: number;
   height: number;
-  waist: number;
-  hips: number;
-  chest: number;
-  arm: number;
-  thigh: number;
-  calf: number;
+  bodyFat?: number;
+  musclePercentage?: number;
+  // Additional fields from Airtable
+  water?: number;
+  visceralFat?: number;
+  thighCircumferenceLeft?: number; 
+  thighCircumferenceRight?: number;
+  hipCircumference?: number;
+  waistCircumference?: number;
+  chestCircumference?: number;
+  armCircumferenceLeft?: number;
+  armCircumferenceRight?: number;
+  // Calculated fields from Airtable
+  weightLost?: number;
+  weightRemaining?: number;
+  // Added fields for weight progression
+  initialWeight?: number;
+  targetWeight?: number;
 }
 
 export interface Calculation {
@@ -40,36 +72,54 @@ export interface Calculation {
   protein: number;
   carbs: number;
   fat: number;
-  proteinKcal: number;
-  carbsKcal: number;
-  fatKcal: number;
-  proteinPercentage: number;
-  carbsPercentage: number;
-  fatPercentage: number;
-  totalGrams: number;
-  totalKcal: number;
-  objective: number;
+  proteinKcal?: number;
+  carbsKcal?: number;
+  fatKcal?: number;
+  proteinPercentage?: number;
+  carbsPercentage?: number;
+  fatPercentage?: number;
+  totalGrams?: number;
+  totalKcal?: number;
+  objective?: number;
+}
+
+export interface Exercise {
+  id: string;
+  name: string;
+  sets: number;
+  reps: number;
+  rest: number;
+  notes?: string;
 }
 
 export interface Workout {
   id: string;
   studentId: string;
   date: string;
+  title: string;
+  description?: string;
+  exercises: Exercise[];
+}
+
+export interface MealItem {
+  id: string;
   name: string;
-  type: string;
-  duration: number;
-  caloriesBurned: number;
+  quantity: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface Meal {
+  id: string;
+  type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  items: MealItem[];
 }
 
 export interface MealPlan {
   id: string;
   studentId: string;
   date: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  ingredients: string;
-  instructions: string;
+  meals: Meal[];
 }
