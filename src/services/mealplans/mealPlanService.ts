@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
 import { MealPlan, Meal, MealItem } from "../types/airtable.types";
@@ -16,7 +15,9 @@ class MealPlanService {
       console.log("Nom de l'élève pour plans alimentaires:", studentName);
       
       // Construire une formule simple sans caractères spéciaux
-      const formula = `{Élève}='${studentName}'`;
+      // Airtable peut avoir des problèmes avec les apostrophes et les accolades
+      // Essayons avec une approche différente utilisant SEARCH()
+      const formula = `SEARCH("${studentName}", {Élève})`;
       console.log("Formule utilisée pour plans alimentaires:", formula);
       
       const planAlimentaire = await AirtableApiService.fetchFromAirtable<any>('Plan Alimentaire', { 
@@ -49,7 +50,6 @@ class MealPlanService {
       for (const item of planAlimentaire) {
         const date = item["Semaine"] || new Date().toISOString().split('T')[0];
         const mealType = this.mapMealType(item["Repas"] || "");
-        const dayOfWeek = item["Jour"] || "Lundi"; // Capture the day of week
         const mealItemId = item.id;
         const mealPlanId = `${studentId}-${date}`;
         
@@ -65,8 +65,7 @@ class MealPlanService {
           ]),
           protein: Number(item["Protéines (g)"]) || 0,
           carbs: Number(item["Glucides (g)"]) || 0,
-          fat: Number(item["Lipides (g)"]) || 0,
-          day: dayOfWeek // Add the day to the meal item
+          fat: Number(item["Lipides (g)"]) || 0
         };
         
         // Get or create the meal plan
@@ -81,16 +80,12 @@ class MealPlanService {
         
         const mealPlan = mealPlansMap.get(mealPlanId)!;
         
-        // Group by day and meal type
-        const mealId = `${mealPlanId}-${dayOfWeek}-${mealType}`;
-        
-        // Find or create the meal with this day and type
-        let meal = mealPlan.meals.find(m => m.id === mealId);
+        // Find or create the meal with this type
+        let meal = mealPlan.meals.find(m => m.type === mealType);
         if (!meal) {
           meal = {
-            id: mealId,
+            id: `${mealPlanId}-${mealType}`,
             type: mealType,
-            day: dayOfWeek, // Add day to the meal
             items: []
           };
           mealPlan.meals.push(meal);

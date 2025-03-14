@@ -116,14 +116,12 @@ export interface MealItem {
   protein: number;
   carbs: number;
   fat: number;
-  day?: string; // Add optional day to meal item
 }
 
 export interface Meal {
   id: string;
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
   items: MealItem[];
-  day?: string; // Add optional day to meal
 }
 
 export interface MealPlan {
