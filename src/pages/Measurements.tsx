@@ -28,8 +28,22 @@ const Measurements = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingGoals, setIsLoadingGoals] = useState(true);
+  const [isYouFormScriptLoaded, setIsYouFormScriptLoaded] = useState(false);
   
   useEffect(() => {
+    // Vérification du chargement du script YouForm
+    const checkYouFormScript = () => {
+      if (window.YouFormWidget) {
+        setIsYouFormScriptLoaded(true);
+        console.log('YouForm script loaded successfully');
+      } else {
+        console.warn('YouForm script not loaded yet, checking again in 1 second');
+        setTimeout(checkYouFormScript, 1000);
+      }
+    };
+    
+    checkYouFormScript();
+    
     if (!student) {
       navigate('/');
       return;
@@ -66,6 +80,51 @@ const Measurements = () => {
     fetchMeasurements();
     fetchGoals();
   }, [student, navigate]);
+
+  // Fonction pour ouvrir le formulaire YouForm
+  const openYouFormWidget = () => {
+    if (!student) return;
+    
+    const studentFirstName = student.name.split(' ')[0];
+    const studentAccessCode = student.accessCode || '';
+    
+    console.log('Trying to open YouForm widget with:', {
+      formId: `l0zyez4p?nom=${studentFirstName}&id=${studentAccessCode}`,
+      studentFirstName,
+      studentAccessCode,
+      isWidgetAvailable: !!window.YouFormWidget
+    });
+    
+    if (window.YouFormWidget) {
+      try {
+        window.YouFormWidget.open(`l0zyez4p?nom=${studentFirstName}&id=${studentAccessCode}`, { position: 'center' });
+        console.log('YouForm widget opened successfully');
+      } catch (error) {
+        console.error('Error opening YouForm widget:', error);
+        toast.error("Erreur lors de l'ouverture du formulaire");
+      }
+    } else {
+      console.error('YouForm widget script not loaded');
+      
+      // Essayons de recharger le script
+      const script = document.createElement('script');
+      script.src = 'https://app.youform.com/widgets/widget.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('YouForm script manually loaded, trying to open form again');
+        setTimeout(() => {
+          if (window.YouFormWidget) {
+            window.YouFormWidget.open(`l0zyez4p?nom=${studentFirstName}&id=${studentAccessCode}`, { position: 'center' });
+          } else {
+            toast.error("Impossible d'ouvrir le formulaire. Veuillez rafraîchir la page et réessayer.");
+          }
+        }, 500);
+      };
+      document.head.appendChild(script);
+      
+      toast.error("Chargement du formulaire en cours, veuillez patienter...");
+    }
+  };
 
   if (!student) return null;
   
@@ -167,15 +226,7 @@ const Measurements = () => {
           action={
             <Button 
               className="bg-coach-600 hover:bg-coach-700"
-              onClick={(e) => {
-                e.preventDefault();
-                if (window.YouFormWidget) {
-                  window.YouFormWidget.open(`l0zyez4p?nom=${studentFirstName}&id=${studentAccessCode}`, { position: 'center' });
-                } else {
-                  console.error('YouForm widget script not loaded');
-                  toast.error("Impossible d'ouvrir le formulaire. Veuillez réessayer.");
-                }
-              }}
+              onClick={openYouFormWidget}
             >
               <ClipboardCheck className="mr-2 h-4 w-4" />
               Enregistrer vos mesures
@@ -738,13 +789,3 @@ const Measurements = () => {
                     </Table>
                   </div>
                 </Card>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </motion.div>
-    </Layout>
-  );
-};
-
-export default Measurements;
