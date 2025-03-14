@@ -1,3 +1,4 @@
+
 export interface Student {
   id: string;
   name: string;
@@ -87,19 +88,23 @@ export interface Calculation {
 export interface Exercise {
   id: string;
   name: string;
-  sets: number;
-  reps: number;
-  rest: number;
+  sets?: string;
+  reps?: string;
+  rest?: string;
+  weight?: number;
   notes?: string;
+  format?: string;
 }
 
 export interface Workout {
   id: string;
   studentId: string;
-  date: string;
-  title: string;
-  description?: string;
+  week: string;
+  day: string;
+  block: string;
   exercises: Exercise[];
+  part?: string;
+  notes?: string;
 }
 
 export interface MealItem {

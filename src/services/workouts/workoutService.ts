@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
-import { Workout } from "../types/airtable.types";
+import { Exercise, Workout } from "../types/airtable.types";
 import { mockWorkouts } from "../mocks/airtableMocks";
 
 class WorkoutService {
@@ -11,24 +11,56 @@ class WorkoutService {
     }
     
     try {
-      const formula = encodeURIComponent(`{StudentId} = '${studentId}'`);
-      const workouts = await AirtableApiService.fetchFromAirtable<any>('Workouts', { filterByFormula: formula });
+      // Filter by student ID using the same formula as in measurements
+      const formula = encodeURIComponent(`{Élève} = '${studentId}'`);
+      const workoutsRaw = await AirtableApiService.fetchFromAirtable('Workout', { filterByFormula: formula });
       
-      return workouts.map(workout => ({
-        id: workout.id,
-        studentId: workout.StudentId,
-        date: workout.Date,
-        title: workout.Title,
-        description: workout.Description,
-        exercises: workout.Exercises.map(exercise => ({
-          id: exercise.id,
-          name: exercise.Name,
-          sets: exercise.Sets,
-          reps: exercise.Reps,
-          rest: exercise.Rest,
-          notes: exercise.Notes,
-        })),
-      }));
+      // Group workouts by week, day, and block
+      const workoutGroups = new Map<string, any[]>();
+      
+      workoutsRaw.forEach((workout: any) => {
+        const key = `${workout.Semaine}-${workout.Jour}-${workout.Bloc}`;
+        if (!workoutGroups.has(key)) {
+          workoutGroups.set(key, []);
+        }
+        workoutGroups.get(key)?.push(workout);
+      });
+      
+      // Format each group into a workout with exercises
+      const workouts: Workout[] = [];
+      
+      workoutGroups.forEach((exercises, key) => {
+        if (exercises.length > 0) {
+          const firstExercise = exercises[0];
+          
+          const workout: Workout = {
+            id: key,
+            studentId: studentId,
+            week: firstExercise.Semaine,
+            day: firstExercise.Jour,
+            block: firstExercise.Bloc,
+            part: firstExercise.Partie,
+            exercises: exercises.map(ex => ({
+              id: ex.id,
+              name: ex.Exercice,
+              format: ex['Format de Travail'],
+              rest: ex.Rest,
+              weight: ex['Charge (Kg)'],
+              notes: ex.Notes
+            }))
+          };
+          
+          workouts.push(workout);
+        }
+      });
+      
+      // Sort workouts by date (week), with most recent first
+      return workouts.sort((a, b) => {
+        // Parse dates and compare them
+        const dateA = new Date(a.week);
+        const dateB = new Date(b.week);
+        return dateB.getTime() - dateA.getTime();
+      });
     } catch (error) {
       console.error('Error getting workouts:', error);
       toast.error("Erreur lors de la récupération des entraînements");
@@ -36,7 +68,7 @@ class WorkoutService {
     }
   }
 
-  // Version mock pour le développement
+  // Mock version for development
   private async getStudentWorkoutsMock(studentId: string): Promise<Workout[]> {
     await new Promise(resolve => setTimeout(resolve, 500));
     return mockWorkouts.filter(workout => workout.studentId === studentId);
