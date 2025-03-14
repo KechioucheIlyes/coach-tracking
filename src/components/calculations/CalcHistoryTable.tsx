@@ -28,6 +28,7 @@ const CalcHistoryTable = ({ calculations }: CalcHistoryTableProps) => {
             <TableHead className="w-32">Date</TableHead>
             <TableHead>BMR (kcal)</TableHead>
             <TableHead>BCJ (kcal)</TableHead>
+            <TableHead>BCJ / Obj (kcal)</TableHead>
             <TableHead>Protéines (g)</TableHead>
             <TableHead>Glucides (g)</TableHead>
             <TableHead>Lipides (g)</TableHead>
@@ -42,6 +43,7 @@ const CalcHistoryTable = ({ calculations }: CalcHistoryTableProps) => {
               </TableCell>
               <TableCell>{formatNumber(calc.bmr)}</TableCell>
               <TableCell>{formatNumber(calc.bcj)}</TableCell>
+              <TableCell>{formatNumber(calc.objective || 0)}</TableCell>
               <TableCell>{formatNumber(calc.protein)}</TableCell>
               <TableCell>{formatNumber(calc.carbs)}</TableCell>
               <TableCell>{formatNumber(calc.fat)}</TableCell>
