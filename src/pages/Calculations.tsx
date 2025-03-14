@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -19,7 +18,6 @@ const Calculations = () => {
   const [calculation, setCalculation] = useState<Calculation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Check if user is logged in
   useEffect(() => {
     if (!student) {
       navigate('/');
@@ -30,9 +28,7 @@ const Calculations = () => {
       setIsLoading(true);
       try {
         const calculationsData = await AirtableService.getStudentCalculations(student.id);
-        // Get the most recent calculation
         if (calculationsData.length > 0) {
-          // Sort by date (newest first)
           const sortedCalculations = calculationsData.sort((a, b) => 
             new Date(b.date).getTime() - new Date(a.date).getTime()
           );
@@ -51,19 +47,16 @@ const Calculations = () => {
 
   if (!student) return null;
   
-  // Prepare macronutrient data for pie chart
   const macroData = calculation ? [
     { name: 'Protéines', value: calculation.protein, color: '#0ea5e9' },
     { name: 'Glucides', value: calculation.carbs, color: '#eab308' },
     { name: 'Lipides', value: calculation.fat, color: '#f97316' }
   ] : [];
   
-  // Calculate calories from macronutrients
   const calculateCalories = (protein: number, carbs: number, fat: number) => {
     return (protein * 4) + (carbs * 4) + (fat * 9);
   };
   
-  // Format number with commas for thousands
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
@@ -79,7 +72,6 @@ const Calculations = () => {
           title="Calculs Nutritionnels"
           subtitle="BMR, BCJ et macronutriments personnalisés"
           icon={<Calculator size={20} />}
-          backLink="/dashboard"
         />
 
         {isLoading ? (
@@ -98,7 +90,6 @@ const Calculations = () => {
               </p>
             </div>
 
-            {/* BMR and BCJ Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -153,7 +144,6 @@ const Calculations = () => {
               </motion.div>
             </div>
 
-            {/* Macronutrient Distribution */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -249,7 +239,6 @@ const Calculations = () => {
               </Card>
             </motion.div>
 
-            {/* Explanation Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
