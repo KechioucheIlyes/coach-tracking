@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -53,7 +52,6 @@ const Calculations = () => {
 
   if (!student) return null;
 
-  // Get the student's objective, defaulting to "objectif"
   const objective = student.objectives || student.objective || "objectif";
 
   return (
@@ -87,7 +85,6 @@ const Calculations = () => {
               </p>
             </div>
 
-            {/* New section for BCJ / Objective */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -149,7 +146,7 @@ const Calculations = () => {
                 transition={{ delay: 0.35, duration: 0.5 }}
                 className="mb-8"
               >
-                <h2 className="text-xl font-semibold mb-4">Historique des calculs</h2>
+                <h2 className="text-xl font-semibold mb-4">Historique des calculs (kcal)</h2>
                 <Card className="border border-purple-200">
                   <CalcHistoryTable calculations={calculations} />
                 </Card>

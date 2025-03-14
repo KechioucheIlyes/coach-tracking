@@ -26,13 +26,13 @@ const CalcHistoryTable = ({ calculations }: CalcHistoryTableProps) => {
         <TableHeader>
           <TableRow>
             <TableHead className="w-32">Date</TableHead>
-            <TableHead>BMR (kcal)</TableHead>
-            <TableHead>BCJ (kcal)</TableHead>
-            <TableHead>BCJ / Obj (kcal)</TableHead>
-            <TableHead>Protéines (g)</TableHead>
-            <TableHead>Glucides (g)</TableHead>
-            <TableHead>Lipides (g)</TableHead>
-            <TableHead>Total (kcal)</TableHead>
+            <TableHead>BMR</TableHead>
+            <TableHead>BCJ</TableHead>
+            <TableHead>BCJ / Obj</TableHead>
+            <TableHead>Protéines</TableHead>
+            <TableHead>Glucides</TableHead>
+            <TableHead>Lipides</TableHead>
+            <TableHead>Total</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -44,9 +44,9 @@ const CalcHistoryTable = ({ calculations }: CalcHistoryTableProps) => {
               <TableCell>{formatNumber(calc.bmr)}</TableCell>
               <TableCell>{formatNumber(calc.bcj)}</TableCell>
               <TableCell>{formatNumber(calc.objective || 0)}</TableCell>
-              <TableCell>{formatNumber(calc.protein)}</TableCell>
-              <TableCell>{formatNumber(calc.carbs)}</TableCell>
-              <TableCell>{formatNumber(calc.fat)}</TableCell>
+              <TableCell>{formatNumber(calc.proteinKcal || (calc.protein * 4))}</TableCell>
+              <TableCell>{formatNumber(calc.carbsKcal || (calc.carbs * 4))}</TableCell>
+              <TableCell>{formatNumber(calc.fatKcal || (calc.fat * 9))}</TableCell>
               <TableCell>
                 {formatNumber(calc.totalKcal || 
                   ((calc.protein * 4) + (calc.carbs * 4) + (calc.fat * 9)))}
