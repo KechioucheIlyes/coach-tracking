@@ -11,12 +11,13 @@ class WorkoutService {
     }
     
     try {
-      // Utiliser une formule de filtrage simplifiée sans caractères spéciaux
-      // au lieu de: const formula = encodeURIComponent(`{Élève} = '${studentId}'`);
-      const formula = `FIND('${studentId}', {Élève})`;
+      // Récupérer le nom de l'élève à partir du contexte
+      const studentName = await this.getStudentName(studentId);
+      console.log("Nom de l'élève:", studentName);
       
-      // Essayer d'obtenir les données d'entraînement
-      console.log(`Tentative de récupérer les workouts avec la formule: ${formula}`);
+      // Utiliser la formule Airtable avec le nom de l'élève (même approche que measurementService)
+      const formula = `{Élève}='${studentName}'`;
+      console.log("Formule utilisée:", formula);
       
       const workoutsRaw = await AirtableApiService.fetchFromAirtable('Workout', { 
         filterByFormula: formula 
@@ -74,6 +75,49 @@ class WorkoutService {
       console.error('Error getting workouts:', error);
       toast.error("Erreur lors de la récupération des entraînements");
       return this.getStudentWorkoutsMock(studentId);
+    }
+  }
+
+  // Méthode pour récupérer le nom de l'élève à partir de son ID
+  private async getStudentName(studentId: string): Promise<string> {
+    try {
+      // Récupérer l'élève depuis Airtable
+      const students = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: `{ID}='${studentId}'`
+      });
+      
+      if (students && students.length > 0) {
+        return students[0]["Nom"];
+      }
+      
+      // Si on ne trouve pas l'élève avec l'ID, essayer avec le code directement
+      const studentsByCode = await AirtableApiService.fetchFromAirtable<any>('Élèves', {
+        filterByFormula: `{code}='${studentId}'`
+      });
+      
+      if (studentsByCode && studentsByCode.length > 0) {
+        return studentsByCode[0]["Nom"];
+      }
+      
+      // Fallback: essayer avec tous les champs
+      const allStudents = await AirtableApiService.fetchAllRecords('Élèves');
+      
+      const student = allStudents.find(s => 
+        s.id === studentId || 
+        s.code === studentId || 
+        s.ID === studentId || 
+        s["IDU Eleve"] === studentId
+      );
+      
+      if (student) {
+        return student["Nom"];
+      }
+      
+      console.warn(`Impossible de trouver le nom de l'élève avec l'ID: ${studentId}`);
+      return studentId; // Retourner l'ID comme fallback
+    } catch (error) {
+      console.error('Erreur lors de la récupération du nom de l\'élève:', error);
+      return studentId; // Retourner l'ID comme fallback
     }
   }
 
