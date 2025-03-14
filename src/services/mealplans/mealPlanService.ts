@@ -18,17 +18,10 @@ class MealPlanService {
         id: mealPlan.id,
         studentId: mealPlan.StudentId,
         date: mealPlan.Date,
-        name: mealPlan.Name || "Plan alimentaire", // Required field
-        calories: mealPlan.Calories || 0, // Required field
-        protein: mealPlan.Protein || 0, // Required field
-        carbs: mealPlan.Carbs || 0, // Required field
-        fat: mealPlan.Fat || 0, // Required field
-        ingredients: mealPlan.Ingredients || "", // Required field
-        instructions: mealPlan.Instructions || "", // Required field
-        meals: mealPlan.Meals?.map(meal => ({
+        meals: mealPlan.Meals.map(meal => ({
           id: meal.id,
           type: meal.Type,
-          items: meal.Items?.map(item => ({
+          items: meal.Items.map(item => ({
             id: item.id,
             name: item.Name,
             quantity: item.Quantity,
@@ -36,8 +29,8 @@ class MealPlanService {
             protein: item.Protein,
             carbs: item.Carbs,
             fat: item.Fat,
-          })) || [],
-        })) || [],
+          })),
+        })),
       }));
     } catch (error) {
       console.error('Error getting meal plans:', error);

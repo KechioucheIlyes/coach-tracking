@@ -6,8 +6,7 @@ export const mockStudent: Student = {
   id: '',
   name: '',
   accessCode: '',
-  email: '',
-  code: '' // Added missing required field
+  email: ''
 };
 
 // Mock goals data
@@ -15,11 +14,6 @@ export const mockGoals: Goal[] = [
   {
     id: '1',
     studentId: '1',
-    date: '2023-12-31', // Required field from Goal interface
-    weight: 0, // Required field from Goal interface
-    bodyFat: 0, // Required field from Goal interface
-    muscleMass: 0, // Required field from Goal interface
-    objective: '', // Required field from Goal interface
     description: 'Perdre 5kg',
     targetDate: '2023-12-31',
     status: 'in-progress'
@@ -27,11 +21,6 @@ export const mockGoals: Goal[] = [
   {
     id: '2',
     studentId: '1',
-    date: '2023-12-31', // Required field from Goal interface
-    weight: 0, // Required field from Goal interface
-    bodyFat: 0, // Required field from Goal interface
-    muscleMass: 0, // Required field from Goal interface
-    objective: '', // Required field from Goal interface
     description: 'Courir un semi-marathon',
     targetDate: '2024-03-15',
     status: 'pending'
@@ -46,12 +35,6 @@ export const mockMeasurements: Measurement[] = [
     date: '2023-10-01',
     weight: 83,
     height: 182,
-    waist: 0, // Required field
-    hips: 0, // Required field
-    chest: 0, // Required field
-    arm: 0, // Required field
-    thigh: 0, // Required field
-    calf: 0, // Required field
     bodyFat: 18,
     musclePercentage: 40
   },
@@ -61,12 +44,6 @@ export const mockMeasurements: Measurement[] = [
     date: '2023-11-01',
     weight: 81.5,
     height: 182,
-    waist: 0, // Required field
-    hips: 0, // Required field
-    chest: 0, // Required field
-    arm: 0, // Required field
-    thigh: 0, // Required field
-    calf: 0, // Required field
     bodyFat: 17.5,
     musclePercentage: 41
   },
@@ -76,12 +53,6 @@ export const mockMeasurements: Measurement[] = [
     date: '2023-12-01',
     weight: 80,
     height: 182,
-    waist: 0, // Required field
-    hips: 0, // Required field
-    chest: 0, // Required field
-    arm: 0, // Required field
-    thigh: 0, // Required field
-    calf: 0, // Required field
     bodyFat: 16.8,
     musclePercentage: 42
   }
@@ -97,16 +68,7 @@ export const mockCalculations: Calculation[] = [
     bcj: 2400,
     protein: 160,
     carbs: 240,
-    fat: 80,
-    proteinKcal: 640, // Adding missing required fields
-    carbsKcal: 960,
-    fatKcal: 720,
-    proteinPercentage: 25,
-    carbsPercentage: 50,
-    fatPercentage: 25,
-    totalGrams: 480,
-    totalKcal: 2320,
-    objective: 2400
+    fat: 80
   }
 ];
 
@@ -116,10 +78,6 @@ export const mockWorkouts: Workout[] = [
     id: '1',
     studentId: '1',
     date: '2023-12-05',
-    name: 'Entraînement Jambes', // Required field
-    type: 'Jambes', // Required field
-    duration: 60, // Required field
-    caloriesBurned: 400, // Required field
     title: 'Entraînement Jambes',
     description: 'Focus sur les quadriceps et ischio-jambiers',
     exercises: [
@@ -151,10 +109,6 @@ export const mockWorkouts: Workout[] = [
     id: '2',
     studentId: '1',
     date: '2023-12-07',
-    name: 'Entraînement Haut du Corps', // Required field
-    type: 'Haut du corps', // Required field
-    duration: 65, // Required field
-    caloriesBurned: 350, // Required field
     title: 'Entraînement Haut du Corps',
     description: 'Pectoraux, épaules et triceps',
     exercises: [
@@ -189,13 +143,6 @@ export const mockMealPlans: MealPlan[] = [
     id: '1',
     studentId: '1',
     date: '2023-12-05',
-    name: 'Plan alimentaire semaine 1', // Required field
-    calories: 2200, // Required field
-    protein: 150, // Required field
-    carbs: 220, // Required field
-    fat: 60, // Required field
-    ingredients: 'Voir chaque repas', // Required field
-    instructions: 'Suivre le plan pour chaque repas', // Required field
     meals: [
       {
         id: '1',

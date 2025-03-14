@@ -18,20 +18,16 @@ class WorkoutService {
         id: workout.id,
         studentId: workout.StudentId,
         date: workout.Date,
-        name: workout.Name || workout.Title || "Entraînement", // Required field
-        type: workout.Type || "Standard", // Required field
-        duration: workout.Duration || 0, // Required field
-        caloriesBurned: workout.CaloriesBurned || 0, // Required field
         title: workout.Title,
         description: workout.Description,
-        exercises: workout.Exercises?.map(exercise => ({
+        exercises: workout.Exercises.map(exercise => ({
           id: exercise.id,
           name: exercise.Name,
           sets: exercise.Sets,
           reps: exercise.Reps,
           rest: exercise.Rest,
           notes: exercise.Notes,
-        })) || [],
+        })),
       }));
     } catch (error) {
       console.error('Error getting workouts:', error);

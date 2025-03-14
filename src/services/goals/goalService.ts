@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import AirtableApiService from "../api/airtableApi";
 import { Goal } from "../types/airtable.types";
@@ -31,14 +32,9 @@ class GoalService {
       let allGoals = goals.map(goal => ({
         id: goal.id,
         studentId: goal.StudentId,
-        date: goal.TargetDate || new Date().toISOString().split('T')[0], // Set date from TargetDate or current date
-        weight: 0, // Required field with default
-        bodyFat: 0, // Required field with default
-        muscleMass: 0, // Required field with default
-        objective: goal.Objective || '', // Required field
         description: goal.Description,
         targetDate: goal.TargetDate,
-        status: goal.Status?.toLowerCase() as 'pending' | 'in-progress' | 'achieved',
+        status: goal.Status.toLowerCase() as 'pending' | 'in-progress' | 'achieved',
       }));
       
       // Ajouter l'objectif de poids si les données nécessaires sont disponibles
@@ -56,11 +52,6 @@ class GoalService {
         const weightGoal: Goal = {
           id: 'weight-goal',
           studentId: studentId,
-          date: new Date().toISOString().split('T')[0], // Date du jour
-          weight: latestMeasurement.weight || 0, // Required field
-          bodyFat: latestMeasurement.bodyFat || 0, // Required field
-          muscleMass: latestMeasurement.musclePercentage || 0, // Required field
-          objective: 'Perte de poids', // Required field
           description: weightDescription,
           targetDate: new Date().toISOString().split('T')[0], // Date du jour
           status: latestMeasurement.weightRemaining <= 0 ? 'achieved' : 'in-progress',
@@ -160,11 +151,6 @@ class GoalService {
     const weightGoal: Goal = {
       id: 'weight-goal',
       studentId: studentId,
-      date: new Date().toISOString().split('T')[0], // Required field
-      weight: 73.5, // Required field
-      bodyFat: 18, // Required field
-      muscleMass: 40, // Required field
-      objective: 'Perte de poids', // Required field
       description: "Atteindre l'objectif de poids (70 kg) - 3.5 kg restants",
       targetDate: new Date().toISOString().split('T')[0], // Date du jour
       status: 'in-progress',
