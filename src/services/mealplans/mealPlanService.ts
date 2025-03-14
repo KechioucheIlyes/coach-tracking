@@ -15,8 +15,9 @@ class MealPlanService {
       const studentName = await this.getStudentName(studentId);
       console.log("Nom de l'élève pour plans alimentaires:", studentName);
       
-      // Utiliser la formule Airtable avec le nom de l'élève
-      const formula = encodeURIComponent(`{Élève}='${studentName}'`);
+      // Utiliser la formule Airtable correctement formatée
+      // Utiliser SEARCH() au lieu de l'égalité stricte pour éviter des problèmes d'encodage
+      const formula = encodeURIComponent(`SEARCH("${studentName}", {Élève})>0`);
       console.log("Formule utilisée pour plans alimentaires:", formula);
       
       const planAlimentaire = await AirtableApiService.fetchFromAirtable<any>('Plan Alimentaire', { 
