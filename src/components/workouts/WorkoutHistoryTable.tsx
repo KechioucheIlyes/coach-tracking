@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import WorkoutCard from "./WorkoutCard";
 
 interface WorkoutHistoryTableProps {
@@ -21,6 +21,23 @@ interface WorkoutHistoryTableProps {
 
 const WorkoutHistoryTable = ({ workouts }: WorkoutHistoryTableProps) => {
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  
+  // Sort workouts by date (descending) and day (ascending)
+  const sortedWorkouts = useMemo(() => {
+    return [...workouts].sort((a, b) => {
+      // First compare dates in descending order (newest first)
+      const dateA = new Date(a.week);
+      const dateB = new Date(b.week);
+      const dateComparison = dateB.getTime() - dateA.getTime();
+      
+      // If dates are the same, compare days in ascending order
+      if (dateComparison === 0) {
+        return Number(a.day) - Number(b.day);
+      }
+      
+      return dateComparison;
+    });
+  }, [workouts]);
   
   return (
     <div className="space-y-6">
@@ -53,7 +70,7 @@ const WorkoutHistoryTable = ({ workouts }: WorkoutHistoryTableProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {workouts.map((workout) => (
+              {sortedWorkouts.map((workout) => (
                 <TableRow key={workout.id}>
                   <TableCell className="font-medium">
                     {format(new Date(workout.week), 'dd MMM yyyy', { locale: fr })}
