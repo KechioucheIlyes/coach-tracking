@@ -114,11 +114,6 @@ const Ebooks = () => {
                         <CardDescription>{ebook.sousTitre}</CardDescription>
                       )}
                     </CardHeader>
-                    <CardContent className="flex-grow">
-                      <p className="text-sm text-gray-600 line-clamp-3">
-                        {ebook.description || "Aucune description disponible."}
-                      </p>
-                    </CardContent>
                     <CardFooter className="border-t border-yellow-100 bg-yellow-50 pt-4">
                       <Button 
                         onClick={() => handleDownload(ebook)} 
