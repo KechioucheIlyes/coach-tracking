@@ -14,7 +14,8 @@ import {
   Dumbbell, 
   Utensils, 
   Settings,
-  LogOut
+  LogOut,
+  BookOpen
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -71,6 +72,14 @@ const Dashboard = () => {
       href: '/nutrition',
       color: 'bg-red-500',
       bgColor: 'bg-red-50'
+    },
+    {
+      title: 'eBooks',
+      description: 'Accédez aux ressources exclusives',
+      icon: <BookOpen size={24} />,
+      href: '/ebooks',
+      color: 'bg-purple-500',
+      bgColor: 'bg-purple-50'
     },
   ];
 
