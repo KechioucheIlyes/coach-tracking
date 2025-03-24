@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -23,7 +22,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
-  // Check if user is logged in
   useEffect(() => {
     if (!student) {
       navigate('/');
@@ -78,8 +76,8 @@ const Dashboard = () => {
       description: 'Accédez aux ressources exclusives',
       icon: <BookOpen size={24} />,
       href: '/ebooks',
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-50'
+      color: 'bg-yellow-500',
+      bgColor: 'bg-yellow-50'
     },
   ];
 
