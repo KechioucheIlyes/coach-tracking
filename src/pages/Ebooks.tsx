@@ -95,7 +95,7 @@ const Ebooks = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {ebooks.map((ebook) => (
                 <motion.div
                   key={ebook.id}
@@ -104,25 +104,27 @@ const Ebooks = () => {
                   transition={{ duration: 0.3 }}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 >
-                  <Card className="h-full flex flex-col overflow-hidden border-2 border-yellow-100 hover:border-yellow-300 transition-all duration-300">
-                    <div className="h-48 bg-white flex items-center justify-center">
-                      <Book className="h-16 w-16 text-yellow-500" />
-                    </div>
-                    <CardHeader>
-                      <CardTitle className="text-xl">{ebook.titre}</CardTitle>
+                  <Card className="h-full flex flex-col overflow-hidden border-2 border-yellow-100 hover:border-yellow-300 transition-all duration-300 bg-white">
+                    <div className="flex flex-col items-center justify-center pt-10 pb-5">
+                      <Book className="h-20 w-20 text-yellow-500 mb-6" />
+                      <CardTitle className="text-2xl font-bold text-center uppercase mb-2">
+                        {ebook.titre}
+                      </CardTitle>
                       {ebook.sousTitre && (
-                        <CardDescription>{ebook.sousTitre}</CardDescription>
+                        <CardDescription className="text-center text-gray-600 px-6 text-sm leading-relaxed max-w-lg">
+                          {ebook.sousTitre}
+                        </CardDescription>
                       )}
-                    </CardHeader>
-                    <CardFooter className="border-t border-yellow-100 bg-yellow-50 pt-4">
+                    </div>
+                    <div className="mt-auto px-6 pb-6 w-full">
                       <Button 
                         onClick={() => handleDownload(ebook)} 
-                        className="w-full bg-yellow-600 hover:bg-yellow-700 flex items-center justify-center gap-2"
+                        className="w-full bg-yellow-600 hover:bg-yellow-700 flex items-center justify-center gap-2 py-6"
                       >
-                        <ArrowDown className="h-4 w-4" />
+                        <ArrowDown className="h-5 w-5" />
                         Télécharger
                       </Button>
-                    </CardFooter>
+                    </div>
                   </Card>
                 </motion.div>
               ))}
