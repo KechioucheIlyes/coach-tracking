@@ -77,7 +77,7 @@ const Ebooks = () => {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <Card key={i} className="overflow-hidden h-[360px] animate-pulse">
                   <div className="h-48 bg-yellow-100" />
@@ -95,7 +95,7 @@ const Ebooks = () => {
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {ebooks.map((ebook) => (
                 <motion.div
                   key={ebook.id}
@@ -103,36 +103,31 @@ const Ebooks = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="w-full"
                 >
-                  <Card className="flex flex-col overflow-hidden border-2 border-yellow-100 hover:border-yellow-300 transition-all duration-300 bg-white">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="w-full md:w-48 h-48 bg-white flex items-center justify-center flex-shrink-0">
-                        <Book className="h-16 w-16 text-yellow-500" />
-                      </div>
-                      <div className="flex flex-col flex-grow">
-                        <CardHeader>
-                          <CardTitle className="text-xl">{ebook.titre}</CardTitle>
-                          {ebook.sousTitre && (
-                            <CardDescription>{ebook.sousTitre}</CardDescription>
-                          )}
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                          <p className="text-sm text-gray-600">
-                            {ebook.description || "Aucune description disponible."}
-                          </p>
-                        </CardContent>
-                        <CardFooter className="border-t border-yellow-100 bg-yellow-50 pt-4">
-                          <Button 
-                            onClick={() => handleDownload(ebook)} 
-                            className="w-full bg-yellow-600 hover:bg-yellow-700 flex items-center justify-center gap-2"
-                          >
-                            <ArrowDown className="h-4 w-4" />
-                            Télécharger
-                          </Button>
-                        </CardFooter>
-                      </div>
+                  <Card className="h-full flex flex-col overflow-hidden border-2 border-yellow-100 hover:border-yellow-300 transition-all duration-300">
+                    <div className="h-48 bg-white flex items-center justify-center">
+                      <Book className="h-16 w-16 text-yellow-500" />
                     </div>
+                    <CardHeader>
+                      <CardTitle className="text-xl">{ebook.titre}</CardTitle>
+                      {ebook.sousTitre && (
+                        <CardDescription>{ebook.sousTitre}</CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="text-sm text-gray-600 line-clamp-3">
+                        {ebook.description || "Aucune description disponible."}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="border-t border-yellow-100 bg-yellow-50 pt-4">
+                      <Button 
+                        onClick={() => handleDownload(ebook)} 
+                        className="w-full bg-yellow-600 hover:bg-yellow-700 flex items-center justify-center gap-2"
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                        Télécharger
+                      </Button>
+                    </CardFooter>
                   </Card>
                 </motion.div>
               ))}
