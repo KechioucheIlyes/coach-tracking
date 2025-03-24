@@ -68,7 +68,7 @@ const Ebooks = () => {
             }
           />
 
-          <div className="bg-yellow-100 border border-yellow-200 rounded-lg p-6 mb-8">
+          <div className="bg-white border border-yellow-200 rounded-lg p-6 mb-8 shadow-sm">
             <h2 className="text-xl font-semibold text-yellow-800 mb-2">Bibliothèque de ressources</h2>
             <p className="text-yellow-700">
               Découvrez notre collection d'eBooks conçus pour vous aider à atteindre vos objectifs. 
@@ -87,7 +87,7 @@ const Ebooks = () => {
               ))}
             </div>
           ) : ebooks.length === 0 ? (
-            <div className="text-center py-16 bg-yellow-100 rounded-lg">
+            <div className="text-center py-16 bg-white rounded-lg border border-yellow-200 shadow-sm">
               <Book className="h-16 w-16 text-yellow-300 mx-auto mb-4" />
               <h3 className="text-xl font-medium text-gray-900 mb-2">Aucun eBook disponible</h3>
               <p className="text-gray-500 max-w-md mx-auto">
@@ -105,7 +105,7 @@ const Ebooks = () => {
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 >
                   <Card className="h-full flex flex-col overflow-hidden border-2 border-yellow-100 hover:border-yellow-300 transition-all duration-300">
-                    <div className="h-48 bg-yellow-50 flex items-center justify-center">
+                    <div className="h-48 bg-white flex items-center justify-center">
                       <Book className="h-16 w-16 text-yellow-500" />
                     </div>
                     <CardHeader>
