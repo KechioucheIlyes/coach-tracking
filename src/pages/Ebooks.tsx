@@ -48,7 +48,7 @@ const Ebooks = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 bg-yellow-50 rounded-lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -68,7 +68,7 @@ const Ebooks = () => {
             }
           />
 
-          <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-6 mb-8">
+          <div className="bg-yellow-100 border border-yellow-200 rounded-lg p-6 mb-8">
             <h2 className="text-xl font-semibold text-yellow-800 mb-2">Bibliothèque de ressources</h2>
             <p className="text-yellow-700">
               Découvrez notre collection d'eBooks conçus pour vous aider à atteindre vos objectifs. 
@@ -80,14 +80,14 @@ const Ebooks = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <Card key={i} className="overflow-hidden h-[360px] animate-pulse">
-                  <div className="h-48 bg-gray-200" />
-                  <CardHeader className="bg-gray-100 h-24" />
-                  <CardFooter className="bg-gray-50 h-20" />
+                  <div className="h-48 bg-yellow-100" />
+                  <CardHeader className="bg-yellow-50 h-24" />
+                  <CardFooter className="bg-yellow-50 h-20" />
                 </Card>
               ))}
             </div>
           ) : ebooks.length === 0 ? (
-            <div className="text-center py-16 bg-yellow-50 rounded-lg">
+            <div className="text-center py-16 bg-yellow-100 rounded-lg">
               <Book className="h-16 w-16 text-yellow-300 mx-auto mb-4" />
               <h3 className="text-xl font-medium text-gray-900 mb-2">Aucun eBook disponible</h3>
               <p className="text-gray-500 max-w-md mx-auto">
@@ -104,7 +104,7 @@ const Ebooks = () => {
                   transition={{ duration: 0.3 }}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 >
-                  <Card className="h-full flex flex-col overflow-hidden border-2 hover:border-yellow-200 transition-all duration-300">
+                  <Card className="h-full flex flex-col overflow-hidden border-2 border-yellow-100 hover:border-yellow-300 transition-all duration-300">
                     <div className="h-48 bg-yellow-50 flex items-center justify-center">
                       <Book className="h-16 w-16 text-yellow-500" />
                     </div>
@@ -119,7 +119,7 @@ const Ebooks = () => {
                         {ebook.description || "Aucune description disponible."}
                       </p>
                     </CardContent>
-                    <CardFooter className="border-t bg-gray-50 pt-4">
+                    <CardFooter className="border-t border-yellow-100 bg-yellow-50 pt-4">
                       <Button 
                         onClick={() => handleDownload(ebook)} 
                         className="w-full bg-yellow-600 hover:bg-yellow-700 flex items-center justify-center gap-2"
