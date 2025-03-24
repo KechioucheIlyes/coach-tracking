@@ -57,7 +57,7 @@ const Ebooks = () => {
           <DashboardHeader 
             title="eBooks" 
             subtitle="Ressources exclusives pour votre programme"
-            icon={<BookOpen className="h-5 w-5" />}
+            icon={<BookOpen className="h-5 w-5 text-yellow-500" />}
             action={
               <div className="flex items-center text-sm font-medium">
                 <BookOpen className="h-5 w-5 text-yellow-500 mr-2" />
