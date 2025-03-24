@@ -12,6 +12,7 @@ import Measurements from './pages/Measurements'
 import Calculations from './pages/Calculations'
 import Workouts from './pages/Workouts'
 import Nutrition from './pages/Nutrition'
+import Ebooks from './pages/Ebooks'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="/calculations" element={<Calculations />} />
             <Route path="/workouts" element={<Workouts />} />
             <Route path="/nutrition" element={<Nutrition />} />
+            <Route path="/ebooks" element={<Ebooks />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>

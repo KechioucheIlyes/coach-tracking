@@ -10,7 +10,8 @@ import {
   Menu, 
   X, 
   LogOut,
-  LayoutDashboard
+  LayoutDashboard,
+  BookOpen
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -57,6 +58,7 @@ const Layout = ({ children }: LayoutProps) => {
     { label: 'Calculs Nutritionnels', icon: Calculator, path: '/calculations' },
     { label: 'Entraînements', icon: Dumbbell, path: '/workouts' },
     { label: 'Plan Alimentaire', icon: Utensils, path: '/nutrition' },
+    { label: 'eBooks', icon: BookOpen, path: '/ebooks' },
   ];
 
   // Check if path is active

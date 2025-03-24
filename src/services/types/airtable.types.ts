@@ -1,4 +1,3 @@
-
 export interface Student {
   id: string;
   name: string;
@@ -131,4 +130,13 @@ export interface MealPlan {
   studentId: string;
   date: string;
   meals: Meal[];
+}
+
+export interface Ebook {
+  id: string;
+  titre: string;
+  sousTitre?: string;
+  description?: string;
+  statut: 'En préparation' | 'Publié' | 'Archivé';
+  urlEbook: string;
 }
