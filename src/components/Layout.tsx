@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from 'react';
 import { 
   FileText, 
@@ -45,12 +44,10 @@ const Layout = ({ children }: LayoutProps) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Close mobile menu when changing pages
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Navigation items
   const navItems: NavItem[] = [
     { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { label: 'Profil & Objectifs', icon: FileText, path: '/profile' },
@@ -61,12 +58,10 @@ const Layout = ({ children }: LayoutProps) => {
     { label: 'eBooks', icon: BookOpen, path: '/ebooks' },
   ];
 
-  // Check if path is active
   const isActive = (path: string) => location.pathname === path;
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  // Variants for animations
   const sidebarVariants = {
     open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
     closed: { 
@@ -86,7 +81,6 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-full bg-white shadow-glass-card"
@@ -99,7 +93,6 @@ const Layout = ({ children }: LayoutProps) => {
         )}
       </button>
 
-      {/* Mobile Sidebar */}
       <AnimatePresence>
         {(isMobileMenuOpen || screenWidth >= 768) && (
           <motion.aside
@@ -112,13 +105,11 @@ const Layout = ({ children }: LayoutProps) => {
               screenWidth >= 768 ? "flex flex-col" : "overflow-y-auto"
             )}
           >
-            {/* Sidebar Header */}
             <div className="p-6 border-b">
               <h2 className="text-xl font-semibold">Coach sportif</h2>
               <p className="text-sm text-gray-500 mt-1">Espace personnel</p>
             </div>
 
-            {/* User Info - Moved to top */}
             <div className="p-4 border-b">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -140,7 +131,6 @@ const Layout = ({ children }: LayoutProps) => {
               </div>
             </div>
 
-            {/* Navigation Links */}
             <nav className="flex-1 p-4 space-y-1">
               {navItems.map((item, index) => (
                 <motion.div
@@ -173,12 +163,11 @@ const Layout = ({ children }: LayoutProps) => {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
       <main className={cn(
-        "flex-1 transition-all duration-300",
+        "flex-1 transition-all duration-300 flex flex-col",
         isMobile ? "p-3 pt-14" : "p-4 md:p-6"
       )}>
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto w-full flex-1">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -186,10 +175,25 @@ const Layout = ({ children }: LayoutProps) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
+              className="flex flex-col min-h-full"
             >
               {children}
             </motion.div>
           </AnimatePresence>
+        </div>
+
+        <div className="mt-auto pt-6 border-t border-gray-200 text-center text-gray-600 pb-4">
+          <p className="text-sm">
+            Développé avec <span className="text-blue-500">💙</span> par{" "}
+            <a 
+              href="https://croissanceconsulting.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="font-medium hover:text-gray-800 underline transition-colors"
+            >
+              Croissance Consulting
+            </a>
+          </p>
         </div>
       </main>
     </div>

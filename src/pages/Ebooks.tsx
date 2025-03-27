@@ -130,21 +130,6 @@ const Ebooks = () => {
               ))}
             </div>
           )}
-          
-          {/* Footer with Croissance Consulting credit */}
-          <div className="mt-12 pt-6 border-t border-yellow-200 text-center text-yellow-700">
-            <p className="text-sm">
-              Développé avec <span className="text-blue-500">💙</span> par{" "}
-              <a 
-                href="https://croissanceconsulting.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="font-medium hover:text-yellow-600 underline transition-colors"
-              >
-                Croissance Consulting
-              </a>
-            </p>
-          </div>
         </motion.div>
       </div>
     </Layout>
