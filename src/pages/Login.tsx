@@ -44,7 +44,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-coach-50 to-white p-6">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-coach-50 to-white p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -119,6 +119,20 @@ const Login = () => {
           </div>
         </motion.div>
       </motion.div>
+      
+      <div className="mt-8 text-center text-gray-600">
+        <p className="text-sm">
+          Développé avec <span className="text-blue-500">💙</span> par{" "}
+          <a 
+            href="https://croissanceconsulting.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="font-medium hover:text-gray-800 underline transition-colors"
+          >
+            Croissance Consulting
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
