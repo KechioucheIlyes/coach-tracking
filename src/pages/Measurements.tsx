@@ -362,7 +362,7 @@ const Measurements = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                          <p>TEST</p>
+                      
                       {latestMeasurement?.bodyFat !== undefined && (
                         <div>
                           <h3 className="text-sm font-medium text-gray-500">Masse grasse</h3>
