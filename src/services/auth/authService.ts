@@ -8,7 +8,7 @@ class AuthService {
   private tableId = "tbll5MlIcTSqCOLEJ";
   
   // Base ID pour les diagnostics
-  private baseId = "app8673yjmXB3WcDT";
+  private baseId = "app09QKi1dfOxKhGH";
 
   // Authentication
   async verifyAccess(accessCode: string): Promise<Student | null> {

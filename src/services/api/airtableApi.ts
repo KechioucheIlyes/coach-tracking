@@ -9,8 +9,8 @@ class AirtableApiService {
 
   constructor() {
     // Configuration par défaut avec le token fourni
-    this.baseId = 'app8673yjmXB3WcDT';
-    this.apiKey = 'patonRA3u98xVvNJJ.f9e96523d613a3d8bfb9d1c38608758807870378424b17b53a7770b941a47722';
+    this.baseId = 'app09QKi1dfOxKhGH';
+    this.apiKey = 'patbWPcWqwREdqMqw.901c638a16d445c62d1971cf8cbbac986e458f11633adbf01eba162eadf19e92';
   }
 
   public configure(baseId: string, apiKey: string) {
