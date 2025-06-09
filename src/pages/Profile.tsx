@@ -65,7 +65,7 @@ const Profile = () => {
             transition={{ delay: 0.1, duration: 0.5 }}
             className="md:col-span-1"
           >
-            <Card className="h-full border-blue-200 shadow-sm">
+            <Card className="h-full border-2 border-red-600 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <User className="mr-2 h-5 w-5 text-blue-500" />
@@ -74,7 +74,7 @@ const Profile = () => {
                 {student.status && (
                   <Badge 
                     className={`${
-                      student.status === 'Actif' ? 'bg-green-100 text-green-800' : 
+                      student.status === 'Actif' ? 'bg-green-100  text-green-800' : 
                       student.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
                       student.status === 'Pause' ? 'bg-purple-100 text-purple-800' :
                       'bg-gray-100 text-gray-800'
