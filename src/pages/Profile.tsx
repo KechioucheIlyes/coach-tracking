@@ -78,7 +78,7 @@ const Profile = () => {
                       student.status === 'En attente' ? 'bg-yellow-100 text-yellow-800' :
                       student.status === 'Pause' ? 'bg-purple-100 text-purple-800' :
                       'bg-gray-100 text-gray-800'
-                    }  border-2 border-red-600 `}
+                    } text-center w-fit  border-2 border-red-600 `}
                   >
                     {student.status}
                   </Badge>
