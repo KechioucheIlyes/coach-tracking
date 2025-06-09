@@ -122,15 +122,7 @@ const Login = () => {
       
       <div className="mt-8 text-center text-gray-600">
         <p className="text-sm">
-          Développé avec <span className="text-blue-500">💙</span> par{" "}
-          <a 
-            href="https://croissanceconsulting.com/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="font-medium hover:text-gray-800 underline transition-colors"
-          >
-            Croissance Consulting
-          </a>
+          Développé avec <span className="text-blue-500">💙</span> 
         </p>
       </div>
     </div>
