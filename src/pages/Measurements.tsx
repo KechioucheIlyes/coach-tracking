@@ -270,6 +270,7 @@ const Measurements = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
+                    <p>TEST</p>
                     {latestMeasurement ? (
                       <>
                         <div className="text-3xl font-bold mb-2">
