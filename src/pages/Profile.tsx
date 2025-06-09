@@ -72,7 +72,7 @@ const Profile = () => {
                   Informations Personnelles
                 </CardTitle>
                 {student.status && (
-                  <div className="border-2 border-red-700 w-full flex justify-center items-center">
+                  <div className=" w-full flex justify-center items-center">
                   <Badge 
                     className={`${
                       student.status === 'Actif' ? 'bg-green-100  text-green-800' : 
