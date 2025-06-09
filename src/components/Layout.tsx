@@ -118,7 +118,7 @@ const Layout = ({ children }: LayoutProps) => {
                   </div>
                   <div className="ml-3">
                     <p className="font-medium">{student.name}</p>
-                    <p className="text-xs text-gray-500">Accès étudiant</p>
+                    <p className="text-xs text-gray-500">Accès client</p>
                   </div>
                 </div>
                 <button
