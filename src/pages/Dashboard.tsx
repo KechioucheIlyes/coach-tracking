@@ -73,7 +73,7 @@ const Dashboard = () => {
     },
     {
       title: 'eBooks',
-      description: 'Accédez aux ressources exclusives',
+      description: 'Accédez aux ressources exclusives du coach',
       icon: <BookOpen size={24} />,
       href: '/ebooks',
       color: 'bg-yellow-500',
